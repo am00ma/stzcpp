@@ -1,8 +1,4 @@
 #include "arena.h"
-#include "log.h"   // error
-#include <cassert> // assert
-#include <cstdio>  // printf
-#include <cstdlib> // malloc
 
 /* ---------------------------------------------------------------------------
  * OOM
@@ -24,12 +20,6 @@ Arena::Arena(isize cap_)
     cap = cap_;
     beg = (char*)malloc(cap);
     end = beg ? beg + cap : 0;
-}
-
-Arena::~Arena()
-{
-    char* start = end - cap;
-    if (start) free((char*)start);
 }
 
 char* Arena::Alloc(isize objsize, isize align, isize count, b32 flags)

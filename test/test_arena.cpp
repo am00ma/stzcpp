@@ -12,6 +12,9 @@ typedef struct Item {
 int main(void)
 {
     // ------------------------------------
+    printf("sizeof(Arena): %ld\n", sizeof(Arena));
+
+    // ------------------------------------
     Arena a = Arena(128); // 128 bytes
     a.Print("Initial");
 

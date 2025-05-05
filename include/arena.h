@@ -1,9 +1,14 @@
 #pragma once
 
+#include "log.h"   // error
 #include "range.h" // RANGE
 #include "types.h" // isize, b32
 
 #include <new> // Needed for proper behaviour of new !!
+
+#include <cassert> // assert
+#include <cstdio>  // printf
+#include <cstdlib> // malloc
 
 /* ---------------------------------------------------------------------------
  * Arena (64 MB)
@@ -19,11 +24,16 @@ typedef struct Arena {
     char* end = 0;
     isize cap = 0;
 
-    Arena(isize cap);
-    ~Arena();
+    // Default constructor
+    Arena() = default;
 
+    // Lifetime
+    Arena(isize cap_);
+
+    // Meat
     char* Alloc(isize objsize, isize align, isize count, b32 flags);
 
+    // Syntactic sugar
     template <typename T, typename... A> T* Make(isize count = 1, b32 flags = 0, A... args)
     {
         T* r = (T*)Alloc(sizeof(T), alignof(T), count, flags);
@@ -38,5 +48,7 @@ typedef struct Arena {
         return r;
     }
 
+    // Debug
     void Print(const char* label);
+
 } Arena;

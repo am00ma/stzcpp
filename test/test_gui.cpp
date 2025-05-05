@@ -24,7 +24,6 @@ void handle(Gui* gui, void* arg)
     {
         switch (gui->ev.type)
         {
-        case SDL_QUIT: gui->quit = true; break;
         case SDL_KEYDOWN:
             if (gui_key(gui->ev) == SDLK_ESCAPE) gui->quit = true;
             break;
@@ -75,7 +74,7 @@ int main()
     // Init, run main loop and exit
     // Pass state as arg to all gui callbacks
     GuiError err = gui.Show((char*)" GUI ", 640, 480, callbacks, &state);
-    err_die(err, "gui_show: %d", err);
+    Fatal(err, "gui.Show");
 
     return 0;
 }

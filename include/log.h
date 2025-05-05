@@ -13,16 +13,23 @@
 #define error(...)                                                                                                     \
     (fprintf(stderr, COLOR_RED "Error: "), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
 
-#define err_die(err, ...)                                                                                              \
+/* ---------------------------------------------------------------------------
+ * Error handling
+ * ------------------------------------------------------------------------- */
+// Technically ...
+#define Fatal(err, ...)                                                                                                \
     if ((err) != 0)                                                                                                    \
     {                                                                                                                  \
         error(__VA_ARGS__);                                                                                            \
+        debug("[@] %s:%d", __FILE__, __LINE__);                                                                        \
         exit(EXIT_FAILURE);                                                                                            \
     }
 
-#define err_ret(err, ...)                                                                                              \
+// Spicy naming, but ok
+#define Return(err, ...)                                                                                               \
     if ((err) != 0)                                                                                                    \
     {                                                                                                                  \
         error(__VA_ARGS__);                                                                                            \
-        exit(EXIT_FAILURE);                                                                                            \
+        debug("[@] %s:%d", __FILE__, __LINE__);                                                                        \
+        return err;                                                                                                    \
     }

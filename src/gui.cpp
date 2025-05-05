@@ -1,4 +1,5 @@
 #include "gui.h"
+#include "log.h"
 
 /* ---------------------------------------------------------------------------
  * Callbacks
@@ -32,14 +33,14 @@ GuiError Gui::Init(char* title, i32 width, i32 height, GuiCallbacks callbacks)
     handle   = callbacks.handle;
     render   = callbacks.render;
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0) return GUI_FAILED_INIT;
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0) Return(GUI_FAILED_INIT, "init");
     SDL_ShowCursor(0);
 
     win = SDL_CreateWindow(title, 0, 0, bounds.w, bounds.h, SDL_WINDOW_SHOWN);
-    if (win == NULL) return GUI_FAILED_WINDOW;
+    if (win == NULL) Return(GUI_FAILED_WINDOW, "create window");
 
     rnd = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-    if (rnd == NULL) return GUI_FAILED_RENDERER;
+    if (rnd == NULL) Return(GUI_FAILED_RENDERER, "create renderer");
 
     // Load font
     {

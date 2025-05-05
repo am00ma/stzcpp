@@ -23,7 +23,7 @@ typedef size_t    usize;
 /* ---------------------------------------------------------------------------
  * Result
  * ------------------------------------------------------------------------- */
-template <typename T> struct Result {
-    T   res;
-    int err;
+template <typename T, typename E> struct Result {
+    T data;
+    E err;
 };

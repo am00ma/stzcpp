@@ -34,7 +34,7 @@ Arena::~Arena()
 
 char* Arena::Alloc(isize objsize, isize align, isize count, b32 flags)
 {
-    assert(count > 0); // Can request 0?
+    assert(count >= 0); // Can request 0?
 
     isize pad = -(uptr)beg & (align - 1); // Some way to approx mod(a,b)
     if (count > (end - beg - pad) / objsize)
@@ -47,7 +47,10 @@ char* Arena::Alloc(isize objsize, isize align, isize count, b32 flags)
     isize total  = count * objsize;
     char* p      = beg + pad;
     beg         += pad + total;
-    return flags & NOZERO ? p : (char*)memset(p, 0, total);
+
+    if (!(flags & NOZERO)) { p = (char*)memset(p, 0, total); }
+
+    return p;
 }
 
 void Arena::Print(const char* label)

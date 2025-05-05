@@ -8,7 +8,8 @@ extra_dist =  Makefile README.md
 CXX      ?= clang++
 CXXFLAGS += -Iinclude -DVERSION=\"$(VERSION)\"
 CXXFLAGS += -std=c++23
-CXXFLAGS += -Wall -pedantic -Wno-address-of-packed-member
+# CXXFLAGS += -Wall -pedantic -Wno-address-of-packed-member
+CXXFLAGS += -Wall -pedantic -fno-exceptions
 LDFLAGS  +=
 
 headers    = $(wildcard include/*.h)

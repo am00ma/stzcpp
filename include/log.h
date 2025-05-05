@@ -12,3 +12,17 @@
 #define debug(...) (fprintf(stderr, COLOR_BLUE), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
 #define error(...)                                                                                                     \
     (fprintf(stderr, COLOR_RED "Error: "), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
+
+#define err_die(err, ...)                                                                                              \
+    if ((err) != 0)                                                                                                    \
+    {                                                                                                                  \
+        error(__VA_ARGS__);                                                                                            \
+        exit(EXIT_FAILURE);                                                                                            \
+    }
+
+#define err_ret(err, ...)                                                                                              \
+    if ((err) != 0)                                                                                                    \
+    {                                                                                                                  \
+        error(__VA_ARGS__);                                                                                            \
+        exit(EXIT_FAILURE);                                                                                            \
+    }

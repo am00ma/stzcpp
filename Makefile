@@ -1,7 +1,7 @@
 PACKAGE  = stu
 VERSION  = 0.0.0
 
-lib_libs   =  -ljack -lsndfile -lSDL2 -lSDL2_image
+lib_libs   =  -lSDL2 -lSDL2_image
 prefix     ?= build
 extra_dist =  Makefile README.md
 

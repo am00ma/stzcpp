@@ -1,4 +1,7 @@
 #include "arena.h"
+#include "log.h"
+
+#include <cassert> // assert
 
 /* ---------------------------------------------------------------------------
  * OOM

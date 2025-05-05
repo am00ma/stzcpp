@@ -2,7 +2,6 @@
 
 #include "arena.h" // Arena
 #include "types.h" // isize
-#include <cassert> // assert
 
 /* ---------------------------------------------------------------------------
  * Counted string
@@ -60,11 +59,11 @@ typedef struct Str {
     // str_equal
     b32 operator==(Str s);
 
-    // Lifetime
-    Str Copy(Arena* a, bool null_terminate = false);
-
     // Null terminated string
-    char* Cstr(Arena* a, Str s);
+    char* Cstr(Arena* a);
+
+    // Copy to arena
+    Str Copy(Arena* a, bool null_terminate = false);
 
     // Split (defaults to splitting lines)
     Strs Split(Arena* a, Str delimiter = "\n", bool ignore_empty = true, bool substitute_null = false);

@@ -1,12 +1,10 @@
 #pragma once
 
-#include "log.h"   // error
 #include "range.h" // RANGE
 #include "types.h" // isize, b32
 
 #include <new> // Needed for proper behaviour of new !!
 
-#include <cassert> // assert
 #include <cstdio>  // printf
 #include <cstdlib> // malloc
 

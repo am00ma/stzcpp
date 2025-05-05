@@ -1,5 +1,8 @@
 #include "str.h"
+
 #include <cstdarg> // va_start, va_end, va_list
+#include <cassert> // assert
+
 
 Strs::Strs(Arena* a, isize len_)
 {
@@ -9,7 +12,7 @@ Strs::Strs(Arena* a, isize len_)
 
 Str::Str(Arena* a, isize len_)
 {
-    buf = a->Make<char>(len);
+    buf = a->Make<char>(len_);
     len = len_;
 }
 
@@ -29,14 +32,14 @@ Str::Str(char* beg, char* end)
 Str::Str(Arena* a, isize maxlen, char const* fmt, ...)
 {
     char* beg = a->beg;
-    buf       = a->Make<char>(len);
+    buf       = a->Make<char>(maxlen);
 
     va_list arg;
     va_start(arg, fmt);
     len = vsnprintf(buf, maxlen, fmt, arg);
     va_end(arg);
 
-    a->beg = beg + len + 1; // Discard extra and advance? Guarantees null_terminate
+    a->beg = beg + len; // Discard extra (not null terminated?)
 };
 
 char& Str::operator[](isize i)
@@ -58,14 +61,22 @@ b32 Str::operator==(Str s) { return len == s.len && (!len || !memcmp(buf, s.buf,
 
 Str Str::Copy(Arena* a, bool null_terminate)
 {
+    // If on top of arena, just advance arena
+    if (buf == a->beg - len)
+    {
+        a->beg++;
+        return *this;
+    }
+
     Str dst = Str(a, len + int(null_terminate));
     if (len) memcpy(dst.buf, buf, len);
     return dst;
 }
 
-char* Str::Cstr(Arena* a, Str s)
+char* Str::Cstr(Arena* a)
 {
-    Str dst = s.Copy(a, true);
+    Str dst      = this->Copy(a, true);
+    dst.buf[len] = '\0';
     return dst.buf;
 }
 
@@ -86,7 +97,7 @@ Strs Str::Split(Arena* a, Str delimiter, bool ignore_empty, bool substitute_null
             isize pos = &buf[i] - start;
             if (pos || !ignore_empty)
             {
-                Str(a, 1); // Extending arena and throwing away ref (exit on oom)
+                a->Make<Str>();
                 parts.data[parts.len] = Str(start, pos);
                 parts.len++;
             }
@@ -94,7 +105,7 @@ Strs Str::Split(Arena* a, Str delimiter, bool ignore_empty, bool substitute_null
             // Trick like strtok to get char**
             if (substitute_null) buf[i] = '\0';
 
-            // Skip newline
+            // Skip delimiter
             start = &buf[i] + 1;
         }
     }
@@ -105,7 +116,7 @@ Strs Str::Split(Arena* a, Str delimiter, bool ignore_empty, bool substitute_null
         isize pos = len - (start - buf);
         if (pos || !ignore_empty)
         {
-            Str(a, 1); // Extending arena and throwing away ref (exit on oom)
+            a->Make<Str>();
             parts.data[parts.len] = Str(start, len - (start - buf));
             parts.len++;
         }

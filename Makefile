@@ -7,7 +7,7 @@ extra_dist =  Makefile README.md
 
 CXX      ?= clang++
 CXXFLAGS += -Iinclude -DVERSION=\"$(VERSION)\"
-CXXFLAGS += -std=c++23
+CXXFLAGS += -std=c++23 -O0 -g
 # CXXFLAGS += -Wall -pedantic -Wno-address-of-packed-member
 CXXFLAGS += -Wall -pedantic -fno-exceptions
 LDFLAGS  +=

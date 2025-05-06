@@ -1,4 +1,14 @@
 #include "buf.h"
+#include "log.h"
+
+static inline void oom(isize len, isize clen, isize cap)
+{
+    error("Out of memory:\n"       //
+          "  len + c.len >= cap\n" //
+          "  %ld + %ld >= %ld",
+          len, clen, cap);
+    exit(-1);
+}
 
 Buf::Buf(Arena* a, isize cap_)
 {

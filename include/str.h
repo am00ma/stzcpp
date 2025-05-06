@@ -4,22 +4,25 @@
 #include "types.h" // isize
 
 /* ---------------------------------------------------------------------------
- * Counted string
+ * Helpers
  * ------------------------------------------------------------------------- */
-typedef struct Str Str;
 
+// For printing with `%.*s`
+#define pstr(x) (int)x.len, x.buf
+
+// List of strings, for ops like split
+typedef struct Str Str;
 typedef struct Strs {
     Str*  data;
     isize len;
 
-    // Default constructor
     Strs() = default;
-
-    // Lifetime
     Strs(Arena* a, isize len_);
-
 } Strs;
 
+/* ---------------------------------------------------------------------------
+ * Counted string
+ * ------------------------------------------------------------------------- */
 typedef struct Str {
     // Hack for holding string literals as well
     union {
@@ -69,5 +72,3 @@ typedef struct Str {
     Strs Split(Arena* a, Str delimiter = "\n", bool ignore_empty = true, bool substitute_null = false);
 
 } Str;
-
-#define pstr(x) (int)x.len, x.buf

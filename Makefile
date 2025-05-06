@@ -1,7 +1,12 @@
-PACKAGE  = stu
+PACKAGE  = tui
 VERSION  = 0.0.0
 
-lib_libs   =  -lSDL2 -lSDL2_image
+# Order of fxtui libs is important!!
+lib_libs   =  -lSDL2 -lSDL2_image \
+			  -lftxui-component \
+			  -lftxui-dom \
+			  -lftxui-screen
+
 prefix     ?= build
 extra_dist =  Makefile README.md
 

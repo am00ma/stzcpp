@@ -3,9 +3,6 @@
 
 #include <cassert> // assert
 
-/* ---------------------------------------------------------------------------
- * OOM
- * ------------------------------------------------------------------------- */
 static inline void oom(isize count, char* end, char* beg, isize pad, isize objsize)
 {
     error("Out of memory:\n"                        //
@@ -15,9 +12,6 @@ static inline void oom(isize count, char* end, char* beg, isize pad, isize objsi
     exit(-1);
 }
 
-/* ---------------------------------------------------------------------------
- * Arena
- * ------------------------------------------------------------------------- */
 Arena::Arena(isize cap_)
 {
     cap = cap_;

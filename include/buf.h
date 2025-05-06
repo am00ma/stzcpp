@@ -1,21 +1,6 @@
 #pragma once
 
-#include "arena.h" // Arena
-#include "log.h"   // error
 #include "str.h"   // Str
-#include "types.h" // isize
-
-/* ---------------------------------------------------------------------------
- * OOM
- * ------------------------------------------------------------------------- */
-static inline void oom(isize len, isize clen, isize cap)
-{
-    error("Out of memory:\n"       //
-          "  len + c.len >= cap\n" //
-          "  %ld + %ld >= %ld",
-          len, clen, cap);
-    exit(-1);
-}
 
 /* ---------------------------------------------------------------------------
  * Buffer

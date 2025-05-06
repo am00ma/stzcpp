@@ -1,8 +1,6 @@
 #pragma once
 
-#include "arena.h"
 #include "str.h"
-#include "types.h"
 
 typedef enum {
     CMD_SUCCESS = 0,

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "str.h"
-#include "types.h"
 
 typedef enum {
     FILE_SUCCESS = 0,

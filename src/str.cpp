@@ -3,7 +3,6 @@
 #include <cstdarg> // va_start, va_end, va_list
 #include <cassert> // assert
 
-
 Strs::Strs(Arena* a, isize len_)
 {
     data = a->Make<Str>(len_);

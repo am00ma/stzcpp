@@ -20,10 +20,12 @@ template <typename V> struct Map {
         keys = a->Make<Str>(1 << cap_exp); // Default = 4 (16 elements)
         vals = a->Make<V>(1 << cap_exp);
     };
+
     Map(Arena* a, isize cap_exp_)
     {
-        keys = a->Make<Str>(1 << cap_exp); // Default = 4 (16 elements)
-        vals = a->Make<V>(1 << cap_exp);
+        cap_exp = cap_exp_;
+        keys    = a->Make<Str>(1 << cap_exp); // Default = 4 (16 elements)
+        vals    = a->Make<V>(1 << cap_exp);
     };
 
     /* ---------------------------------------------------------------------------

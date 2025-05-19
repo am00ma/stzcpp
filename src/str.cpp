@@ -1,8 +1,11 @@
 #include "str.h"
 
-#include <cstdarg> // va_start, va_end, va_list
 #include <cassert> // assert
+#include <cstdarg> // va_start, va_end, va_list
 
+/* ---------------------------------------------------------------------------
+ * Initialization
+ * ------------------------------------------------------------------------- */
 Strs::Strs(Arena* a, isize len_)
 {
     data = a->Make<Str>(len_);
@@ -41,6 +44,9 @@ Str::Str(Arena* a, isize maxlen, char const* fmt, ...)
     a->beg = beg + len; // Discard extra (not null terminated?)
 };
 
+/* ---------------------------------------------------------------------------
+ * Operators
+ * ------------------------------------------------------------------------- */
 char& Str::operator[](isize i)
 {
     assert(i >= 0);
@@ -58,6 +64,9 @@ Str Str::operator[](isize beg, isize end)
 
 b32 Str::operator==(Str s) { return len == s.len && (!len || !memcmp(buf, s.buf, len)); }
 
+/* ---------------------------------------------------------------------------
+ * Memory, interface with C strings
+ * ------------------------------------------------------------------------- */
 Str Str::Copy(Arena* a, bool null_terminate)
 {
     // If on top of arena, just advance arena
@@ -79,6 +88,9 @@ char* Str::Cstr(Arena* a)
     return dst.buf;
 }
 
+/* ---------------------------------------------------------------------------
+ * String manipulation (split, trim, etc.)
+ * ------------------------------------------------------------------------- */
 Strs Str::Split(Arena* a, Str delimiter, bool ignore_empty, bool substitute_null)
 {
     // TODO: implement for len > 1
@@ -123,3 +135,20 @@ Strs Str::Split(Arena* a, Str delimiter, bool ignore_empty, bool substitute_null
 
     return parts;
 }
+
+/* ---------------------------------------------------------------------------
+ * Hash
+ * ------------------------------------------------------------------------- */
+#define FNV_64_OFFSET_BASIS 0xcbf29ce484222325
+#define FNV_64_PRIME        1099511628211
+
+u64 Str::Hash64()
+{
+    u64 h = FNV_64_OFFSET_BASIS;
+    for (isize i = 0; i < len; i++)
+    {
+        h ^= buf[i] & 255;
+        h *= FNV_64_PRIME;
+    }
+    return h;
+};

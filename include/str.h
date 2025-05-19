@@ -8,7 +8,8 @@
  * ------------------------------------------------------------------------- */
 
 // For printing with `%.*s`
-#define pstr(x) (int)x.len, x.buf
+#define pstr(x)  (int)x.len, x.buf
+#define ppstr(x) (int)x->len, x->buf
 
 // List of strings, for ops like split
 typedef struct Str Str;
@@ -70,5 +71,8 @@ typedef struct Str {
 
     // Split (defaults to splitting lines)
     Strs Split(Arena* a, Str delimiter = "\n", bool ignore_empty = true, bool substitute_null = false);
+
+    // FNV hash
+    u64 Hash64();
 
 } Str;

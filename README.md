@@ -9,20 +9,17 @@
   absolutely no including C++ headers. The most valuable features are built
   right into the language, so I won’t need to include library definitions.
 
-
 - No public or private. Still no const beyond what is required to access
   certain features. This means I can toss out a bunch of keywords like class,
   friend, etc. It eliminates noisy, repetitive code and interfaces — getters,
   setters, separate const and non-const — which in my experience means fewer
   defects.
 
-
 - No references beyond mandatory cases. References hide addresses being taken
   — or merely implies it, when it’s actually an expensive copy — which is an
   annoying experience when reading unfamiliar C++. After all, for arenas the
   explicit address-taking (permanent) or copying (scratch) is a critical part
   of communicating the interfaces.
-
 
 - In theory constexpr could be useful, but it keeps falling short when I try
   it out, so I’m ignoring it. I’ll elaborate in a moment.
@@ -32,7 +29,6 @@
   (typically ~10x) because there’s no optimization to clean up the mess. I’ll
   only use them for a few foundational purposes, such as allocation. (Though
   this article is about the fundamental stuff.)
-
 
 - No methods aside from limited use of operator overloads. I want to keep a C
   style, plus methods just look ugly without references: obj->func() vs.

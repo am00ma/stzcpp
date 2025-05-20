@@ -48,9 +48,9 @@ template <typename V> struct Map {
             if (!keys[i].buf)
             {
                 keys[i] = key;
-                return vals + i;
+                return &vals[i];
             }
-            else if (keys[i] == key) { return vals + i; } // Equals: O(n)
+            else if (keys[i] == key) { return &vals[i]; } // Equals: O(n)
         }
         return 0;
     };

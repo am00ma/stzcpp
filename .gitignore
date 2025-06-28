@@ -1,3 +1,6 @@
-.cache/clangd/index
-build
-compile_commands.json
+/build
+/site
+/dist
+
+/.cache
+/compile_commands.json

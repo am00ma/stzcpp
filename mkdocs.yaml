@@ -1,0 +1,53 @@
+site_name: stzcpp
+dev_addr: '127.0.0.1:5555'
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+
+nav:
+  - Home: 'index.md'
+  - Dependencies: 'deps.md'
+  - Build system: 'build.md'
+  - Fundamentals:
+    - Types: 'boilerplate/types.md'
+    - Range: 'boilerplate/range.md'
+    - Log: 'boilerplate/log.md'
+  - Components:
+    - Arena: 'components/arena.md'
+    - String: 'components/str.md'
+    - Buffer: 'components/buf.md'
+    - Slice: 'components/slice.md'
+    - Index: 'components/index.md'
+    - Map: 'components/map.md'
+  - Utilities:
+    - GUI: 'utils/gui.md'
+    - File: 'utils/file.md'
+    - Command: 'utils/cmd.md'
+    - Tree-sitter: 'utils/ts.md'
+  - Prior-art:
+    - Standard libraries:
+      - C: 'prior-art/std-c.md'
+      - C++: 'prior-art/std-cpp.md'
+      - Python: 'prior-art/std-python.md'
+      - Rust: 'prior-art/std-rust.md'
+      - Javascript: 'prior-art/std-js.md'
+    - Datastructure implementations:
+      - Arena: 'prior-art/ds-arena.md'
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - footnotes
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+
+plugins:
+  - search
+  - mermaid2

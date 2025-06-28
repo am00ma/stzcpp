@@ -1,6 +1,16 @@
 # Standard lib for C++
 
-## From 'Speculations on arenas and custom strings in C++' April 14, 2024 
+Goals:
+
+- no standard lib
+- no classes, const
+- no references (caveats: Str constructor from literal)
+- no constexpr (caveats: needs to be tested)
+- minimal templates (caveats: avoiding macros)
+- no methods (caveats: operator overloads) (not sure why??)
+- no exceptions
+
+## From 'Speculations on arenas and custom strings in C++' April 14, 2024
 
 - Existing practice is unimportant. I’ve seen where that goes. Like the C
   standard library, the C++ standard library offers me little. Its concepts
@@ -39,13 +49,3 @@
 
 - Finally, no exceptions of course. I assume -fno-exceptions, or the local
   equivalent, is active.
-
-## Summary
-
-- no standard lib
-- no classes, const
-- no references (caveats: Str constructor from literal)
-- no constexpr (caveats: needs to be tested)
-- minimal templates (caveats: avoiding macros)
-- no methods (caveats: operator overloads) (not sure why??)
-- no exceptions

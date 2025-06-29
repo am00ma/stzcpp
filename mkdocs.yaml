@@ -8,25 +8,54 @@ theme:
   name: material
 
 nav:
+
   - Home: 'index.md'
   - Dependencies: 'deps.md'
   - Build system: 'build.md'
-  - Fundamentals:
-    - Types: 'boilerplate/types.md'
-    - Range: 'boilerplate/range.md'
-    - Log: 'boilerplate/log.md'
-  - Components:
-    - Arena: 'components/arena.md'
-    - String: 'components/str.md'
-    - Buffer: 'components/buf.md'
-    - Slice: 'components/slice.md'
-    - Index: 'components/index.md'
-    - Map: 'components/map.md'
-  - Utilities:
-    - GUI: 'utils/gui.md'
-    - File: 'utils/file.md'
-    - Command: 'utils/cmd.md'
-    - Tree-sitter: 'utils/ts.md'
+
+  - Genres summary: 'prior-art/std-genres.md'
+
+  - Genres:
+    - 1. Introduction: 'genres/01-intro.md'
+    - 2. Built-in Functions: 'genres/02-builtin-functions.md'
+    - 3. Built-in Constants: 'genres/03-builtin-constants.md'
+    - 4. Built-in Types: 'genres/04-builtin-types.md'
+    - 5. Built-in Exceptions: 'genres/05-builtin-exceptions.md'
+    - 6. Text Processing Services: 'genres/06-text-processing-services.md'
+    - 7. Binary Data Services: 'genres/07-binary-data-services.md'
+    - 8. Data Types: 'genres/08-data-types.md'
+    - 9. Numeric and Mathematical Modules: 'genres/09-math.md'
+    - 10. Functional Programming Modules: 'genres/10-functional-programming.md'
+    - 11. File and Directory Access: 'genres/01-intro.md'
+    - 12. Data Persistence: 'genres/01-intro.md'
+    - 13. Data Compression and Archiving: 'genres/01-intro.md'
+    - 14. File Formats: 'genres/01-intro.md'
+    - 15. Cryptographic Services: 'genres/01-intro.md'
+    - 16. Generic Operating System Services: 'genres/01-intro.md'
+    - 17. Command Line Interface Libraries: 'genres/01-intro.md'
+    - 18. Concurrent Execution: 'genres/01-intro.md'
+    - 19. Networking and Interprocess Communication: 'genres/01-intro.md'
+    - 20. Internet Data Handling: 'genres/01-intro.md'
+    - 21. Structured Markup Processing Tools: 'genres/01-intro.md'
+    - 22. Internet Protocols and Support: 'genres/01-intro.md'
+    - 23. Multimedia Services: 'genres/01-intro.md'
+    - 24. Internationalization: 'genres/01-intro.md'
+    - 25. Program Frameworks: 'genres/01-intro.md'
+    - 26. Graphical User Interfaces with Tk: 'genres/01-intro.md'
+    - 27. Development Tools: 'genres/01-intro.md'
+    - 28. Debugging and Profiling: 'genres/01-intro.md'
+    - 29. Software Packaging and Distribution: 'genres/01-intro.md'
+    - 30. Python Runtime Services: 'genres/01-intro.md'
+    - 31. Custom Python Interpreters: 'genres/01-intro.md'
+    - 32. Importing Modules: 'genres/01-intro.md'
+    - 33. Python Language Services: 'genres/01-intro.md'
+    - 34. MS Windows Specific Services: 'genres/01-intro.md'
+    - 35. Unix Specific Services: 'genres/01-intro.md'
+    - 36. Modules command-line interface (CLI): 'genres/01-intro.md'
+    - 37. Superseded Modules: 'genres/01-intro.md'
+    - 38. Removed Modules: 'genres/01-intro.md'
+    - 39. Security Considerations: 'genres/01-intro.md'
+
   - Prior-art:
     - Standard libraries:
       - C: 'prior-art/std-c.md'

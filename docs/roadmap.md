@@ -1,10 +1,6 @@
-# Python Standard Library
-
-- [Python Standard Library (3.13.5)](https://docs.python.org/3/library/index.html)
+# Gold Standard Library
 
 ## Introduction
-
-- Notes on availability
 
 ## Built-in Functions
 
@@ -371,3 +367,4 @@
 ## Removed Modules
 
 ## Security Considerations
+

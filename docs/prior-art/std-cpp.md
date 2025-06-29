@@ -1,5 +1,29 @@
 # C++ library headers
 
+Genres
+
+- Standard library headers
+- Language support library
+- Concepts library (C++20)
+- Diagnostics library
+- Memory management library
+- Metaprogramming library (C++11)
+- General utilities library
+- Containers library
+- Iterators library
+- Ranges library (C++20)
+- Algorithms library
+- Strings library
+- Text processing library
+- Numerics library
+- Date and time library
+- Input/output library
+- Filesystem library (C++17)
+- Concurrency support library (C++11)
+- Execution control library (C++26)
+
+## Headers
+
 1. `algorithm`
 2. `iomanip`
 3. `list`

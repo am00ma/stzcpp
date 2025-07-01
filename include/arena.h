@@ -48,6 +48,7 @@ typedef struct Arena {
     }
 
     char* OrigBeg() { return (end - cap); };
+    void  Free() { free(end - cap); };
 
     // Debug
     void Print(const char* label);

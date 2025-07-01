@@ -2,102 +2,81 @@
 #include "file.h"
 #include "log.h"
 #include "range.h"
-#include "str.h"
-#include <cassert>
-#include <cstdio>
 
 typedef struct Item {
-    isize len = 0;
     i32*  a   = 0;
-    i32*  b   = 0;
+    isize len = 3;
+    char* beg = 0;
 
-    Arena arena;
-
-    // Lifetime
-    Item(isize len_, Arena arena_)
+    Item(Arena* arena)
     {
-        len   = len_;
-        arena = arena_;
-        a     = arena.Make<i32>(len);
-        b     = arena.Make<i32>(len);
-    }
+        beg = arena->beg;
 
+        len = 3;
+        a   = arena->Make<i32>(len);
+    }
 } Item;
 
 int main(int argc, char* argv[])
 {
+    isize len = 3;
+
     Arena perm = Arena(16 * 1024);
-    perm.Print("init");
+    perm.Print(">> init");
 
-    Arena a1 = Arena(1024, &perm);
-    Arena a2 = Arena(1024, &perm);
-
-    a1.Print("a1: Before Item alloc");
-
-    Item item1 = Item(5, a1);
-
-    printf("Item: a, b: %p, %p\n", (void*)item1.a, (void*)item1.b);
-
-    RANGE(i, item1.len)
-    { //
-        item1.a[i] = 5;
-        item1.b[i] = 5;
-    }
-
-    a1.Print("a1: After Item alloc");
-
-    Str   path      = "/tmp/item.bin";
-    char* path_cstr = path.Cstr(&a1);
-    FILE* f         = fopen(path_cstr, "wb");
-    if (f == NULL)
+    Item i1 = Item(&perm);
+    Item i2 = Item(&perm);
+    RANGE(i, len)
     {
-        perror("fopen");
-        Fatal(-1, "fopen");
+        i1.a[i] = 5;
+        i2.a[i] = 10;
     }
 
-    int ok = fwrite(&item1, sizeof(Item), 1, f);
-    if (!ok)
-    {
-        perror("fwrite");
-        Fatal(-1, "fwrite");
-    }
+    title("before");
+    printf("  a: %p, %p\n", (void*)i1.a, (void*)i2.a);
+    printf("beg: %p, %p\n", i1.beg, i2.beg);
+    RANGE(i, len) { printf("%td: %d, %d\n", i, i1.a[i], i2.a[i]); }
 
-    if (fclose(f) != 0)
-    {
-        perror("fclose");
-        Fatal(-1, "fclose");
-    }
+    // 'Transferring' i1 to i2 / 'Reanchor'
+    i2.a = (i32*)((char*)i1.a + (i2.beg - i1.beg));
 
-    a2.Print("a2: Before file read");
+    title("after");
+    printf("  a: %p, %p\n", (void*)i1.a, (void*)i2.a);
+    printf("beg: %p, %p\n", i1.beg, i2.beg);
+    RANGE(i, len) { printf("%td: %d, %d\n", i, i1.a[i], i2.a[i]); }
 
-    auto loaded_ok = File_Read(&a2, path);
-    Fatal(loaded_ok.err, "File_Read");
-    Str data = loaded_ok.data;
+    title("loaded vs saved");
 
-    a2.Print("a2: After file read");
+    auto saved_ok = Struct_Write(&perm, "/tmp/item.bin", &i1);
+    if (saved_ok.err) Fatal(saved_ok.err, "Struct_Write");
+    auto saved = saved_ok.data;
+    RANGE(i, len) { printf(" Saved: %td: %d\n", i, saved->a[i]); }
 
-    assert(data.len == sizeof(Item));
-    printf("data.len    : %ld\n", data.len);
-    printf("sizeof(Item): %ld\n", sizeof(Item));
+    // Fuck up the loading due to refs
+    perm.Free();
+    RANGE(i, 5) { Arena(16 * 1024); }
 
-    Item* item2 = (Item*)data.buf;
+    Arena perm2 = Arena(16 * 1024);
+    perm2.Print(">> new");
 
-    printf("Item: a, b: %p, %p\n", (void*)item2->a, (void*)item2->b);
-    item2->arena.Print("ll->arena(a1): After load");
+    auto loaded_ok = Struct_Read<Item>(&perm2, "/tmp/item.bin");
+    if (loaded_ok.err) Fatal(loaded_ok.err, "Struct_Read");
+    auto loaded = loaded_ok.data;
 
-    // Sanitize pointers
-    isize offset_a = (char*)item2->a - item2->arena.OrigBeg();
-    isize offset_b = (char*)item2->b - item2->arena.OrigBeg();
-    printf("Offsets: a, b: %ld, %ld\n", offset_a, offset_b);
+    title("before relocate");
+    RANGE(i, len) { printf("Loaded: %td: %d\n", i, loaded->a[i]); }
+    printf("len: %p\n", (void*)loaded->len);
+    printf("beg: %p\n", (void*)loaded->beg);
+    printf("  a: %p\n", (void*)loaded->a);
 
-    item2->a = (i32*)(a2.OrigBeg() + offset_a);
-    item2->b = (i32*)(a2.OrigBeg() + offset_b);
-    printf("New pos: a, b: %p, %p\n", (void*)item2->a, (void*)item2->b);
+    // Reanchor
+    loaded->a = (i32*)((char*)loaded->a + (perm2.OrigBeg() - loaded->beg));
 
-    RANGE(i, item2->len)
-    { //
-        printf("%ld: %d, %d\n", i, item2->a[i], item2->b[i]);
-    }
+    title("after relocate");
+    RANGE(i, len) { printf("Loaded: %td: %d\n", i, loaded->a[i]); }
+    printf("len: %p\n", (void*)loaded->len);
+    printf("beg: %p\n", (void*)loaded->beg);
+    printf("  a: %p\n", (void*)loaded->a);
 
     return 0;
 }

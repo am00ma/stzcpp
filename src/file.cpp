@@ -1,4 +1,5 @@
 #include "file.h"
+#include "log.h"
 
 #include <cstdio> // FILE, fopen, ...
 
@@ -42,4 +43,31 @@ Result<Str, FileError> File_Read(Arena* a, Str path)
     }
 
     return Result<Str, FileError>(data, FILE_SUCCESS);
+}
+
+Result<Str, FileError> File_Write(Arena* a, Str path, Str text)
+{
+    Arena temp      = *a;
+    char* path_cstr = path.Cstr(&temp); // We dont need path after loading buf
+
+    FILE* f = fopen(path_cstr, "wb");
+    if (f == NULL)
+    {
+        perror("fopen");
+        return Result<Str, FileError>(Str(""), FILE_FAIL_OPEN);
+    }
+
+    if (fwrite(text.buf, sizeof(char), text.len, f) != (usize)text.len)
+    {
+        perror("fwrite");
+        return Result<Str, FileError>(Str(""), FILE_FAIL_WRITE);
+    }
+
+    if (fclose(f) != 0)
+    {
+        perror("fclose");
+        return Result<Str, FileError>(text, FILE_FAIL_CLOSE);
+    }
+
+    return Result<Str, FileError>(text, FILE_SUCCESS);
 }

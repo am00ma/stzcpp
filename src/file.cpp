@@ -38,7 +38,7 @@ Result<Str, FileError> File_Read(Arena* a, Str path)
     if (fclose(f) != 0)
     {
         perror("fclose");
-        return Result<Str, FileError>(Str(""), FILE_FAIL_CLOSE);
+        return Result<Str, FileError>(data, FILE_FAIL_CLOSE);
     }
 
     return Result<Str, FileError>(data, FILE_SUCCESS);

@@ -19,6 +19,14 @@ Arena::Arena(isize cap_)
     end = beg ? beg + cap : 0;
 }
 
+
+Arena::Arena(isize cap_, Arena* src)
+{
+    cap = cap_;
+    beg = src->Make<char>(cap);
+    end = beg ? beg + cap : 0;
+}
+
 char* Arena::Alloc(isize objsize, isize align, isize count, b32 flags)
 {
     assert(count >= 0); // Can request 0?

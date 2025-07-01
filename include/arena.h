@@ -27,6 +27,7 @@ typedef struct Arena {
 
     // Lifetime
     Arena(isize cap_);
+    Arena(isize cap_, Arena* src);
 
     // Meat
     char* Alloc(isize objsize, isize align, isize count, b32 flags);
@@ -45,6 +46,8 @@ typedef struct Arena {
 
         return r;
     }
+
+    char* OrigBeg() { return (end - cap); };
 
     // Debug
     void Print(const char* label);

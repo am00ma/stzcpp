@@ -3,7 +3,7 @@ VERSION  = 0.0.0
 
 lib_libs = -lSDL2 -lSDL2_image
 
-prefix     ?= build
+prefix     = /usr/local
 extra_dist =  Makefile README.md
 
 CXX      ?= clang++
@@ -20,7 +20,7 @@ lib_src    = $(wildcard src/*.cpp)
 test_libs  = $(lib_libs)
 test_src   = $(wildcard test/*.cpp)
 
-example_libs = $(lib_libs)
+example_libs = $(lib_libs) -l$(PACKAGE)
 example_src  = $(wildcard example/*.cpp)
 
 dist_files = $(headers) $(lib_hdr) $(lib_src) $(test_src) $(extra_dist)
@@ -91,4 +91,4 @@ build/test/% : test/%.cpp $(LIBRARY)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(test_libs) -o $@
 
 build/example/% : example/%.cpp $(LIBRARY)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(example_libs) -o $@
+	$(CXX) $(CXXFLAGS) -I$(prefix)/include -L$(prefix)/lib $(LDFLAGS) $< $(example_libs) -o $@

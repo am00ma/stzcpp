@@ -1,4 +1,5 @@
 #include "str.h"
+#include "log.h"
 
 #include <cassert> // assert
 #include <cstdarg> // va_start, va_end, va_list
@@ -77,22 +78,30 @@ bool Str::operator==(Str s) { return len == s.len && (!len || !memcmp(buf, s.buf
  * ------------------------------------------------------------------------- */
 Str Str::Copy(Arena* a, bool null_terminate)
 {
-    // If on top of arena, just advance arena
+    // If on top of arena, just advance arena for reserved 0 byte
+    // NOTE: Not sure this makes sense
     if (buf == a->beg - len)
     {
+        debug("Already on top");
+        *a->beg = '\0'; // NOTE: Is this correct?
         a->beg++;
+
+        // Not reflecting null-termination
         return *this;
     }
 
-    Str dst = Str(a, len + int(null_terminate));
+    Str dst = Str(a, len + int(null_terminate)); // zero initialized
     if (len) memcpy(dst.buf, buf, len);
+
+    // NOTE: Should this be reflected here?
+    dst.len -= int(null_terminate);
+
     return dst;
 }
 
 char* Str::Cstr(Arena* a)
 {
-    Str dst      = this->Copy(a, true);
-    dst.buf[len] = '\0';
+    Str dst = this->Copy(a, true);
     return dst.buf;
 }
 

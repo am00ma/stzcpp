@@ -2,7 +2,7 @@
 
 #include <cassert> // assert
 #include <cstdarg> // va_start, va_end, va_list
-#include <cstring> // strlen
+#include <cstring>
 
 /* ---------------------------------------------------------------------------
  * Initialization

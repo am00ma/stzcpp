@@ -39,6 +39,26 @@ int main(void)
 
     Slice<i32> vec2 = Slice<i32>(&a, 10);
     RANGE(i, vec2.cap) { vec2.Append(i); }
+
+    debug("Changing element of original");
     auto sub = vec2[5, 8];
+    *sub[1] = 53;
     RANGE(i, sub.len) { debug("%ld: %d", i, *sub[i]); }
+
+    debug("Check effect on origial");
+    RANGE(i, vec2.len) { debug("%ld: %d", i, *vec2[i]); }
+
+    // ------------------------------------
+    title("Subslice - copy");
+
+    Slice<i32> vec3 = Slice<i32>(&a, 10);
+    RANGE(i, vec3.cap) { vec3.Append(i); }
+
+    debug("Changing element of copy");
+    auto sub2 = vec3[5, 8, &a];
+    *sub2[1] = 53;
+    RANGE(i, sub2.len) { debug("%ld: %d", i, *sub2[i]); }
+
+    debug("Check effect on origial");
+    RANGE(i, vec3.len) { debug("%ld: %d", i, *vec3[i]); }
 }

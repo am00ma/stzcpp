@@ -3,6 +3,7 @@
 #include "arena.h"
 #include "range.h"
 #include <cassert>
+#include <cstring>
 
 template <typename T> struct Slice {
     T*    data;
@@ -45,6 +46,17 @@ template <typename T> struct Slice {
         assert(j >= i);
         assert(j < len);
         return Slice<T>(&data[i], j - i, j - i);
+    }
+
+    // Get (i - j)th item as copy
+    Slice<T> operator[](isize i, isize j, Arena* a)
+    {
+        assert(i >= 0);
+        assert(j >= i);
+        assert(j < len);
+        auto slice = Slice<T>(a->Make<T>(j - i), j - i, j - i);
+        if (slice.len) memcpy(slice.data, &data[i], slice.len * sizeof(T));
+        return slice;
     }
 
     // str_equal

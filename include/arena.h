@@ -29,6 +29,10 @@ typedef struct Arena {
     Arena(isize cap_);
     Arena(isize cap_, Arena* src);
 
+    // No free by destructor
+    // as only applicable if it wasnt allocated with constructors
+    void Free() { free(end - cap); };
+
     // Meat
     char* Alloc(isize objsize, isize align, isize count, b32 flags);
 
@@ -50,7 +54,6 @@ typedef struct Arena {
     inline isize Used() { return cap - (end - beg); }
 
     char* OrigBeg() { return (end - cap); };
-    void  Free() { free(end - cap); };
 
     // Debug
     void Print(const char* label);

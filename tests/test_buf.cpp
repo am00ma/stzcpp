@@ -1,79 +1,74 @@
-/*
- * Accept string and return parsed, formatted and contatenated string
- */
-#include "arena.h"
 #include "buf.h"
-#include "range.h"
-#include <stdio.h>
+#include <cstdio>
 
-constexpr isize PERM_CAPACITY = 128;
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest.h"
 
-Str parse_and_format(Str src, Arena temp, Arena* perm)
+TEST_SUITE("Buf")
 {
-    // Reserve PERM_CAPACITY so str_fmt can use rest
-    Buf tmp = Buf(&temp, PERM_CAPACITY);
 
-    // Copy source string ( can only be done before using temp_loop )
-    tmp.Join(src);
-
-    // Parse and append to tmp
-    RANGE(i, src.len)
+    TEST_CASE("Stuct size")
     {
-        if (src.buf[i] == 'l')
-        {
-            // Temp arena for this loop
-            Arena temp_loop = temp;
-
-            // Format and append ( uses STR_MAXLEN = 1024 )
-            Str found = Str(&temp_loop, 32, "Found l: %d\n", i);
-
-            /*
-             * temp     :: 0x7fff192c7a70 (beg: 0x56aec34d93b0, end: 0x56aec34d97b0)
-             *   left: 1024, used: 128, cap: 1152
-             * temp_loop:: 0x7fff192c7a70 (beg: 0x56aec34d93bc, end: 0x56aec34d97b0)
-             *   left: 1012, used: 140, cap: 1152
-             *
-             * 140 - 128 = 12 extra for `Found ... <10`
-             * 141 - 128 = 13 extra for `Found ... >=10`
-             */
-
-            // Store
-            tmp.Join(found); // copies memory
-
-            printf("\n--- found l >> i = %ld ---\n", i);
-
-            temp.Print("temp     :");
-            temp_loop.Print("temp_loop:");
-        }
+        // The struct itself is very light, with 3 64 bit integers
+        CHECK(sizeof(Buf) == 24); // 8(buf) + 8(len) + 8(cap)
     }
 
-    printf("\n-------------\n");
+    Arena perm = Arena(1024 * 4);
 
-    // Finalize temp arena ( Not neccessary, but frees STR_MAXLEN stuff )
-    Str out = tmp.Final(&temp);
-    temp.Print("temp     :");
+    TEST_CASE("Usage: Use full maxlen")
+    {
+        Arena a   = perm;
+        Buf   buf = Buf(&a, 512);
 
-    // Copy to permanent arena
-    Str dst = out.Copy(perm);
+        Str src = "hello hi, alles good?\n";
 
-    return dst;
-}
+        // Some example parsing algo
+        RANGE(i, src.len)
+        {
+            if (src.buf[i] == 'l')
+            {
+                Arena temp  = Arena();
+                Str   found = Str(&a, 32, "Found l: %d\n", i);
+                buf.Join(found); // Copies from end of arena to buf
+            }
+        }
 
-int main()
-{
-    // ------------------------------------
-    Arena perm = Arena(1024); // 1KB
-    perm.Print("Initial(perm)");
+        Str out      = Str(buf.buf, buf.len);
+        Str expected = "Found l: 2\n"
+                       "Found l: 3\n"
+                       "Found l: 11\n"
+                       "Found l: 12\n";
+        CHECK(out == expected);
+        CHECK(a.Used() == 558);
+    }
 
-    Arena temp = Arena(1024); // 1KB
-    temp.Print("Initial(temp)");
+    TEST_CASE("Usage: Use temp buffer to optimize mem usage")
+    {
+        Arena a    = perm;
+        Buf   buf  = Buf(&a, 512); // Alloc buffer
+        Arena temp = a;            // Space 'above' buffer
 
-    Str src = "hello hi, alles good?\n";
-    Str dst = parse_and_format(src, temp, &perm);
-    printf("%.*s", pstr(dst));
+        // Some example parsing algo
+        Str src = "hello hi, alles good?\n";
 
-    perm.Print("After parse_and_format(perm):");
-    temp.Print("After parse_and_format(temp):");
+        RANGE(i, src.len)
+        {
+            if (src.buf[i] == 'l')
+            {
+                Str found = Str(&temp, 32, "Found l: %d\n", i);
+                buf.Join(found); // Copies from end of arena to buf
+            }
+        }
 
-    return 0;
+        // Reclaims space from arena, if guaranteed that
+        // buf initialization was last use of arena (apart from scratch)
+        Str out = buf.Final(&a);
+
+        Str expected = "Found l: 2\n"
+                       "Found l: 3\n"
+                       "Found l: 11\n"
+                       "Found l: 12\n";
+        CHECK(out == expected);
+        CHECK(a.Used() == 46);
+    }
 }

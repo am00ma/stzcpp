@@ -3,6 +3,11 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
+typedef struct Item {
+    i32 a = 4;
+    i32 b = 8;
+} Item;
+
 void print_cap(isize i, isize cap)
 {
 
@@ -10,11 +15,6 @@ void print_cap(isize i, isize cap)
            cap, cap / (1024 * 1024), cap / (1024 * 1024 * 1024), cap / ((isize)1024 * 1024 * 1024 * 1024),
            cap / ((isize)1024 * 1024 * 1024 * 1024 * 1024), cap / ((isize)1024 * 1024 * 1024 * 1024 * 1024 * 1024));
 }
-
-typedef struct Item {
-    i32 a = 4;
-    i32 b = 8;
-} Item;
 
 TEST_SUITE("Arena")
 {

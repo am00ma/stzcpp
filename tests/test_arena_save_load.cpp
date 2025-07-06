@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 
     title("before");
     printf("  a: %p, %p\n", (void*)i1.a, (void*)i2.a);
-    printf("beg: %p, %p\n", i1.beg, i2.beg);
+    printf("beg: %p, %p\n", (void*)i1.beg, (void*)i2.beg);
     RANGE(i, len) { printf("%td: %d, %d\n", i, i1.a[i], i2.a[i]); }
 
     // 'Transferring' i1 to i2 / 'Reanchor'
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 
     title("after");
     printf("  a: %p, %p\n", (void*)i1.a, (void*)i2.a);
-    printf("beg: %p, %p\n", i1.beg, i2.beg);
+    printf("beg: %p, %p\n", (void*)i1.beg, (void*)i2.beg);
     RANGE(i, len) { printf("%td: %d, %d\n", i, i1.a[i], i2.a[i]); }
 
     title("loaded vs saved");

@@ -2,6 +2,7 @@
 
 #include <cassert> // assert
 #include <cstdarg> // va_start, va_end, va_list
+#include <cstring> // strlen
 
 /* ---------------------------------------------------------------------------
  * Initialization
@@ -16,6 +17,13 @@ Str::Str(Arena* a, isize len_)
 {
     buf = a->Make<char>(len_);
     len = len_;
+}
+
+Str::Str(const char* buf_)
+{
+    if (!buf_) { buf_ = ""; } // Empty string if invalid buf
+    cbuf = buf_;
+    len  = cbuf ? strlen(cbuf) : 0;
 }
 
 Str::Str(char* buf_, isize len_)
@@ -59,10 +67,10 @@ Str Str::operator[](isize beg, isize end)
     assert(beg >= 0);
     assert(beg <= end);
     assert(end <= len);
-    return {buf + beg, buf + end};
+    return {buf + beg, end - beg};
 }
 
-b32 Str::operator==(Str s) { return len == s.len && (!len || !memcmp(buf, s.buf, len)); }
+bool Str::operator==(Str s) { return len == s.len && (!len || !memcmp(buf, s.buf, len)); }
 
 /* ---------------------------------------------------------------------------
  * Memory, interface with C strings

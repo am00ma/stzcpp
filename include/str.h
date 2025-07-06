@@ -42,6 +42,9 @@ typedef struct Str {
         len  = N - 1;
     }
 
+    // From const
+    Str(const char* buf_);
+
     // From fields
     Str(char* buf_, isize len_);
 
@@ -61,7 +64,7 @@ typedef struct Str {
     Str operator[](isize beg, isize end);
 
     // str_equal
-    b32 operator==(Str s);
+    bool operator==(Str s);
 
     // Null terminated string
     char* Cstr(Arena* a);

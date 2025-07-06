@@ -1,4 +1,4 @@
-#include <stzcpp/arena.h>
+#include <stz/arena.h>
 
 int main()
 {

@@ -19,7 +19,6 @@ Arena::Arena(isize cap_)
     end = beg ? beg + cap : 0;
 }
 
-
 Arena::Arena(isize cap_, Arena* src)
 {
     cap = cap_;
@@ -35,6 +34,8 @@ char* Arena::Alloc(isize objsize, isize align, isize count, b32 flags)
     if (count > (end - beg - pad) / objsize)
     {
         if (flags & SOFTFAIL) return 0;
+
+        Fatal(-1, "Alloc failed: count: %ld < req: %ld", count, (end - beg - pad / objsize));
         oom(count, end, beg, pad, objsize);
         return 0; // TODO: OOM message with trace
     }
@@ -50,7 +51,6 @@ char* Arena::Alloc(isize objsize, isize align, isize count, b32 flags)
 
 void Arena::Print(const char* label)
 {
-    printf("%s: used: %ld (beg: %p, end: %p, cap: %ld)\n", //
-           label, cap - (end - beg),                       //
-           (void*)beg, (void*)end, cap);
+    printf("%s: used: %ld / cap: %ld (beg: %p, end: %p)\n", //
+           label, cap - (end - beg), cap, (void*)beg, (void*)end);
 }

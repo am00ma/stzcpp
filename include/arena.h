@@ -47,6 +47,8 @@ typedef struct Arena {
         return r;
     }
 
+    inline isize Used() { return cap - (end - beg); }
+
     char* OrigBeg() { return (end - cap); };
     void  Free() { free(end - cap); };
 

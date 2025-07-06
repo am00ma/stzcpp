@@ -1,63 +1,144 @@
 #include "arena.h"
-#include "log.h"
-#include "range.h"
 
-#include <cstdio> // printf
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest.h"
+
+void print_cap(isize i, isize cap)
+{
+
+    printf("%ld: %ld B\n  %ld MB\n  %ld GB\n  %ld TB\n  %ld PB\n  %ld EB\n", i, //
+           cap, cap / (1024 * 1024), cap / (1024 * 1024 * 1024), cap / ((isize)1024 * 1024 * 1024 * 1024),
+           cap / ((isize)1024 * 1024 * 1024 * 1024 * 1024), cap / ((isize)1024 * 1024 * 1024 * 1024 * 1024 * 1024));
+}
 
 typedef struct Item {
     i32 a = 4;
     i32 b = 8;
 } Item;
 
-int main(void)
+TEST_SUITE("Arena")
 {
-    // ------------------------------------
-    printf("sizeof(Arena): %ld\n", sizeof(Arena));
 
-    // ------------------------------------
-    Arena a = Arena(128); // 128 bytes
-    a.Print("Initial");
+    TEST_CASE("Stuct size")
+    {
+        // The struct itself is very light, with 3 64 bit integers
+        CHECK(sizeof(Arena) == 24); // 8(beg) + 8(end) + 8(cap)
+    }
 
-    // ------------------------------------
-    title("\nSingle element");
+    TEST_CASE("Allocation up to 2^35, without free")
+    {
+        // It is possible to allot astonishing amount of memory,
+        // all the way upto 4 EB (MB, GB, TB, PB, EB), that too, cumulatively
+        // BUG: What is happening here? Does'nt reflect in btop
+        isize cap = 1;
+        RANGE(i, 63)
+        {
+            // print_cap(i, cap);
+            Arena a = Arena(cap);
+            CHECK(a.cap == cap);
 
-    i32* x = a.Make<i32>();
+            cap *= 2;
+        }
+    }
 
-    printf("%d: %d\n", 0, x[0]);
-    a.Print("Alloc: 1 i32");
+    TEST_CASE("Allocation up to 2^35, with free")
+    {
+        // BUG: If free is added, crashes at i=35 (32 GB)
+        isize cap = 1;
+        // RANGE(i, 63)
+        RANGE(i, 35)
+        {
+            // print_cap(i, cap);
+            Arena a = Arena(cap);
+            CHECK(a.cap == cap);
+            a.Free();
 
-    // ------------------------------------
-    title("\nArray of elements (zeroed by default)");
+            cap *= 2;
+        }
+    }
 
-    i32* y = a.Make<i32>(3);
+    // Make arena once to borrow for each case
+    Arena perm = Arena(1024); // 1 KB
 
-    RANGE(i, 3) { printf("%ld: %d\n", i, y[i]); }
-    a.Print("Alloc: 3 i32");
+    TEST_CASE("Allocated sizes")
+    {
+        Arena a = perm;
+        i32*  x = a.Make<i32>();
+        CHECK(a.Used() == 4);
+    }
 
-    // ------------------------------------
-    title("\nElements zeroed");
+    TEST_CASE("Zeroed Initialization for primitives")
+    {
+        Arena a = perm;
+        i32*  y = a.Make<i32>(3);
+        RANGE(i, 3) { CHECK(y[i] == 0); }
+    }
 
-    Item* qz = a.Make<Item>(3); // Have to get order of new correct
+    TEST_CASE("Zeroed Initialization for structs")
+    {
+        Arena a = perm;
+        Item* y = a.Make<Item>(3);
+        RANGE(i, 3)
+        {
+            CHECK(y[i].a == 0);
+            CHECK(y[i].b == 0);
+        }
+    }
 
-    RANGE(i, 3) { printf("%ld: %d, %d\n", i, qz[i].a, qz[i].b); }
-    a.Print("Zeroed: 3 Items");
+    TEST_CASE("Elements with defaults")
+    {
+        Arena a = perm;
+        Item* y = a.Make<Item>(3, DEFAULTS);
+        RANGE(i, 3)
+        {
+            CHECK(y[i].a == 4);
+            CHECK(y[i].b == 8);
+        }
+    }
 
-    // ------------------------------------
-    title("\nElements with defaults");
+    TEST_CASE("Elements with default args")
+    {
+        Arena a = perm;
+        Item* y = a.Make<Item>(3, DEFAULTS, 3, 5); // Have to get order of new correct
+        RANGE(i, 3)
+        {
+            CHECK(y[i].a == 3);
+            CHECK(y[i].b == 5);
+        }
+    }
 
-    Item* qd = a.Make<Item>(3, DEFAULTS); // Have to get order of new correct
+    TEST_CASE("Non-zeroed Initialization")
+    {
+        Arena a = perm;
+        Item* y = a.Make<Item>(3, NOZERO);
+        RANGE(i, 3)
+        {
+            // Returns results from prev arena,
+            // so we can assert != 0
+            CHECK(y[i].a != 0);
+            CHECK(y[i].b != 0);
+        }
+    }
 
-    RANGE(i, 3) { printf("%ld: %d, %d\n", i, qd[i].a, qd[i].b); }
-    a.Print("Defaults: 3 Items");
+    // For contrast, after above
+    TEST_CASE("Zeroed Initialization")
+    {
+        Arena a = perm;
+        Item* y = a.Make<Item>(3);
+        RANGE(i, 3)
+        {
+            CHECK(y[i].a == 0);
+            CHECK(y[i].b == 0);
+        }
+    }
 
-    // ------------------------------------
-    title("\nElements with default args");
+    TEST_CASE("Soft-fail")
+    {
+        Arena a = perm;
+        Item* y = a.Make<Item>(1024, SOFTFAIL);
+        CHECK(y == 0);
+    }
 
-    Item* qa = a.Make<Item>(3, DEFAULTS, 3, 5); // Have to get order of new correct
-
-    RANGE(i, 3) { printf("%ld: %d, %d\n", i, qa[i].a, qa[i].b); }
-    a.Print("Args: 3 Items");
-
-    // ------------------------------------
-    return 0;
+    TEST_CASE("TODO: Non-aligned access") { CHECK(1 == 0); }
+    TEST_CASE("TODO: Multiple threads") { CHECK(1 == 0); }
 }

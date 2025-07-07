@@ -30,7 +30,6 @@ target_sources(${PROJECT_NAME}
         src/cmd.cpp
         src/file.cpp
         src/gui.cpp
-        src/index.cpp
         src/map.cpp
         src/str.cpp
 )
@@ -71,7 +70,6 @@ set(public_headers
     include/cmd.h
     include/file.h
     include/gui.h
-    include/index.h
     include/log.h
     include/map.h
     include/range.h

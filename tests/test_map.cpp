@@ -1,6 +1,8 @@
-#include "arena.h"
 #include "map.h"
 #include <cstdio>
+
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest.h"
 
 void map_print(Map<Str> map, Str key)
 {
@@ -12,34 +14,96 @@ void map_print(Map<Str> map, Str key)
     else printf("Not found: %.*s\n", pstr(key));
 }
 
-int main(void)
+TEST_SUITE("Map")
 {
-    // Allocate on arena
-    isize cap_exp = 4;
-    Arena perm    = Arena((1 << cap_exp) * 2 * sizeof(Str)); // Exact memory required
-    Map   map     = Map<Str>(&perm, cap_exp);                // 2^4 = 16 elements when full
+    TEST_CASE("Struct size")
+    {
+        CHECK(sizeof(Map<Str>) == 24); // 8(keys) + 8(vals) + 8(cap_exp)
+    }
 
-    // Insert some values
-    *map.Lookup("hello") = "hi";
-    map_print(map, "hello");
+    Arena a = Arena(1024); // 1KB
 
-    *map.Lookup("how") = "are";
-    map_print(map, "how");
+    TEST_CASE("Initialization")
+    {
+        Arena temp    = a;
+        isize cap_exp = 4;
+        Map   map     = Map<Str>(&temp, cap_exp); // 2^4 = 16 elements when full
+        CHECK(map.cap_exp == 4);
+    }
 
-    // Can store empty strings
-    *map.Lookup("you") = "";
-    map_print(map, "you");
+    TEST_CASE("Lookup: Successful")
+    {
+        Arena temp    = a;
+        isize cap_exp = 4;
+        Map   map     = Map<Str>(&temp, cap_exp); // 2^4 = 16 elements when full
 
-    // Check missing key
-    map_print(map, "doing");
+        Str key = "hello";
+        Str val = "hi";
 
-    // Delete entry
-    //  - is this correct??
-    //  - what happens to collisions?
-    //  - if datatype is `int`?
-    //  - don't we need gravestones?
-    *map.Lookup("hello") = Str{};
-    map_print(map, "hello");
+        *map.Lookup(key) = val;
 
-    return 0;
+        Str* ret = map.Lookup(key);
+        CHECK(*ret == val);
+    }
+
+    TEST_CASE("Lookup: Unsuccessful TODO: API is wild currently")
+    {
+        Arena temp    = a;
+        isize cap_exp = 4;
+        Map   map     = Map<Str>(&temp, cap_exp); // 2^4 = 16 elements when full
+
+        Str key = "hello";
+        Str val = "hi";
+
+        *map.Lookup(key) = val;
+
+        Str ret = *map.Lookup("how");
+        CHECK(ret.buf == 0);
+    }
+
+    TEST_CASE("Insertion: Original key, original val")
+    {
+        Arena temp    = a;
+        isize cap_exp = 4;
+        Map   map     = Map<Str>(&temp, cap_exp); // 2^4 = 16 elements when full
+
+        Str key = "hello";
+        Str val = "hi";
+
+        *map.Lookup(key) = val;
+
+        Str* ret = map.Lookup(key);
+        CHECK(*ret == val);
+    }
+
+    TEST_CASE("Insertion: Different keys, original val")
+    {
+        Arena temp    = a;
+        isize cap_exp = 4;
+        Map   map     = Map<Str>(&temp, cap_exp); // 2^4 = 16 elements when full
+
+        Str key1 = "hello";
+        Str key2 = "hello";
+        Str val  = "hi";
+
+        *map.Lookup(key1) = val;
+
+        Str* ret = map.Lookup(key2);
+        CHECK(*ret == val);
+    }
 }
+
+// // Insert some values
+// *map.Lookup("hello") = "hi";
+// map_print(map, "hello");
+//
+// *map.Lookup("how") = "are";
+// map_print(map, "how");
+//
+// // Can store empty strings
+// *map.Lookup("you") = "";
+// map_print(map, "you");
+//
+// // Check missing key
+// map_print(map, "doing");
+//

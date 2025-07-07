@@ -31,7 +31,7 @@ template <typename T> struct Slice {
         len++;
     }
 
-    // Get ith item
+    // Get ith item by reference
     T* operator[](isize i)
     {
         assert(i >= 0);
@@ -39,7 +39,7 @@ template <typename T> struct Slice {
         return &data[i];
     }
 
-    // Get (i - j)th item
+    // Get (i - j)th item by reference
     Slice<T> operator[](isize i, isize j)
     {
         assert(i >= 0);

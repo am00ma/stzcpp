@@ -1,64 +1,58 @@
-#include "log.h"
-#include "range.h"
 #include "slice.h"
 
-#include <cstdio> // printf
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest.h"
 
 typedef struct Item {
     i32 a = 4;
     i32 b = 8;
 } Item;
 
-int main(void)
+TEST_SUITE("Buf")
 {
-    // ------------------------------------
-    Arena a = Arena(1024 * 1024); // 1 MB
-    a.Print("Initial");
+    Arena a = Arena(1024); // 1 KB
 
-    // ------------------------------------
-    title("Append");
-    Slice<i32> s = Slice<i32>(&a, 2);
-
-    s.Append(12);
-    s.Append(24);
-    RANGE(i, s.len) { debug("%ld: %d", i, s.data[i]); }
-
-    // ------------------------------------
-    title("Index");
-
-    Slice<i32> vec = Slice<i32>(&a, 3);
-    RANGE(i, vec.cap) { vec.Append(i); }
-    RANGE(i, vec.len)
+    TEST_CASE("Stuct size")
     {
-        *vec[i] = i + 10;
-        debug("%ld: %d", i, *vec[i]);
+        CHECK(sizeof(Slice<i32>) == 24);  // 8(buf) + 8(len) + 8(cap)
+        CHECK(sizeof(Slice<Item>) == 24); // 8(buf) + 8(len) + 8(cap)
     }
 
-    // ------------------------------------
-    title("Subslice");
+    TEST_CASE("Append")
+    {
+        Slice<i32> s = Slice<i32>(&a, 2);
+        s.Append(12);
+        s.Append(24);
+        CHECK(*s[0] == 12);
+        CHECK(*s[1] == 24);
+    }
 
-    Slice<i32> vec2 = Slice<i32>(&a, 10);
-    RANGE(i, vec2.cap) { vec2.Append(i); }
+    TEST_CASE("Item: By reference")
+    {
+        Slice<i32> s = Slice<i32>(&a, 3);
+        RANGE(i, s.cap) { s.Append(i); }
+        RANGE(i, s.len) { *s[i] = i + 10; }
+        CHECK(s.data[0] == 10);
+    }
 
-    debug("Changing element of original");
-    auto sub = vec2[5, 8];
-    *sub[1] = 53;
-    RANGE(i, sub.len) { debug("%ld: %d", i, *sub[i]); }
+    TEST_CASE("Subslice: By reference")
+    {
+        Slice<i32> s = Slice<i32>(&a, 10);
+        RANGE(i, s.cap) { s.Append(i); }
+        Slice<i32> sub = s[5, 8];
+        CHECK(sub.len == 3);
+        RANGE(i, sub.cap) { CHECK(*sub[i] == *s[5 + i]); }; // Check values
+    }
 
-    debug("Check effect on origial");
-    RANGE(i, vec2.len) { debug("%ld: %d", i, *vec2[i]); }
-
-    // ------------------------------------
-    title("Subslice - copy");
-
-    Slice<i32> vec3 = Slice<i32>(&a, 10);
-    RANGE(i, vec3.cap) { vec3.Append(i); }
-
-    debug("Changing element of copy");
-    auto sub2 = vec3[5, 8, &a];
-    *sub2[1] = 53;
-    RANGE(i, sub2.len) { debug("%ld: %d", i, *sub2[i]); }
-
-    debug("Check effect on origial");
-    RANGE(i, vec3.len) { debug("%ld: %d", i, *vec3[i]); }
+    TEST_CASE("Subslice: By reference")
+    {
+        Slice<i32> s = Slice<i32>(&a, 10);
+        RANGE(i, s.cap) { s.Append(i); }
+        auto sub = s[5, 8, &a];
+        *sub[1]  = 53;
+        CHECK(*sub[0] == *s[5]);
+        CHECK(*sub[1] == 53);
+        CHECK(*s[6] == 6);
+        CHECK(*sub[2] == *s[7]);
+    }
 }

@@ -1,5 +1,4 @@
 #include "buf.h"
-#include <cstdio>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
@@ -9,7 +8,6 @@ TEST_SUITE("Buf")
 
     TEST_CASE("Stuct size")
     {
-        // The struct itself is very light, with 3 64 bit integers
         CHECK(sizeof(Buf) == 24); // 8(buf) + 8(len) + 8(cap)
     }
 
@@ -22,7 +20,7 @@ TEST_SUITE("Buf")
 
         Str src = "hello hi, alles good?\n";
 
-        // Some example parsing algo
+        // Find 'l' in src
         RANGE(i, src.len)
         {
             if (src.buf[i] == 'l')
@@ -48,7 +46,7 @@ TEST_SUITE("Buf")
         Buf   buf  = Buf(&a, 512); // Alloc buffer
         Arena temp = a;            // Space 'above' buffer
 
-        // Some example parsing algo
+        // Find 'l' in src
         Str src = "hello hi, alles good?\n";
 
         RANGE(i, src.len)

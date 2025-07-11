@@ -58,25 +58,25 @@ TEST_SUITE("Arena")
     }
 
     // Make arena once to borrow for each case
-    Arena perm = Arena(1024); // 1 KB
+    Arena a = Arena(1024); // 1 KB
 
     TEST_CASE("Allocated sizes")
     {
-        Arena a = perm;
+        Arena a = a;
         i32*  x = a.Make<i32>();
         CHECK(a.Used() == 4);
     }
 
     TEST_CASE("Zeroed Initialization for primitives")
     {
-        Arena a = perm;
+        Arena a = a;
         i32*  y = a.Make<i32>(3);
         RANGE(i, 3) { CHECK(y[i] == 0); }
     }
 
     TEST_CASE("Zeroed Initialization for structs")
     {
-        Arena a = perm;
+        Arena a = a;
         Item* y = a.Make<Item>(3);
         RANGE(i, 3)
         {
@@ -87,7 +87,7 @@ TEST_SUITE("Arena")
 
     TEST_CASE("Elements with defaults")
     {
-        Arena a = perm;
+        Arena a = a;
         Item* y = a.Make<Item>(3, DEFAULTS);
         RANGE(i, 3)
         {
@@ -98,7 +98,7 @@ TEST_SUITE("Arena")
 
     TEST_CASE("Elements with default args")
     {
-        Arena a = perm;
+        Arena a = a;
         Item* y = a.Make<Item>(3, DEFAULTS, 3, 5); // Have to get order of new correct
         RANGE(i, 3)
         {
@@ -109,7 +109,7 @@ TEST_SUITE("Arena")
 
     TEST_CASE("Non-zeroed Initialization")
     {
-        Arena a = perm;
+        Arena a = a;
         Item* y = a.Make<Item>(3, NOZERO);
         RANGE(i, 3)
         {
@@ -123,7 +123,7 @@ TEST_SUITE("Arena")
     // For contrast, after above
     TEST_CASE("Zeroed Initialization")
     {
-        Arena a = perm;
+        Arena a = a;
         Item* y = a.Make<Item>(3);
         RANGE(i, 3)
         {
@@ -134,7 +134,7 @@ TEST_SUITE("Arena")
 
     TEST_CASE("Soft-fail")
     {
-        Arena a = perm;
+        Arena a = a;
         Item* y = a.Make<Item>(1024, SOFTFAIL);
         CHECK(y == 0);
     }

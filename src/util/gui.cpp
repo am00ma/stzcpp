@@ -1,5 +1,5 @@
-#include "gui.h"
 #include "log.h"
+#include "util/gui.h"
 
 /* ---------------------------------------------------------------------------
  * Callbacks

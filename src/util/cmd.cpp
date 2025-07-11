@@ -1,6 +1,5 @@
-#include "cmd.h"
 #include "buf.h"
-#include "types.h"
+#include "util/cmd.h"
 
 #include <sys/wait.h> // waitpid, pid
 #include <unistd.h>   // pipe, dup2, fork, close

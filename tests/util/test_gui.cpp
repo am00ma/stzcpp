@@ -1,5 +1,5 @@
-#include "gui.h"
 #include "log.h"
+#include "util/gui.h"
 
 /* ---------------------------------------------------------------------------
  * Some state we want to track

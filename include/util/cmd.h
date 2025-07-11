@@ -13,7 +13,7 @@ typedef enum {
 typedef struct Cmd {
     Str stdout;
     Str stderr;
-    int status;
+    i32 status;
 } Cmd;
 
 // Run with default output of 16 MB, error of 2 MB

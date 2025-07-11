@@ -26,12 +26,14 @@ target_link_libraries(${PROJECT_NAME}
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/arena.cpp
-        src/buf.cpp
-        src/cmd.cpp
-        src/file.cpp
-        src/gui.cpp
-        src/map.cpp
         src/str.cpp
+        src/buf.cpp
+        src/slice.cpp
+        src/map.cpp
+        src/trie.cpp
+        src/util/cmd.cpp
+        src/util/file.cpp
+        src/util/gui.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -45,36 +47,20 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-# totally optional listing of include directories
-get_property(inclds
-    TARGET ${PROJECT_NAME}
-    PROPERTY INCLUDE_DIRECTORIES
-)
-message(STATUS "Listing include directories for ${PROJECT_NAME}...")
-# "dumb" listing with "raw" generator expressions on configuration
-foreach(pth ${inclds})
-    message(STATUS "  ${pth}")
-endforeach()
-# actually evaluated generator expressions printed to file on generation
-string(JOIN "\n" includeDirectories ${inclds})
-file(GENERATE
-    OUTPUT "${CMAKE_BINARY_DIR}/include-directories.txt"
-    CONTENT ${includeDirectories}
-)
-
 # without it public headers won't get installed
 set(public_headers
+    include/types.h
+    include/range.h
+    include/log.h
     include/arena.h
+    include/str.h
     include/buf.h
     include/slice.h
-    include/cmd.h
-    include/file.h
-    include/gui.h
-    include/log.h
     include/map.h
-    include/range.h
-    include/str.h
-    include/types.h
+    include/trie.h
+    include/util/cmd.h
+    include/util/file.h
+    include/util/gui.h
 )
 
 # not for MSVC

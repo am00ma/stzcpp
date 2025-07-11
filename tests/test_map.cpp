@@ -92,18 +92,3 @@ TEST_SUITE("Map")
         CHECK(*ret == val);
     }
 }
-
-// // Insert some values
-// *map.Lookup("hello") = "hi";
-// map_print(map, "hello");
-//
-// *map.Lookup("how") = "are";
-// map_print(map, "how");
-//
-// // Can store empty strings
-// *map.Lookup("you") = "";
-// map_print(map, "you");
-//
-// // Check missing key
-// map_print(map, "doing");
-//

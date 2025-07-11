@@ -1,23 +1,20 @@
-add_executable(test_arena test_arena.cpp)
-target_link_libraries(test_arena PRIVATE stz)
+function(add_test_stz TNAME)
+    add_executable(test_${TNAME} test_${TNAME}.cpp)
+    target_link_libraries(test_${TNAME} PRIVATE stz)
+endfunction()
 
-add_executable(test_buf test_buf.cpp)
-target_link_libraries(test_buf PRIVATE stz)
+function(add_test_util TNAME)
+    add_executable(test_${TNAME} util/test_${TNAME}.cpp)
+    target_link_libraries(test_${TNAME} PRIVATE stz)
+endfunction()
 
-add_executable(test_cmd test_cmd.cpp)
-target_link_libraries(test_cmd PRIVATE stz)
 
-add_executable(test_file test_file.cpp)
-target_link_libraries(test_file PRIVATE stz)
+add_test_stz(arena)
+add_test_stz(str)
+add_test_stz(buf)
+add_test_stz(slice)
+add_test_stz(map)
 
-add_executable(test_gui test_gui.cpp)
-target_link_libraries(test_gui PRIVATE stz)
-
-add_executable(test_map test_map.cpp)
-target_link_libraries(test_map PRIVATE stz)
-
-add_executable(test_str test_str.cpp)
-target_link_libraries(test_str PRIVATE stz)
-
-add_executable(test_slice test_slice.cpp)
-target_link_libraries(test_slice PRIVATE stz)
+add_test_util(file)
+add_test_util(cmd)
+add_test_util(gui)

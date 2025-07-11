@@ -11,11 +11,11 @@ TEST_SUITE("Buf")
         CHECK(sizeof(Buf) == 24); // 8(buf) + 8(len) + 8(cap)
     }
 
-    Arena perm = Arena(1024 * 4);
+    Arena a = Arena(1024 * 4);
 
     TEST_CASE("Usage: Use full maxlen")
     {
-        Arena a   = perm;
+        Arena a   = a;
         Buf   buf = Buf(&a, 512);
 
         Str src = "hello hi, alles good?\n";
@@ -42,7 +42,7 @@ TEST_SUITE("Buf")
 
     TEST_CASE("Usage: Use temp buffer to optimize mem usage")
     {
-        Arena a    = perm;
+        Arena a    = a;
         Buf   buf  = Buf(&a, 512); // Alloc buffer
         Arena temp = a;            // Space 'above' buffer
 

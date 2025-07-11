@@ -5,8 +5,13 @@
 
 TEST_SUITE("Str")
 {
-    // ------------------------------------
-    Arena perm = Arena(1024); // 1KB
+
+    TEST_CASE("Stuct size")
+    {
+        CHECK(sizeof(Str) == 16); // 8(buf) + 8(len)
+    }
+
+    Arena a = Arena(1024); // 1KB
 
     TEST_CASE("Length of empty string")
     {
@@ -43,14 +48,14 @@ TEST_SUITE("Str")
 
     TEST_CASE("Initialization: Arena")
     {
-        Arena a = perm;
+        Arena a = a;
         Str   x = Str(&a, 6);
         CHECK(x.len == 6); // 6 bytes of 0s, i.e. ""
     }
 
     TEST_CASE("Initialization: Formatted string")
     {
-        Arena a = perm;
+        Arena a = a;
         Str   x = Str(&a, 20, "Hello: %s", "hi"); // needs maxlen
         CHECK(x.len == 5 + 2 + 2);
     }
@@ -92,7 +97,7 @@ TEST_SUITE("Str")
 
     TEST_CASE("Methods: Cstr - C style null terminated string")
     {
-        Arena a = perm;
+        Arena a = a;
         Str   x = "123456";
         char* y = x.Cstr(&a);
         RANGE(i, x.len) { CHECK(y[i] == x.buf[i]); }
@@ -101,7 +106,7 @@ TEST_SUITE("Str")
 
     TEST_CASE("Methods: Copy - Copy to arena")
     {
-        Arena a = perm;
+        Arena a = a;
         Str   x = "123456";
 
         Str y1 = x.Copy(&a);
@@ -119,7 +124,7 @@ TEST_SUITE("Str")
 
     TEST_CASE("Methods: Split - Default, ignore_empty, substitute_null")
     {
-        Arena a = perm;
+        Arena a = a;
         Str   x = "  123456 789 ";
 
         // ignore_empty = true, substitute_null = false

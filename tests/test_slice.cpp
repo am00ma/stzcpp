@@ -3,23 +3,25 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-typedef struct Item {
-    i32 a = 4;
-    i32 b = 8;
-} Item;
-
-TEST_SUITE("Buf")
+TEST_SUITE("Slice")
 {
-    Arena a = Arena(1024); // 1 KB
+
+    typedef struct Item {
+        i32 a = 4;
+        i32 b = 8;
+    } Item;
+
+    Arena perm = Arena(1024); // 1 KB
 
     TEST_CASE("Stuct size")
     {
         CHECK(sizeof(Slice<i32>) == 24);  // 8(buf) + 8(len) + 8(cap)
-        CHECK(sizeof(Slice<Item>) == 24); // 8(buf) + 8(len) + 8(cap)
+        CHECK(sizeof(Slice<Item>) == 24); // independent of value type
     }
 
     TEST_CASE("Append")
     {
+        Arena      a = perm;
         Slice<i32> s = Slice<i32>(&a, 2);
         s.Append(12);
         s.Append(24);
@@ -29,6 +31,7 @@ TEST_SUITE("Buf")
 
     TEST_CASE("Item: By reference")
     {
+        Arena      a = perm;
         Slice<i32> s = Slice<i32>(&a, 3);
         RANGE(i, s.cap) { s.Append(i); }
         RANGE(i, s.len) { *s[i] = i + 10; }
@@ -37,6 +40,7 @@ TEST_SUITE("Buf")
 
     TEST_CASE("Subslice: By reference")
     {
+        Arena      a = perm;
         Slice<i32> s = Slice<i32>(&a, 10);
         RANGE(i, s.cap) { s.Append(i); }
         Slice<i32> sub = s[5, 8];
@@ -46,6 +50,7 @@ TEST_SUITE("Buf")
 
     TEST_CASE("Subslice: By reference")
     {
+        Arena      a = perm;
         Slice<i32> s = Slice<i32>(&a, 10);
         RANGE(i, s.cap) { s.Append(i); }
         auto sub = s[5, 8, &a];

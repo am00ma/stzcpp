@@ -3,19 +3,6 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-typedef struct Item {
-    i32 a = 4;
-    i32 b = 8;
-} Item;
-
-void print_cap(isize i, isize cap)
-{
-
-    printf("%ld: %ld B\n  %ld MB\n  %ld GB\n  %ld TB\n  %ld PB\n  %ld EB\n", i, //
-           cap, cap / (1024 * 1024), cap / (1024 * 1024 * 1024), cap / ((isize)1024 * 1024 * 1024 * 1024),
-           cap / ((isize)1024 * 1024 * 1024 * 1024 * 1024), cap / ((isize)1024 * 1024 * 1024 * 1024 * 1024 * 1024));
-}
-
 TEST_SUITE("Arena")
 {
 
@@ -33,7 +20,6 @@ TEST_SUITE("Arena")
         isize cap = 1;
         RANGE(i, 63)
         {
-            // print_cap(i, cap);
             Arena a = Arena(cap);
             CHECK(a.cap == cap);
 
@@ -48,7 +34,6 @@ TEST_SUITE("Arena")
         // RANGE(i, 63)
         RANGE(i, 35)
         {
-            // print_cap(i, cap);
             Arena a = Arena(cap);
             CHECK(a.cap == cap);
             a.Free();
@@ -58,25 +43,31 @@ TEST_SUITE("Arena")
     }
 
     // Make arena once to borrow for each case
-    Arena a = Arena(1024); // 1 KB
+    Arena perm = Arena(1024); // 1 KB
 
     TEST_CASE("Allocated sizes")
     {
-        Arena a = a;
+        Arena a = perm;
         i32*  x = a.Make<i32>();
         CHECK(a.Used() == 4);
     }
 
     TEST_CASE("Zeroed Initialization for primitives")
     {
-        Arena a = a;
+        Arena a = perm;
         i32*  y = a.Make<i32>(3);
         RANGE(i, 3) { CHECK(y[i] == 0); }
     }
 
+    // Arbitrary datatype
+    typedef struct Item {
+        i32 a = 4;
+        i32 b = 8;
+    } Item;
+
     TEST_CASE("Zeroed Initialization for structs")
     {
-        Arena a = a;
+        Arena a = perm;
         Item* y = a.Make<Item>(3);
         RANGE(i, 3)
         {
@@ -87,7 +78,7 @@ TEST_SUITE("Arena")
 
     TEST_CASE("Elements with defaults")
     {
-        Arena a = a;
+        Arena a = perm;
         Item* y = a.Make<Item>(3, DEFAULTS);
         RANGE(i, 3)
         {
@@ -98,7 +89,7 @@ TEST_SUITE("Arena")
 
     TEST_CASE("Elements with default args")
     {
-        Arena a = a;
+        Arena a = perm;
         Item* y = a.Make<Item>(3, DEFAULTS, 3, 5); // Have to get order of new correct
         RANGE(i, 3)
         {
@@ -109,7 +100,7 @@ TEST_SUITE("Arena")
 
     TEST_CASE("Non-zeroed Initialization")
     {
-        Arena a = a;
+        Arena a = perm;
         Item* y = a.Make<Item>(3, NOZERO);
         RANGE(i, 3)
         {
@@ -123,7 +114,7 @@ TEST_SUITE("Arena")
     // For contrast, after above
     TEST_CASE("Zeroed Initialization")
     {
-        Arena a = a;
+        Arena a = perm;
         Item* y = a.Make<Item>(3);
         RANGE(i, 3)
         {
@@ -134,7 +125,7 @@ TEST_SUITE("Arena")
 
     TEST_CASE("Soft-fail")
     {
-        Arena a = a;
+        Arena a = perm;
         Item* y = a.Make<Item>(1024, SOFTFAIL);
         CHECK(y == 0);
     }

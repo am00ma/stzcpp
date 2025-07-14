@@ -1,3 +1,4 @@
+#include "range.h"
 #include "trie.h"
 #include <cstdio>
 
@@ -13,7 +14,52 @@ TEST_SUITE("Trie")
                       "hello2", "hi2", "how2", "are2", "you2", //
                       "hello3", "hi3", "how3", "are3", "you3"};
 
-    TEST_CASE("Algorithm") { STrie m = {}; }
+    Arena a = Arena(1024 * 1024); // 1KB
+
+    TEST_CASE("Algorithm")
+    {
+        STrie  trie = {};
+        STrie* m    = &trie;
+
+        Arena* temp = &a;
+
+        printf("\n");
+        printf("%7s | %16s | %16s | %5s \n", "key", "hash", "hash << 2", "child");
+
+        RANGE(i, 5)
+        {
+            auto key  = testkeys[i];
+            auto hash = testkeys[i].Hash64();
+
+            printf("%7.*s | %016lX | %016lX | %5ld \n", pstr(key), hash, hash << 2, (hash << 2) >> 62);
+
+            printf("Iterating: %p\n", m);
+            for (auto h = key.Hash64(); m; hash <<= 2)
+            {
+                if (key == m->key)
+                {
+                    // Found
+                    printf("Found \n");
+                    goto out;
+                }
+                m = m->child[hash >> 62];
+                printf("Iterating: %p\n", m);
+            }
+
+            if (!temp)
+            {
+                printf("Not found \n");
+                goto out;
+            }
+
+            // New key val pair
+            m      = temp->Make<STrie>();
+            m->key = key;
+            printf("New %p \n", m);
+
+        out:
+        }
+    }
 
     TEST_CASE("Struct size")
     {

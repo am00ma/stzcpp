@@ -33,12 +33,6 @@ template <typename V> struct Map {
     /* ---------------------------------------------------------------------------
      * Lookup and Insert
      * ------------------------------------------------------------------------- */
-    // Now we leverage equals and hash64 for a double-hashed, open address search on
-    // the keys array.
-    // By returning a pointer to the unmodified value slot, this function covers
-    // both lookup and insertion. So that’s the entire hash table implementation. To
-    // insert, the caller assigns the slot. For mere lookup, check the slot for a
-    // null pointer.
     V* Lookup(Str key)
     {
         u64 hash = key.Hash64(); // Hashing: O(n)

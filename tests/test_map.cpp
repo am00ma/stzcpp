@@ -146,4 +146,8 @@ TEST_SUITE("Map")
         Str* ret = map.Lookup(testkeys[0]);
         CHECK(*ret == Str("hi"));
     }
+
+    // TODO: Other types as values
+    // TODO: Null value handling
+    // TODO: Processing time and metrics
 }

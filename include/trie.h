@@ -4,7 +4,7 @@
 
 template <typename V> struct Trie {
 
-    Trie<V>* child[4] = {}; // TrieAry = 4
+    Trie<V>* child[4] = {};
 
     Str key = ""; // Also gravestone?
     V   val = 0;  // Do we need a pointer?
@@ -19,15 +19,19 @@ template <typename V> struct Trie {
 
     V* Upsert(Str key, Arena* a)
     {
-        auto m = &this;
-        for (auto h = key.Hash64(); *m; h <<= 2)
+        Trie<V>* m[1] = {};
+        for (auto h = key.Hash64(); m; h <<= 2)
         {
-            if (key == (*m)->key) { return &(*m)->val; }
-            m = &(*m)->child[h >> 62];
+            if (key == m->key) { return &m->val; } // Found
+            else { m = m->child[h >> 62]; }        // Check child
         }
-        if (!a) { return 0; }
-        *m     = a->Make<Trie>();
-        *m.key = key;
-        return &(*m)->val;
+
+        if (!a) { return 0; } // No insert, only get
+
+        m = a->Make<Trie>(); // Create new map
+
+        m->key = key; // Store key (Non-owning version)
+
+        return &m->val; // Val for set/get
     }
 };

@@ -23,44 +23,33 @@ TEST_SUITE("Trie")
         Arena* temp = &a;
         printf("\n");
 
-        RANGE(i, 1)
+        RANGE(i, 10)
         {
-            STrie*  now[1]  = {};
-            STrie** nowstar = 0;
-            now[0]          = &trie;
-            *nowstar        = &trie;
-            printf("1. %2ld | %16p \n", i, (void*)now[0]);
+            STrie*  buf[1] = {&trie};
+            STrie** m      = buf;
 
             Str   key    = testkeys[i];
             u64   hash   = testkeys[i].Hash64();
             isize offset = 0;
 
-            while (now[0] != 0)
+            while (*m)
             {
                 // Found key
-                if (key == now[0]->key) { break; }
+                if (key == buf[0]->key) { break; }
 
                 // Compute offset
                 offset = hash >> 62;
                 assert((offset >= 0) && (offset <= 3));
 
                 // Proceed to child
-                now[0] = now[0]->child[offset];
-                printf("2. %2ld | %16p \n", i, (void*)now[0]);
+                m = &(*m)->child[offset];
 
                 hash <<= 2;
             }
 
             // Got null child, alloc memory and insert
-            now[0]      = &(*temp->Make<STrie>());
-            now[0]->key = key;
-            printf("3. %2ld | %16p \n", i, (void*)now[0]);
-
-            // // Got null child, alloc memory and insert
-            // old->child[offset]      = ins;
-            // old->child[offset]->key = key;
-
-            RANGE(j, 4) { printf("-- %2ld | %16p \n", j, (void*)trie.child[j]); }
+            *m        = temp->Make<STrie>();
+            (*m)->key = key;
         }
     }
 
@@ -78,38 +67,40 @@ TEST_SUITE("Trie")
         CHECK(trie.val.len == 0);
     }
 
-    // TEST_CASE("Insert, Lookup: Successful")
-    // {
-    //     Arena a    = perm;
-    //     STrie trie = {};
-    //
-    //     Str key = "hello";
-    //     Str val = "hi";
-    //
-    //     // Insert key, val
-    //     *trie.Upsert(key, &a) = val;
-    //
-    //     // Lookup
-    //     Str* ret = trie.Upsert(key, &a);
-    //
-    //     // CHECK(ret == Str("hi"));
-    // }
+    TEST_CASE("Insert, Lookup: Successful")
+    {
+        Arena a    = perm;
+        STrie trie = {};
 
-    // TEST_CASE("Lookup: Unsuccessful TODO: API is wild currently")
-    // {
-    //     Arena a       = perm;
-    //     isize cap_exp = 4;
-    //     Map   map     = Map<Str>(&a, cap_exp); // 2^4 = 16 elements when full
-    //
-    //     Str key = "hello";
-    //     Str val = "hi";
-    //
-    //     *map.Insert(key) = val;
-    //
-    //     Str* ret = map.Lookup("how");
-    //     CHECK(ret == 0);
-    // }
-    //
+        Str key = "hello";
+        Str val = "hi";
+
+        // Insert key, val
+        *trie.Upsert(key, &a) = val;
+
+        // Lookup
+        Str* ret = trie.Upsert(key, 0);
+
+        CHECK(*ret == Str("hi"));
+    }
+
+    TEST_CASE("Lookup: Unsuccessful TODO: API is wild currently")
+    {
+        Arena a    = perm;
+        STrie trie = {};
+
+        Str key = "hello";
+        Str val = "hi";
+
+        // Insert key, val
+        *trie.Upsert(key, &a) = val;
+
+        // Lookup
+        Str* ret = trie.Upsert("how", 0);
+
+        CHECK(ret == 0);
+    }
+
     // TEST_CASE("Insertion: Original key, original val")
     // {
     //     Arena a       = perm;
@@ -124,7 +115,7 @@ TEST_SUITE("Trie")
     //     Str* ret = map.Lookup(key);
     //     CHECK(*ret == val);
     // }
-    //
+
     // TEST_CASE("Insertion: Different keys, original val")
     // {
     //     Arena a       = perm;
@@ -140,7 +131,7 @@ TEST_SUITE("Trie")
     //     Str* ret = map.Lookup(key2);
     //     CHECK(*ret == val);
     // }
-    //
+
     // TEST_CASE("Insertion: More than max elements")
     // {
     //     Arena a       = perm;

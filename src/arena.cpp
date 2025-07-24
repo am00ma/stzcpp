@@ -35,7 +35,7 @@ char* Arena::Alloc(isize objsize, isize align, isize count, b32 flags)
     {
         if (flags & SOFTFAIL) return 0;
 
-        Fatal(-1, "Alloc failed: count: %ld < req: %ld", count, (end - beg - pad / objsize));
+        Fatal(-1, "Alloc failed: count: %ld < req: %ld; used: %ld / cap: %ld", count, (end - beg - pad / objsize), cap - (end - beg), cap);
         oom(count, end, beg, pad, objsize);
         return 0; // TODO: OOM message with trace
     }

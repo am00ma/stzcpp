@@ -58,7 +58,7 @@ TEST_SUITE("Trie")
         CHECK(sizeof(STrie) == 64); // 8*4=32(*child) + 16(Str) + 16(V==Str)
     }
 
-    Arena perm = Arena(1024); // 1KB
+    Arena perm = Arena(2048); // 2KB
 
     TEST_CASE("Initialization")
     {
@@ -194,6 +194,15 @@ TEST_SUITE("Trie")
         CHECK(orig->buf != key.buf);
     }
 
+    TEST_CASE("Iteration: Typical usage")
+    {
+        Arena a    = perm;
+        STrie trie = {};
+        RANGE(i, 20) { *trie[testkeys[i], &a] = testkeys[i]; }
+        RANGE(i, 20) { CHECK(*trie[testkeys[i]] == testkeys[i]); }
+
+        // for key, val in trie.items(): ...
+    }
     // TODO: Iteration
     // TODO: Other types as values
     // TODO: Processing time and metrics

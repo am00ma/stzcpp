@@ -31,6 +31,7 @@ target_sources(${PROJECT_NAME}
         src/slice.cpp
         src/map.cpp
         src/trie.cpp
+        src/ltrie.cpp
         src/util/cmd.cpp
         src/util/file.cpp
         src/util/gui.cpp
@@ -58,6 +59,7 @@ set(public_headers
     include/slice.h
     include/map.h
     include/trie.h
+    include/ltrie.h
     include/util/cmd.h
     include/util/file.h
     include/util/gui.h

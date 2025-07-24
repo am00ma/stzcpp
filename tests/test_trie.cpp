@@ -137,8 +137,64 @@ TEST_SUITE("Trie")
         CHECK(orig->buf != key.buf);
     }
 
-    // TODO: Storing values
+    TEST_CASE("Insert, Lookup: Operator")
+    {
+        Arena a    = perm;
+        STrie trie = {};
+
+        Str key = "hello";
+        Str val = "hi";
+
+        *trie[key, &a] = val;
+
+        Str* ret = trie[key];
+        CHECK(*ret == val);
+
+        Str* orig = trie.OrigKey(key);
+        CHECK(orig->len == key.len);
+        CHECK(orig->buf == key.buf);
+    }
+
+    TEST_CASE("Usage: Typical usage")
+    {
+        Arena a    = perm;
+        STrie trie = {};
+        Str*  ret  = {};
+
+        *trie["hello", &a] = "hi";
+        *trie["how", &a]   = "are";
+        *trie["you", &a]   = "";
+
+        CHECK(*trie["hello"] == Str("hi"));
+        CHECK(*trie["how"] == Str("are"));
+
+        // Can store empty string as well
+        ret = trie["you"];
+        CHECK(ret != 0);
+        CHECK(*ret == Str(""));
+
+        // Check failed lookup
+        ret = trie["today"];
+        CHECK(ret == 0);
+
+        // Check 'owning status' of key
+        Str* orig;
+        Str  key = "the key string";
+
+        *trie[key, &a, false] = "is not in arena";
+
+        orig = trie.OrigKey(key);
+        CHECK(orig->len == key.len);
+        CHECK(orig->buf == key.buf);
+
+        *trie[key, &a, true] = "is in arena";
+
+        orig = trie.OrigKey(key);
+        CHECK(orig->len == key.len);
+        CHECK(orig->buf != key.buf);
+    }
+
+    // TODO: Iteration
     // TODO: Other types as values
-    // TODO: Null value handling
     // TODO: Processing time and metrics
 }

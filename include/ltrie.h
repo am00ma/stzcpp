@@ -10,9 +10,10 @@ template <typename V> struct LTrieChild {
     Str key = "";
     V   val = 0;
 
-    void Print()
+    void Print() { printf("%.*s -> %.*s \n", pstr(key), pstr(val)); }
+
+    void PrintChildren()
     {
-        printf("%.*s -> %.*s \n", pstr(key), pstr(val));
         printf("   0: %p \n", (void*)child[0]);
         printf("   1: %p \n", (void*)child[1]);
         printf("   2: %p \n", (void*)child[2]);
@@ -45,23 +46,13 @@ template <typename V> struct LTrie {
 
     V* operator[](Str key, bool insert = false)
     {
-        LTrieChild<V>* m      = &root;
-        LTrieChild<V>* old    = 0;
-        isize          offset = 0;
+        LTrieChild<V>*  buf[1] = {&root};
+        LTrieChild<V>** m      = buf;
 
-        for (auto h = key.Hash64(); m; h <<= 2)
+        for (auto h = key.Hash64(); *m; h <<= 2)
         {
-            if (key == m->key) // Found
-            {
-                m->key = key;
-                return &m->val; // Val for set/get
-            }
-            else
-            {
-                // Check child
-                old = m;
-                m   = m->child[offset];
-            }
+            if (key == (*m)->key) { goto out; } // Found
+            else { m = &(*m)->child[h >> 62]; } // Check child
         }
 
         // No insert, so return not found (len does not increment)
@@ -70,23 +61,23 @@ template <typename V> struct LTrie {
         // We have a new key -> allocate space for new map
         if (len >= cap - 1) { Fatal(-1, "Exceeded capacity: %ld\n", cap); }
 
-        old->child[offset]      = &data[len];
-        old->child[offset]->key = key;
+        *m = &data[len];
         len++;
 
-        return &old->child[offset]->val; // Val for set/get
+    out:
+
+        (*m)->key = key;
+        return &(*m)->val; // Val for set/get
     }
 
-    void Print(const char* label)
+    void Print(const char* label, bool children = false)
     {
         printf("%s: len: %ld, cap: %ld, data: %p\n", label, len, cap, (void*)data);
-        printf("Root: ");
-        root.Print();
-
         RANGE(i, len)
         {
             printf("%ld: ", i);
             data[i].Print(); // Print children
+            if (children) { data[i].PrintChildren(); }
         }
     }
 };

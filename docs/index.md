@@ -17,6 +17,7 @@ Fundamentals:
 5. Index
 6. Map
 7. Trie
+8. LTrie
 
 Utilties:
 

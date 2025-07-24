@@ -6,8 +6,8 @@ template <typename V> struct Trie {
 
     Trie<V>* child[4] = {};
 
-    Str key = ""; // Also gravestone?
-    V   val = 0;  // Do we need a pointer?
+    Str key; // Also gravestone?
+    V   val; // Do we need a pointer?
 
     /* ---------------------------------------------------------------------------
      * Initialization - Usual zero init

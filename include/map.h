@@ -17,13 +17,8 @@ template <typename V> struct Map {
     /* ---------------------------------------------------------------------------
      * Initialization
      * ------------------------------------------------------------------------- */
-    Map(Arena* a)
-    {
-        keys = a->Make<Str>((isize)1 << cap_exp); // Default = 4 (16 elements)
-        vals = a->Make<V>((isize)1 << cap_exp);
-    };
 
-    Map(Arena* a, isize cap_exp_)
+    Map(Arena* a, isize cap_exp_ = 4)
     {
         cap_exp = cap_exp_;
         keys    = a->Make<Str>((isize)1 << cap_exp); // Default = 4 (16 elements)
@@ -69,6 +64,6 @@ template <typename V> struct Map {
             }
             else if (keys[i] == key) { return &vals[i]; } // Equals: O(n)
         }
-        return 0;
+        return 0; // Should be unreachable
     };
 };

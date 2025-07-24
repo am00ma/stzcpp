@@ -7,8 +7,8 @@
 template <typename V> struct LTrieChild {
     LTrieChild<V>* child[4] = {};
 
-    Str key = "";
-    V   val = 0;
+    Str key;
+    V   val;
 
     void Print() { printf("%.*s -> %.*s \n", pstr(key), pstr(val)); }
 

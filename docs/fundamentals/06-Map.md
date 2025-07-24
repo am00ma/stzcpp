@@ -1,8 +1,60 @@
 # Map
 
-- TODO attribution [MSI map](nullprogram.com)
+>  Source: [MSI map](https://nullprogram.com/blog/2022/08/08)
 
-## Meat:
+## API
+
+```cpp
+template <typename V> struct Map {
+    Str*  keys    = 0; // Keys are strings as we need method `u64 Hash64()` and operator `==`
+    V*    vals    = 0; // Any type
+    isize cap_exp = 4; // Default to 16 elements
+    isize len     = 0;
+
+    Map(Arena* a, isize cap_exp_ = 4);
+
+    V* Lookup(Str key);
+    V* Insert(Str key);
+}
+```
+
+## Usage
+
+```cpp
+TEST_CASE("Insert, Lookup: Successful")
+{
+    Arena a       = perm;
+    isize cap_exp = 4;
+    Map   map     = Map<Str>(&a, cap_exp); // 2^4 = 16 elements when full
+
+    Str key = "hello";
+    Str val = "hi";
+
+    *map.Insert(key) = val;
+
+    Str* ret = map.Lookup(key);
+    CHECK(*ret == val);
+}
+
+TEST_CASE("Lookup: Unsuccessful TODO: API is wild currently")
+{
+    Arena a       = perm;
+    isize cap_exp = 4;
+    Map   map     = Map<Str>(&a, cap_exp); // 2^4 = 16 elements when full
+
+    Str key = "hello";
+    Str val = "hi";
+
+    *map.Insert(key) = val;
+
+    Str* ret = map.Lookup("how");
+    CHECK(ret == 0);
+}
+```
+
+## Tests
+
+## Education:
 
 1. Get the hash of key
 2. Compute mask

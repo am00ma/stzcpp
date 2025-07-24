@@ -35,6 +35,7 @@ target_sources(${PROJECT_NAME}
         src/util/cmd.cpp
         src/util/file.cpp
         src/util/gui.cpp
+        src/util/path.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -63,6 +64,7 @@ set(public_headers
     include/util/cmd.h
     include/util/file.h
     include/util/gui.h
+    include/util/path.h
 )
 
 # not for MSVC

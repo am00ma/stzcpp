@@ -28,6 +28,7 @@ typedef struct Arena {
     // Lifetime
     Arena(isize cap_);
     Arena(isize cap_, Arena* src);
+    Arena(char* buf, isize cap_);
 
     // No free by destructor
     // as only applicable if it wasnt allocated with constructors
@@ -59,3 +60,7 @@ typedef struct Arena {
     void Print(const char* label);
 
 } Arena;
+
+#define BufArena(a, buf, cap)                                                                                          \
+    char  buf[cap] = {};                                                                                               \
+    Arena a        = Arena(buf, cap);

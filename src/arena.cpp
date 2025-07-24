@@ -26,6 +26,13 @@ Arena::Arena(isize cap_, Arena* src)
     end = beg ? beg + cap : 0;
 }
 
+Arena::Arena(char* buf, isize cap_)
+{
+    beg = buf;
+    cap = cap_;
+    end = beg + cap;
+}
+
 char* Arena::Alloc(isize objsize, isize align, isize count, b32 flags)
 {
     assert(count >= 0); // Can request 0?
@@ -35,7 +42,8 @@ char* Arena::Alloc(isize objsize, isize align, isize count, b32 flags)
     {
         if (flags & SOFTFAIL) return 0;
 
-        Fatal(-1, "Alloc failed: count: %ld < req: %ld; used: %ld / cap: %ld", count, (end - beg - pad / objsize), cap - (end - beg), cap);
+        Fatal(-1, "Alloc failed: count: %ld < req: %ld; used: %ld / cap: %ld", count, (end - beg - pad / objsize),
+              cap - (end - beg), cap);
         oom(count, end, beg, pad, objsize);
         return 0; // TODO: OOM message with trace
     }

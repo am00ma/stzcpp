@@ -1,0 +1,53 @@
+site_name: stz
+dev_addr: '127.0.0.1:5555'
+
+docs_dir: docs
+site_dir: site
+extra_css:
+  - style.css
+
+theme:
+  name: material
+
+  features:
+    - content.code.copy
+    - content.code.select
+
+nav:
+  - stz: index.md
+
+  - Definitions:
+    - Types: definitions/01-types.md
+    - Log  : definitions/02-log.md
+    - Range: definitions/03-range.md
+
+  - Fundamentals:
+    - Arena: fundamentals/01-Arena.md
+    - Str  : fundamentals/02-Str.md
+    - Buf  : fundamentals/03-Buf.md
+    - Slice: fundamentals/04-Slice.md
+    - Map  : fundamentals/06-Map.md
+    - Trie : fundamentals/07-Trie.md
+    - LTrie: fundamentals/08-LTrie.md
+
+  - Utilities:
+    - File: utilities/01-File.md
+    - Cmd : utilities/02-Cmd.md
+    - Gui : utilities/03-Gui.md
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - footnotes
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+plugins:
+  - search
+  - mermaid2
+  - table-reader

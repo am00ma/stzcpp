@@ -17,7 +17,7 @@ template <typename V> struct Trie {
      * Lookup and Insert
      * ------------------------------------------------------------------------- */
 
-    V* Upsert(Str key, Arena* a)
+    V* Insert(Str key, Arena* a, bool store_key = false)
     {
 
         Trie<V>*  buf[1] = {this};
@@ -33,8 +33,39 @@ template <typename V> struct Trie {
 
         *m = a->Make<Trie<V>>(); // Create new map
 
-        (*m)->key = key; // Store key (Non-owning version)
+        if (store_key)
+        {
+            (*m)->key = key.Copy(a); // Owning version - copy to arena
+        }
+        else
+        {
+            (*m)->key = key; // Non-owning version
+        }
 
         return &(*m)->val; // Val for set/get
+    }
+
+    V* Lookup(Str key)
+    {
+        Trie<V>*  buf[1] = {this};
+        Trie<V>** m      = buf;
+        for (auto h = key.Hash64(); *m; h <<= 2)
+        {
+            if (key == (*m)->key) { return &(*m)->val; } // Found
+            else { m = &(*m)->child[h >> 62]; }          // Check child
+        }
+        return 0;
+    }
+
+    Str* OrigKey(Str key)
+    {
+        Trie<V>*  buf[1] = {this};
+        Trie<V>** m      = buf;
+        for (auto h = key.Hash64(); *m; h <<= 2)
+        {
+            if (key == (*m)->key) { return &(*m)->key; } // Found
+            else { m = &(*m)->child[h >> 62]; }          // Check child
+        }
+        return 0;
     }
 };

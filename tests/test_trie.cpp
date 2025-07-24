@@ -76,15 +76,15 @@ TEST_SUITE("Trie")
         Str val = "hi";
 
         // Insert key, val
-        *trie.Upsert(key, &a) = val;
+        *trie.Insert(key, &a) = val;
 
         // Lookup
-        Str* ret = trie.Upsert(key, 0);
+        Str* ret = trie.Lookup(key);
 
         CHECK(*ret == Str("hi"));
     }
 
-    TEST_CASE("Lookup: Unsuccessful TODO: API is wild currently")
+    TEST_CASE("Insert, Lookup: Unsuccessful")
     {
         Arena a    = perm;
         STrie trie = {};
@@ -93,61 +93,51 @@ TEST_SUITE("Trie")
         Str val = "hi";
 
         // Insert key, val
-        *trie.Upsert(key, &a) = val;
+        *trie.Insert(key, &a) = val;
 
         // Lookup
-        Str* ret = trie.Upsert("how", 0);
+        Str* ret = trie.Lookup("how");
 
         CHECK(ret == 0);
     }
 
-    // TEST_CASE("Insertion: Original key, original val")
-    // {
-    //     Arena a       = perm;
-    //     isize cap_exp = 4;
-    //     Map   map     = Map<Str>(&a, cap_exp); // 2^4 = 16 elements when full
-    //
-    //     Str key = "hello";
-    //     Str val = "hi";
-    //
-    //     *map.Insert(key) = val;
-    //
-    //     Str* ret = map.Lookup(key);
-    //     CHECK(*ret == val);
-    // }
+    TEST_CASE("Insert, Lookup, OrigKey: Non-owning keys")
+    {
+        Arena a    = perm;
+        STrie trie = {};
 
-    // TEST_CASE("Insertion: Different keys, original val")
-    // {
-    //     Arena a       = perm;
-    //     isize cap_exp = 4;
-    //     Map   map     = Map<Str>(&a, cap_exp); // 2^4 = 16 elements when full
-    //
-    //     Str key1 = "hello";
-    //     Str key2 = "hello";
-    //     Str val  = "hi";
-    //
-    //     *map.Insert(key1) = val;
-    //
-    //     Str* ret = map.Lookup(key2);
-    //     CHECK(*ret == val);
-    // }
+        Str key = "hello";
+        Str val = "hi";
 
-    // TEST_CASE("Insertion: More than max elements")
-    // {
-    //     Arena a       = perm;
-    //     isize cap_exp = 4;
-    //     Map   map     = Map<Str>(&a, cap_exp); // 2^4 = 16 elements when full
-    //
-    //     RANGE(i, (1 << cap_exp) + 1)
-    //     {
-    //         Str* ret = map.Insert(testkeys[i]);
-    //         if (ret) { *ret = "hi"; }
-    //     }
-    //
-    //     Str* ret = map.Lookup(testkeys[0]);
-    //     CHECK(*ret == Str("hi"));
-    // }
+        *trie.Insert(key, &a, false) = val;
 
+        Str* ret = trie.Lookup(key);
+        CHECK(*ret == val);
+
+        Str* orig = trie.OrigKey(key);
+        CHECK(orig->len == key.len);
+        CHECK(orig->buf == key.buf);
+    }
+
+    TEST_CASE("Insert, Lookup, OrigKey: Storing keys in arena")
+    {
+        Arena a    = perm;
+        STrie trie = {};
+
+        Str key = "hello";
+        Str val = "hi";
+
+        *trie.Insert(key, &a, true) = val;
+
+        Str* ret = trie.Lookup(key);
+        CHECK(*ret == val);
+
+        Str* orig = trie.OrigKey(key);
+        CHECK(orig->len == key.len);
+        CHECK(orig->buf != key.buf);
+    }
+
+    // TODO: Storing values
     // TODO: Other types as values
     // TODO: Null value handling
     // TODO: Processing time and metrics

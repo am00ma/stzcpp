@@ -169,3 +169,9 @@ u64 Str::Hash64()
     }
     return h;
 };
+
+void Str::Print(const char* label)
+{
+    printf("%s: %.*s\n  len: %ld\n  buf: %p\n", //
+           label, (int)len, buf, len, (void*)buf);
+};

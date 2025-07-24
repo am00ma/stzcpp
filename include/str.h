@@ -78,4 +78,7 @@ typedef struct Str {
     // FNV hash
     u64 Hash64();
 
+    // For debugging
+    void Print(const char* label);
+
 } Str;

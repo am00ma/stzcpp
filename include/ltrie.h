@@ -10,9 +10,9 @@ template <typename V> struct LTrieChild {
     Str key = "";
     V   val = 0;
 
-    void Print(const char* label, isize i)
+    void Print()
     {
-        printf("%ld %s: %.*s -> %.*s \n", i, label, pstr(key), pstr(val));
+        printf("%.*s -> %.*s \n", pstr(key), pstr(val));
         printf("   0: %p \n", (void*)child[0]);
         printf("   1: %p \n", (void*)child[1]);
         printf("   2: %p \n", (void*)child[2]);
@@ -43,44 +43,50 @@ template <typename V> struct LTrie {
      * Lookup and Insert
      * ------------------------------------------------------------------------- */
 
-    V* operator[](Str key, Arena* a = 0)
+    V* operator[](Str key, bool insert = false)
     {
-        LTrieChild<V>*  buf[1] = {root};
-        LTrieChild<V>** m      = buf;
+        LTrieChild<V>* m      = &root;
+        LTrieChild<V>* old    = 0;
+        isize          offset = 0;
 
-        u64 hash = key.Hash64();
-
-        for (auto h = hash; *m; h <<= 2)
+        for (auto h = key.Hash64(); m; h <<= 2)
         {
-            if (key == (*m)->key) // Found
+            if (key == m->key) // Found
             {
-                (*m)->key = key;
-                return &(*m)->val; // Val for set/get
+                m->key = key;
+                return &m->val; // Val for set/get
             }
-            else { m = &(*m)->child[h >> 62]; } // Check child
+            else
+            {
+                // Check child
+                old = m;
+                m   = m->child[offset];
+            }
         }
 
         // No insert, so return not found (len does not increment)
-        if (!a) { return 0; }
+        if (!insert) { return 0; }
 
         // We have a new key -> allocate space for new map
         if (len >= cap - 1) { Fatal(-1, "Exceeded capacity: %ld\n", cap); }
 
-        *m        = &data[len];
-        (*m)->key = key;
+        old->child[offset]      = &data[len];
+        old->child[offset]->key = key;
         len++;
 
-        return &(*m)->val; // Val for set/get
+        return &old->child[offset]->val; // Val for set/get
     }
 
     void Print(const char* label)
     {
         printf("%s: len: %ld, cap: %ld, data: %p\n", label, len, cap, (void*)data);
+        printf("Root: ");
+        root.Print();
 
         RANGE(i, len)
         {
-            printf("%ld: %.*s -> %.*s \n", i, pstr(data[i].key), pstr(data[i].val));
-            RANGE(j, 4) { data[i].Print("  ", j); }
+            printf("%ld: ", i);
+            data[i].Print(); // Print children
         }
     }
 };

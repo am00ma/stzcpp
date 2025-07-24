@@ -31,33 +31,45 @@ TEST_SUITE("LTrie")
         Arena* temp = &a;
         printf("\n");
 
-        RANGE(i, 10)
+        RANGE(i, 5)
         {
-            STrieChild*  buf[1] = {&trie.root};
-            STrieChild** m      = buf;
+            STrieChild* old = 0;
+            STrieChild* m   = &trie.root;
 
             Str   key    = testkeys[i];
             u64   hash   = testkeys[i].Hash64();
             isize offset = 0;
 
-            while (*m)
+            printf("Init: old: %p, m: %p\n", (void*)old, (void*)m);
+
+            m->Print();
+            // old->Print("old: ", 0);
+
+            while (m != 0)
             {
                 // Found key
-                if (key == buf[0]->key) { break; }
+                if (key == m->key) { break; }
 
                 // Compute offset
                 offset = hash >> 62;
                 assert((offset >= 0) && (offset <= 3));
 
+                m->Print();
+
                 // Proceed to child
-                m = &(*m)->child[offset];
+                old = m;
+                m   = m->child[offset];
+                printf("  old: %p, m: %p\n", (void*)old, (void*)m);
 
                 hash <<= 2;
             }
 
             // Got null child, alloc memory and insert
-            *m        = temp->Make<STrieChild>();
-            (*m)->key = key;
+            old->child[offset]      = &trie.data[trie.len];
+            old->child[offset]->key = key;
+            trie.len++;
+
+            old->Print();
         }
     }
 
@@ -67,12 +79,12 @@ TEST_SUITE("LTrie")
         STrie trie = STrie(&a, 25);
         Str*  ret  = {};
 
-        // *trie["hello", &a] = "hi";
-        // *trie["how", &a]   = "are";
-        // *trie["you", &a]   = "";
+        *trie["hello", true] = "hi";
+        *trie["how", true]   = "are";
+        *trie["you", true]   = "";
 
-        // RANGE(i, 20) { *trie[testkeys[i], &a] = testkeys[i]; }
-        // trie.Print("After insert");
+        RANGE(i, 20) { *trie[testkeys[i], true] = testkeys[i]; }
+        trie.Print("After insert");
 
         // CHECK(*trie["hello"] == Str("hi"));
         // CHECK(*trie["how"] == Str("are"));

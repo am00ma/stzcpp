@@ -13,6 +13,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
+find_package(SQLite3 REQUIRED)
 
 add_library(${PROJECT_NAME} STATIC)
 
@@ -21,6 +22,7 @@ target_link_libraries(${PROJECT_NAME}
         stzd
         SDL2
         SDL2_image
+        sqlite3
 )
 
 target_sources(${PROJECT_NAME}

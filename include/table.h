@@ -43,27 +43,26 @@
 
 template <typename RowType> struct Table {
     Strs           cols;
+    Strs           types;
     Slice<RowType> rows;
 
-    Table(Strs cols_, isize cap_, Arena* a)
+    Table(Strs cols_, Strs types_, isize cap_, Arena* a)
     {
-        cols = cols_;
-        rows = Slice<RowType>(a, cap_);
+        cols  = cols_;
+        types = types_;
+        rows  = Slice<RowType>(a, cap_);
     };
 
     void Print()
     {
-        BufArena(temp, buf, 1024);
 
+        printf("   nr.");
+        RANGE(i, cols.len) { printf("%6.*s ", ppstr(cols[i])); }
+        printf("\n");
         RANGE(i, rows.len)
         {
-            printf("%ld: ", i);
-            RANGE(j, cols.len)
-            {
-                //
-                printf("%.*s, ", pstr(rows[i]->Print(j, &temp)));
-            }
-            printf("\n");
+            BufArena(temp, buf, 1024);
+            printf("%5ld: %.*s\n", i, pstr(rows[i]->Print(i, &temp)));
         }
     }
 };

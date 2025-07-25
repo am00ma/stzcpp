@@ -8,17 +8,7 @@ struct RowType {
     isize a;
     isize b;
 
-    Str Print(isize idx, Arena* arena)
-    {
-        Str ret = "";
-        switch (idx)
-        {
-        case 0: ret = Str(arena, 64, "%ld", a); break;
-        case 1: ret = Str(arena, 64, "%ld", b); break;
-        default: break;
-        }
-        return ret;
-    };
+    Str Print(isize idx, Arena* arena) { return Str(arena, 128, "%5ld, %5ld", a, b); };
 };
 
 TEST_SUITE("Table")
@@ -26,8 +16,7 @@ TEST_SUITE("Table")
 
     TEST_CASE("Stuct size")
     {
-
-        CHECK(sizeof(Table<RowType>) == 8 + 8 + 24); // 16(Strs) + 24(Slice)
+        CHECK(sizeof(Table<RowType>) == 16 * 2 + 24); // 16*2(Strs) + 24(Slice) = 32+24 = 56
     }
 
     Arena a = Arena(1024 * 1024);
@@ -36,12 +25,12 @@ TEST_SUITE("Table")
     {
         Arena temp = a;
 
-        Str  names[] = {"a", "b"};
-        Strs cols    = Strs(names, 2);
+        Strs cols  = Strs((Str[]){"a", "b"}, 2);
+        Strs types = Strs((Str[]){"isize", "isize"}, 2);
 
-        auto table = Table<RowType>(cols, 10, &temp);
+        auto table = Table<RowType>(cols, types, 10, &temp);
 
-        RANGE(i, table.rows.cap) { table.rows.Append({i, i + 10}); }
+        RANGE(i, table.rows.cap+2) { table.rows.Append({i, i + 10}); }
 
         table.Print();
     }

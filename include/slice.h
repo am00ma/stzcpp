@@ -1,6 +1,7 @@
 #pragma once
 
 #include "arena.h"
+#include "log.h"
 #include "range.h"
 #include <cassert>
 #include <cstring>
@@ -28,9 +29,12 @@ template <typename T> struct Slice {
 
     void Append(T val)
     {
-        assert(len + 1 <= cap);
-        data[len] = val;
-        len++;
+        if (len + 1 <= cap)
+        {
+            data[len] = val;
+            len++;
+        }
+        else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", len + 1, cap); }
     }
 
     // Get ith item by reference

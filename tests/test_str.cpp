@@ -6,9 +6,14 @@
 TEST_SUITE("Str")
 {
 
-    TEST_CASE("Stuct size")
+    TEST_CASE("Stuct size: Str")
     {
         CHECK(sizeof(Str) == 16); // 8(buf) + 8(len)
+    }
+
+    TEST_CASE("Stuct size: Strs")
+    {
+        CHECK(sizeof(Strs) == 16); // 8(Str*) + 8(len)
     }
 
     Arena perm = Arena(1024); // 1KB

@@ -16,9 +16,10 @@
 #pragma once
 
 #include <cstdio>
-#include <cstring>
-#include <ctime>
-#include <sys/stat.h>
+#include <ctime>      // ctime
+#include <glob.h>     // glob, globfree
+#include <sys/stat.h> // stat
+#include <unistd.h>   // execvp
 
 #include "log.h"
 #include "slice.h"
@@ -70,7 +71,45 @@ typedef struct Path {
         return parts.data[parts.len - 1];
     }
 
-    Slice<Path> Glob(Arena* a);
+    Slice<Path> Glob(Strs patterns, Arena* a)
+    {
+        int         err  = 0;
+        Slice<Path> ret  = {};
+        Arena       temp = *a;
+
+        if (!is_dir()) { return ret; }
+        if (patterns.len == 0) { return ret; }
+
+        glob_t buf;
+        buf.gl_offs = 1;
+
+        // typedef struct {
+        //     size_t   gl_pathc;    /* Count of paths matched so far  */
+        //     char   **gl_pathv;    /* List of matched pathnames.  */
+        //     size_t   gl_offs;     /* Slots to reserve in gl_pathv.  */
+        // } glob_t;
+
+        printf("pattern: %s\n", patterns.data[0].Cstr(&temp));
+        err = glob(patterns.data[0].Cstr(&temp), GLOB_DOOFFS, NULL, &buf);
+        Fatal(err, "Failed glob: %d (GLOB_NOSPACE: %d, GLOB_NOMATCH: %d)", err, GLOB_NOSPACE, GLOB_NOMATCH);
+
+        RANGE(i, 1, patterns.len)
+        {
+            printf("pattern: %s\n", patterns.data[i].Cstr(&temp));
+            err = glob(patterns.data[i].Cstr(&temp), GLOB_DOOFFS | GLOB_APPEND, NULL, &buf);
+            Fatal(err, "Failed glob: %d (GLOB_NOSPACE: %d, GLOB_NOMATCH: %d)", err, GLOB_NOSPACE, GLOB_NOMATCH);
+        }
+
+        printf("Found %ld matches\n", buf.gl_pathc);
+        RANGE(i, buf.gl_offs, buf.gl_pathc + buf.gl_offs)
+        {
+            printf("%zu: [%s]\n", i, (buf.gl_pathv[i] == NULL ? "<null>" : buf.gl_pathv[i]));
+        }
+
+        globfree(&buf);
+
+        return ret;
+    };
 
     void Print(bool verbose = false)
     {
@@ -82,9 +121,9 @@ typedef struct Path {
             printf("  |      name: %.*s\n", pstr(name()));
             printf("  | parts.len: %ld\n", parts.len);
 
-            printf("  |      stat: %s", time_stat());
-            printf("  |       mod: %s", time_mod());
-            printf("  |    access: %s", time_access());
+            // printf("  |      stat: %s", time_stat());
+            // printf("  |       mod: %s", time_mod());
+            // printf("  |    access: %s", time_access());
         }
     }
 

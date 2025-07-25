@@ -72,4 +72,20 @@ TEST_SUITE("Path")
 
         path.Print(true);
     }
+
+    TEST_CASE("glob")
+    {
+
+        printf(COLOR_BLUE_BOLD "--- GLOB ---\n" COLOR_RESET);
+        Arena a    = perm;
+        Path  path = {};
+
+        path = Path("./");
+        CHECK(path.is_dir());
+
+        Strs patterns    = Strs(&a, 2);
+        patterns.data[0] = "*.md";
+        patterns.data[1] = "**/*.cpp";
+        path.Glob(patterns, &a);
+    }
 }

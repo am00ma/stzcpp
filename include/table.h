@@ -33,6 +33,8 @@
 //     – Cells may be empty.
 //     – The data in cells of column c must match the sort of the c-th element of the schema.
 
+// Might as well use sqlite3
+
 #pragma once
 
 #include "arena.h"

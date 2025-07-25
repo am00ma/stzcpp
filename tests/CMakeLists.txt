@@ -16,6 +16,7 @@ add_test_stz(slice)
 add_test_stz(map)
 add_test_stz(trie)
 add_test_stz(ltrie)
+add_test_stz(table)
 
 add_test_util(file)
 add_test_util(cmd)

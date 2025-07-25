@@ -32,6 +32,7 @@ target_sources(${PROJECT_NAME}
         src/map.cpp
         src/trie.cpp
         src/ltrie.cpp
+        src/table.cpp
         src/util/cmd.cpp
         src/util/file.cpp
         src/util/gui.cpp
@@ -61,6 +62,7 @@ set(public_headers
     include/map.h
     include/trie.h
     include/ltrie.h
+    include/table.h
     include/util/cmd.h
     include/util/file.h
     include/util/gui.h

@@ -15,10 +15,13 @@
 
 #pragma once
 
+#include <cerrno> // errno
 #include <cstdio>
-#include <ctime>      // ctime
-#include <fcntl.h>    // Definition of AT_* constants
-#include <glob.h>     // glob, globfree
+#include <cstdlib>
+#include <ctime>   // ctime
+#include <fcntl.h> // Definition of AT_* constants
+#include <glob.h>  // glob, globfree
+#include <linux/limits.h>
 #include <sys/stat.h> // stat
 #include <unistd.h>   // execvp
 
@@ -32,22 +35,56 @@ typedef struct Path {
     Str  path   = {};
     bool exists = false;
 
-    struct stat info = {}; // Zero init (e.g. times for non-existent files)
+    char* rpath = 0; // Unfortunately, needed for absolute path
 
-    Strs parts = {};
+    struct stat info = {}; // Zero init (e.g. times for non-existent files)
 
     Path() = default;
 
     Path(Str path_)
     {
-        // Eliminate trailing slash
-        path = path_;
-        if (path.buf[path.len - 1] == '/') { path.len--; }
+        debug("Path(\"%.*s\")", pstr(path_));
 
         // Use proper null terminated string
-        BufArena(temp, buf, 1024);
-        int ret = stat(path.Cstr(&temp), &info);
+        BufArena(temp, buf, 4096 * 2); // Too much for stack?
+        char* cpath = path_.Cstr(&temp);
+
+        debug("cpath: %s", cpath);
+
+        // Get absolute path
+        debug("PATH_MAX: %d", PATH_MAX);
+
+        char* rpath = realpath(__FILE__, NULL);
+        if (rpath)
+        { // or: if (res != NULL)
+            printf("This source is at %s.\n", rpath);
+        }
+        else
+        {
+            char* errStr = strerror(errno);
+            printf("error string: %s\n", errStr);
+
+            perror("realpath");
+            exit(EXIT_FAILURE);
+        }
+        debug("rpath: %s", rpath);
+
+        // Store buf and len (will free on descructor)
+        path = Str(rpath, strlen(rpath));
+
+        int ret = stat(cpath, &info);
         exists  = (ret == 0);
+    }
+
+    // NOTE: How to avoid this? if only rpath would provide an arena based system
+    ~Path()
+    {
+        debug("~Path()");
+        if (rpath)
+        {
+            debug("freeing rpath: %p", (void*)rpath);
+            free(rpath);
+        }
     }
 
     bool is_dir() { return S_ISDIR(info.st_mode); }
@@ -62,13 +99,16 @@ typedef struct Path {
     char* time_mod() { return ctime(&info.st_mtime); }
     char* time_access() { return ctime(&info.st_atime); }
 
-    void Parse(Arena* a) { parts = Str(path).Split(a, "/", false); }
-
     // TODO: Edge cases -> multiple '/', starting '/', ending '/'
     Str name()
     {
-        Fatal(parts.len == 0, "Parse(Arena* a) needs to be invoked");
-        return parts.data[parts.len - 1];
+        isize len = 0;
+        RANGE(i, path.len)
+        {
+            if (path.buf[i] == '/') { len = i; }
+        }
+        Str p = Str(&path.buf[len], path.len - len);
+        return p;
     }
 
     // TODO: Needs arenaless join
@@ -131,9 +171,8 @@ typedef struct Path {
 
         if (verbose)
         {
-            Fatal(parts.len == 0, "Parse(Arena* a) needs to be invoked");
-            printf("  |      name: %.*s\n", pstr(name()));
-            printf("  | parts.len: %ld\n", parts.len);
+            printf("  name: %.*s\n", pstr(name()));
+            printf("parent: %.*s\n", pstr(parent().path));
         }
     }
 

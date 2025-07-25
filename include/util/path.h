@@ -17,10 +17,12 @@
 
 #include <cstdio>
 #include <ctime>      // ctime
+#include <fcntl.h>    // Definition of AT_* constants
 #include <glob.h>     // glob, globfree
 #include <sys/stat.h> // stat
 #include <unistd.h>   // execvp
 
+#include "arena.h"
 #include "log.h"
 #include "slice.h"
 #include "str.h"
@@ -38,8 +40,13 @@ typedef struct Path {
 
     Path(Str path_)
     {
-        path    = path_;
-        int ret = stat(path.buf, &info);
+        // Eliminate trailing slash
+        path = path_;
+        if (path.buf[path.len - 1] == '/') { path.len--; }
+
+        // Use proper null terminated string
+        BufArena(temp, buf, 1024);
+        int ret = stat(path.Cstr(&temp), &info);
         exists  = (ret == 0);
     }
 
@@ -65,10 +72,15 @@ typedef struct Path {
     }
 
     // TODO: Needs arenaless join
-    Str parent()
+    Path parent()
     {
-        Fatal(parts.len == 0, "Parse(Arena* a) needs to be invoked");
-        return parts.data[parts.len - 1];
+        isize len = 0;
+        RANGE(i, path.len)
+        {
+            if (path.buf[i] == '/') { len = i; }
+        }
+        Str p = Str(path.buf, len);
+        return Path(p);
     }
 
     Slice<Path> Glob(Strs patterns, Arena* a)
@@ -98,17 +110,13 @@ typedef struct Path {
             if ((err != 0) && (err != GLOB_NOMATCH)) { Fatal(err, "Failed glob: %d", err); }
         }
 
-        ret      = Slice<Path>();
-        ret.data = a->Make<Path>(buf.gl_pathc);
-        ret.len  = buf.gl_pathc;
-        ret.cap  = buf.gl_pathc;
-
+        ret = Slice<Path>(a, buf.gl_pathc);
         RANGE(i, buf.gl_offs, buf.gl_pathc + buf.gl_offs)
         {
             if (buf.gl_pathv[i])
             {
                 Str f = Str(buf.gl_pathv[i], strlen(buf.gl_pathv[i])).Copy(a, true); // Copy to our arena
-                *ret[i - buf.gl_offs] = Path(f);
+                ret.Append(Path(f));
             }
         }
 
@@ -126,10 +134,6 @@ typedef struct Path {
             Fatal(parts.len == 0, "Parse(Arena* a) needs to be invoked");
             printf("  |      name: %.*s\n", pstr(name()));
             printf("  | parts.len: %ld\n", parts.len);
-
-            // printf("  |      stat: %s", time_stat());
-            // printf("  |       mod: %s", time_mod());
-            // printf("  |    access: %s", time_access());
         }
     }
 

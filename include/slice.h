@@ -11,12 +11,14 @@ template <typename T> struct Slice {
     isize cap;
 
     Slice() = default;
+
     Slice(T* data_, isize len_, isize cap_)
     {
         data = data_;
         len  = len_;
         cap  = cap_;
     };
+
     Slice(Arena* a, isize cap_)
     {
         len  = 0;

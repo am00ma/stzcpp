@@ -28,9 +28,10 @@ TEST_SUITE("Path")
         path = Path(".");
         CHECK(path.exists);
 
-        // Trailing slash
+        // Remove Trailing slash
         path = Path("./");
         CHECK(path.exists);
+        CHECK(path.path == Str("."));
     }
 
     TEST_CASE("not exists")
@@ -75,5 +76,20 @@ TEST_SUITE("Path")
         CHECK(paths[1]->path == Str("README.md"));
         CHECK(paths[2]->path == Str("tests/util/test_path.cpp"));
         CHECK(paths[3]->path == Str("include/range.h"));
+    }
+
+    TEST_CASE("parent")
+    {
+        Arena a = perm;
+        Path  path;
+
+        path = Path("/tmp/hello/hi/how.are.you");
+        printf("Parent: %.*s -> %.*s\n", pstr(path.path), pstr(path.parent().path));
+        CHECK(path.parent().path == Str("/tmp/hello/hi"));
+
+        // BUG: need to handle absolute paths, trailing slashes
+        path = Path("./");
+        printf("Parent: %.*s -> %.*s\n", pstr(path.path), pstr(path.parent().path));
+        CHECK(path.parent().path == Str(""));
     }
 }

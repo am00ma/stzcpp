@@ -151,4 +151,15 @@ TEST_SUITE("Str")
     }
 
     TEST_CASE("Methods: Split - multichar separator") { /* TODO */ }
+
+    TEST_CASE("Strs: Initialization")
+    {
+        Str  list[3] = {"a", "b", "c"};
+        Strs parts   = Strs(list, 3);
+        CHECK(*parts[0] == Str("a"));
+        CHECK(*parts[1] == Str("b"));
+        CHECK(*parts[2] == Str("c"));
+        *parts[1] = "d";
+        CHECK(*parts[1] == Str("d"));
+    }
 }

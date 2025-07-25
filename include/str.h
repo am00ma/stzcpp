@@ -12,14 +12,8 @@
 #define ppstr(x) (int)x->len, x->buf
 
 // List of strings, for ops like split
-typedef struct Str Str;
-typedef struct Strs {
-    Str*  data;
-    isize len;
-
-    Strs() = default;
-    Strs(Arena* a, isize len_);
-} Strs;
+typedef struct Str  Str;
+typedef struct Strs Strs;
 
 /* ---------------------------------------------------------------------------
  * Counted string
@@ -82,3 +76,20 @@ typedef struct Str {
     void Print(const char* label);
 
 } Str;
+
+typedef struct Strs {
+
+    Str*  data;
+    isize len;
+
+    Strs() = default;
+    Strs(Arena* a, isize len_);
+    Strs(Str* data_, isize len_);
+
+    Str* operator[](isize i)
+    {
+        if (i < 0) return 0;
+        return &data[i];
+    };
+
+} Strs;

@@ -5,12 +5,20 @@
 #include <cstdarg> // va_start, va_end, va_list
 #include <cstring>
 
+template <typename T, int sz> int size(T (&)[sz]) { return sz; }
+
 /* ---------------------------------------------------------------------------
  * Initialization
  * ------------------------------------------------------------------------- */
 Strs::Strs(Arena* a, isize len_)
 {
     data = a->Make<Str>(len_);
+    len  = len_;
+};
+
+Strs::Strs(Str* data_, isize len_)
+{
+    data = data_;
     len  = len_;
 };
 

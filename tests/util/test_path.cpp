@@ -83,9 +83,8 @@ TEST_SUITE("Path")
         path = Path("./");
         CHECK(path.is_dir());
 
-        Strs patterns    = Strs(&a, 2);
-        patterns.data[0] = "*.md";
-        patterns.data[1] = "**/*.cpp";
+        Str  list[]   = {"*.md", "**/*.cpp"};
+        Strs patterns = Strs(list, 2);
         path.Glob(patterns, &a);
     }
 }

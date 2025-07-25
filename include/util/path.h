@@ -1,29 +1,8 @@
-// S_ISBLK(m)
-//     Test for a block special file.
-// S_ISCHR(m)
-//     Test for a character special file.
-// S_ISDIR(m)
-//     Test for a directory.
-// S_ISFIFO(m)
-//     Test for a pipe or FIFO special file.
-// S_ISREG(m)
-//     Test for a regular file.
-// S_ISLNK(m)
-//     Test for a symbolic link.
-// S_ISSOCK(m)
-//     Test for a socket.
-
 #pragma once
 
-#include <cerrno> // errno
-#include <cstdio>
-#include <cstdlib>
-#include <ctime>   // ctime
-#include <fcntl.h> // Definition of AT_* constants
-#include <glob.h>  // glob, globfree
-#include <linux/limits.h>
+#include <ctime>      // ctime
+#include <glob.h>     // glob, globfree
 #include <sys/stat.h> // stat
-#include <unistd.h>   // execvp
 
 #include "arena.h"
 #include "log.h"
@@ -35,56 +14,25 @@ typedef struct Path {
     Str  path   = {};
     bool exists = false;
 
-    char* rpath = 0; // Unfortunately, needed for absolute path
-
     struct stat info = {}; // Zero init (e.g. times for non-existent files)
 
     Path() = default;
 
     Path(Str path_)
     {
-        debug("Path(\"%.*s\")", pstr(path_));
+        // Non-owning (underlying buf of Str is not in our control)
+        path = path_;
+
+        // Remove trailing slash
+        if (path.buf[path.len - 1] == '/') { path.len--; }
 
         // Use proper null terminated string
-        BufArena(temp, buf, 4096 * 2); // Too much for stack?
+        BufArena(temp, buf, 4096);
         char* cpath = path_.Cstr(&temp);
 
-        debug("cpath: %s", cpath);
-
-        // Get absolute path
-        debug("PATH_MAX: %d", PATH_MAX);
-
-        char* rpath = realpath(__FILE__, NULL);
-        if (rpath)
-        { // or: if (res != NULL)
-            printf("This source is at %s.\n", rpath);
-        }
-        else
-        {
-            char* errStr = strerror(errno);
-            printf("error string: %s\n", errStr);
-
-            perror("realpath");
-            exit(EXIT_FAILURE);
-        }
-        debug("rpath: %s", rpath);
-
-        // Store buf and len (will free on descructor)
-        path = Str(rpath, strlen(rpath));
-
+        // Get stats (dir/file, size, etc)
         int ret = stat(cpath, &info);
         exists  = (ret == 0);
-    }
-
-    // NOTE: How to avoid this? if only rpath would provide an arena based system
-    ~Path()
-    {
-        debug("~Path()");
-        if (rpath)
-        {
-            debug("freeing rpath: %p", (void*)rpath);
-            free(rpath);
-        }
     }
 
     bool is_dir() { return S_ISDIR(info.st_mode); }
@@ -107,11 +55,12 @@ typedef struct Path {
         {
             if (path.buf[i] == '/') { len = i; }
         }
-        Str p = Str(&path.buf[len], path.len - len);
+        if (len == 0) { return path; }; // No '/' found => full path is name
+        Str p = Str(&path.buf[len + 1], path.len - len - 1);
         return p;
     }
 
-    // TODO: Needs arenaless join
+    // TODO: Edge cases -> multiple '/', starting '/', ending '/'
     Path parent()
     {
         isize len = 0;
@@ -123,6 +72,7 @@ typedef struct Path {
         return Path(p);
     }
 
+    // TODO: Keep glob buffer and dont copy?
     Slice<Path> Glob(Strs patterns, Arena* a)
     {
         int         err  = 0;
@@ -168,11 +118,10 @@ typedef struct Path {
     void Print(bool verbose = false)
     {
         printf(COLOR_BLUE_BOLD "%.*s\n" COLOR_RESET, pstr(path));
-
         if (verbose)
         {
-            printf("  name: %.*s\n", pstr(name()));
-            printf("parent: %.*s\n", pstr(parent().path));
+            printf("    name: %.*s\n", pstr(name()));
+            printf("  parent: %.*s\n", pstr(parent().path));
         }
     }
 

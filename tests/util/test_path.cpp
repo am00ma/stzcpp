@@ -23,20 +23,14 @@ TEST_SUITE("Path")
         // Current file
         path = Path(__FILE__);
         CHECK(path.exists);
-        path.Parse(&a);
-        path.Print(true);
 
         // Current directory
         path = Path(".");
         CHECK(path.exists);
-        path.Parse(&a);
-        path.Print(true);
 
         // Trailing slash
         path = Path("./");
         CHECK(path.exists);
-        path.Parse(&a);
-        path.Print(true);
     }
 
     TEST_CASE("not exists")
@@ -47,44 +41,39 @@ TEST_SUITE("Path")
         // Empty string
         path = Path("");
         CHECK(!path.exists);
-        path.Parse(&a);
-        path.Print(true);
 
         // Random file
         path = Path("./hello");
         CHECK(!path.exists);
-        path.Parse(&a);
-        path.Print(true);
 
         // Does not recognize home directory yet
         path = Path("~");
         CHECK(!path.exists);
-        path.Parse(&a);
-        path.Print(true);
     }
 
     TEST_CASE("parts")
     {
-        Arena a = perm;
-
-        Path path = Path("/tmp/hello/hi/how.are.you");
+        Arena a    = perm;
+        Path  path = Path("/tmp/hello/hi/how.are.you");
         path.Parse(&a);
-
-        path.Print(true);
+        CHECK(path.parts.len == 5);
     }
 
     TEST_CASE("glob")
     {
-
-        printf(COLOR_BLUE_BOLD "--- GLOB ---\n" COLOR_RESET);
         Arena a    = perm;
-        Path  path = {};
+        Path  path = Path("./");
 
-        path = Path("./");
-        CHECK(path.is_dir());
+        Str  list[]   = {"*.md", "tests/**/*path.cpp", "**/range.h"};
+        Strs patterns = Strs(list, 3);
 
-        Str  list[]   = {"*.md", "**/*.cpp"};
-        Strs patterns = Strs(list, 2);
-        path.Glob(patterns, &a);
+        Slice<Path> paths = path.Glob(patterns, &a);
+
+        CHECK(patterns.len == 3);
+        CHECK(paths.len == 4);
+        CHECK(paths[0]->path == Str("BUILDING.md"));
+        CHECK(paths[1]->path == Str("README.md"));
+        CHECK(paths[2]->path == Str("tests/util/test_path.cpp"));
+        CHECK(paths[3]->path == Str("include/range.h"));
     }
 }

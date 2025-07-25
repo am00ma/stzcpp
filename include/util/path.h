@@ -89,21 +89,27 @@ typedef struct Path {
         //     size_t   gl_offs;     /* Slots to reserve in gl_pathv.  */
         // } glob_t;
 
-        printf("pattern: %s\n", patterns.data[0].Cstr(&temp));
         err = glob(patterns.data[0].Cstr(&temp), GLOB_DOOFFS, NULL, &buf);
-        Fatal(err, "Failed glob: %d (GLOB_NOSPACE: %d, GLOB_NOMATCH: %d)", err, GLOB_NOSPACE, GLOB_NOMATCH);
+        if ((err != 0) && (err != GLOB_NOMATCH)) { Fatal(err, "Failed glob: %d", err); }
 
         RANGE(i, 1, patterns.len)
         {
-            printf("pattern: %s\n", patterns.data[i].Cstr(&temp));
             err = glob(patterns.data[i].Cstr(&temp), GLOB_DOOFFS | GLOB_APPEND, NULL, &buf);
-            Fatal(err, "Failed glob: %d (GLOB_NOSPACE: %d, GLOB_NOMATCH: %d)", err, GLOB_NOSPACE, GLOB_NOMATCH);
+            if ((err != 0) && (err != GLOB_NOMATCH)) { Fatal(err, "Failed glob: %d", err); }
         }
 
-        printf("Found %ld matches\n", buf.gl_pathc);
+        ret      = Slice<Path>();
+        ret.data = a->Make<Path>(buf.gl_pathc);
+        ret.len  = buf.gl_pathc;
+        ret.cap  = buf.gl_pathc;
+
         RANGE(i, buf.gl_offs, buf.gl_pathc + buf.gl_offs)
         {
-            printf("%zu: [%s]\n", i, (buf.gl_pathv[i] == NULL ? "<null>" : buf.gl_pathv[i]));
+            if (buf.gl_pathv[i])
+            {
+                Str f = Str(buf.gl_pathv[i], strlen(buf.gl_pathv[i])).Copy(a, true); // Copy to our arena
+                *ret[i - buf.gl_offs] = Path(f);
+            }
         }
 
         globfree(&buf);

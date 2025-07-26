@@ -2,41 +2,68 @@
 
 ## Pretty output
 
+### Colors
+
 ```cpp
-#define COLOR_RESET      "\033[0m"
-#define COLOR_RED        "\033[0;31m"
-#define COLOR_GREEN      "\033[0;32m"
-#define COLOR_BLUE       "\033[0;34m"
-#define COLOR_BLUE_BOLD  "\033[1;34m"
-#define COLOR_BOLD_RED   "\033[1;31m"
-#define COLOR_BOLD_BLUE  "\033[1;34m"
-#define COLOR_BOLD_GREEN "\033[1;32m"
+--8<-- "docs/code/include/log.h:6:13"
+```
 
-#define title(...) (fprintf(stderr, COLOR_BLUE_BOLD), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
-#define debug(...) (fprintf(stderr, COLOR_BLUE), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
-#define error(...)                                                                                                     \
-    (fprintf(stderr, COLOR_RED "Error: "), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
+### title(...)
 
+Bold blue text with format string.
+
+```cpp
+--8<-- "docs/code/include/log.h:15:15"
+```
+
+### debug(...)
+
+Blue text with format string.
+
+```cpp
+--8<-- "docs/code/include/log.h:16:16"
+```
+
+### error(...)
+
+Red text, `[E]` prefix, format string after
+
+```cpp
+--8<-- "docs/code/include/log.h:17:17"
 ```
 
 ## Error handling
 
-```cpp
-// Technically ...
-#define Fatal(err, ...)                                                                                                \
-    if ((err) != 0)                                                                                                    \
-    {                                                                                                                  \
-        error(__VA_ARGS__);                                                                                            \
-        debug("[@] %s:%d", __FILE__, __LINE__);                                                                        \
-        exit(EXIT_FAILURE);                                                                                            \
-    }
+### Fatal(err, ...)
 
-// Spicy naming, but ok
-#define Return(err, ...)                                                                                               \
-    if ((err) != 0)                                                                                                    \
-    {                                                                                                                  \
-        error(__VA_ARGS__);                                                                                            \
-        debug("[@] %s:%d", __FILE__, __LINE__);                                                                        \
-        return err;                                                                                                    \
-    }
+Crash entirely
+
+```cpp
+--8<-- "docs/code/include/log.h:23:29"
+```
+
+### CheckErr(err, ...)
+
+Print error but continue
+
+```cpp
+--8<-- "docs/code/include/log.h:32:37"
+```
+
+### Return(err, ...)
+
+Print error and return to parent
+
+```cpp
+--8<-- "docs/code/include/log.h:40:46"
+```
+
+### Assert(err, ...)
+
+Debugger friendly assert
+
+- [nullprogram: Assertions should be more debugger-oriented](https://nullprogram.com/blog/2022/06/26/)
+
+```cpp
+--8<-- "docs/code/include/log.h:49:55"
 ```

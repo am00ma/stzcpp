@@ -2,7 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <cstring>
+#include <cstring> // memcpy, memcmp
 
 /* ---------------------------------------------------------------------------
  * Types

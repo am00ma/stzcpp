@@ -3,35 +3,19 @@
 ## Imports
 
 ```cpp
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
+--8<-- "docs/code/include/types.h:3:5"
 ```
+
 ## Types
 
-```cpp
-typedef uint8_t   u8;
-typedef int32_t   b32;
-typedef int16_t   i16;
-typedef int32_t   i32;
-typedef int64_t   i64;
-typedef uint16_t  u16;
-typedef uint32_t  u32;
-typedef uint64_t  u64;
-typedef char16_t  c16;
-typedef float     f32;
-typedef double    f64;
-typedef uintptr_t uptr;
-typedef ptrdiff_t isize;
-typedef size_t    usize;
+- [My personal C coding style as of late 2023](https://nullprogram.com/blog/2023/10/08/)
 
+```cpp
+--8<-- "docs/code/include/types.h:10:23"
 ```
 
 ## Result
 
 ```cpp
-template <typename T, typename E> struct Result {
-    T data;
-    E err;
-};
+--8<-- "docs/code/include/types.h:28:31"
 ```

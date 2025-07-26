@@ -18,9 +18,12 @@ Fundamentals:
 6. Map
 7. Trie
 8. LTrie
+9. Table
 
 Utilties:
 
 1. File
 2. Cmd
 3. Gui
+4. Path
+5. Db

@@ -12,9 +12,11 @@
     int         TEST_SUCCESS_CASES  = 0;                                                                               \
     int         TEST_SUCCESS_CHECKS = 0;                                                                               \
     title("%s", TEST_TITLE);                                                                                           \
-    pretty(COLOR_ITALIC_YELLOW, "  %3s  %-50s %8s  .  %8s ", "", "Case", "Correct", "Total");                          \
+    pretty(COLOR_YELLOW, "| %3s  | %-50s | %8s | %8s |", "", "Case", "Correct", "Total");                              \
+    pretty(COLOR_YELLOW, "| %3s  | %-50s | %8s | %8s |", "---", "----", "-------", "-----");                           \
     for (TEST_DONE = 0; TEST_DONE < 1;                                                                                 \
-         (pretty(COLOR_ITALIC_GREEN, "    ✔ %3d / %3d cases", TEST_SUCCESS_CASES, TEST_CASES), TEST_DONE++))
+         (pretty(COLOR_GREEN, "| %3s  | %-50s | %8s | %8s |", "---", "----", "-------", "-----"),                      \
+          pretty(COLOR_GREEN, "|   ✔  | %-50s | %8d | %8d |", "Cases", TEST_SUCCESS_CASES, TEST_CASES), TEST_DONE++))
 
 // Putting statements at end of for loop makes them execute after scope
 
@@ -22,7 +24,7 @@
 #define TEST_CASE(label)                                                                                               \
     for (TEST_INDEX = 0; TEST_INDEX < 1;                                                                               \
             (                                                                                                          \
-            pretty(COLOR_RESET, "  %3d. %-50s %8d  .  %8d ", TEST_CASES+1, label, TEST_SUCCESS_CHECKS, TEST_CHECKS),   \
+            pretty(COLOR_RESET, "|  %3d | %-50s | %8d | %8d |", TEST_CASES+1, label, TEST_SUCCESS_CHECKS, TEST_CHECKS),\
             TEST_SUCCESS_CASES += (TEST_SUCCESS_CHECKS == TEST_CHECKS),                                                \
             TEST_CHECKS = 0, TEST_SUCCESS_CHECKS = 0,                                                                  \
             TEST_INDEX++,                                                                                              \
@@ -46,7 +48,7 @@
         TEST_CHECKS++;                                                                                                 \
         if (!(cond))                                                                                                   \
         {                                                                                                              \
-            pretty(COLOR_YELLOW, "%s:%d", __FILE__, __LINE__);                                                  \
+            pretty(COLOR_YELLOW, "%s:%d", __FILE__, __LINE__);                                                         \
             error("Failed: %s", #cond);                                                                                \
         }                                                                                                              \
         else { TEST_SUCCESS_CHECKS++; }                                                                                \

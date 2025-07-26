@@ -1,6 +1,7 @@
 #include "log.h"
 #include "slice.h"
 #include "util/db.h"
+#include "util/path.h"
 #include "util/templates/sql/create.h"
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
@@ -16,24 +17,43 @@ TEST_SUITE("Db")
 
     TEST_CASE("Initialization")
     {
-        Db db = Db("/tmp/tmp.db");
+        // Remove file if it exists
+        Path path = Path("/tmp/tmp.db");
+        if (path.exists) { CheckErr(FileDelete(path.path), "Could not Delete"); }
+
+        // Refresh path, check that it deleted
+        path = Path(path.path);
+        CHECK(!path.exists);
+
+        // Actually open, in SQL READ WRITE mode
+        Db db = Db(path.path);
         db.Print();
 
+        // Create COMPANY table
+        debug("%s\n", SQL_CREATE_TABLE);
         DbError err = db.ExecVoid(SQL_CREATE_TABLE);
         CheckErr(err, "ExecVoid(SQL_CREATE_TABLE) failed");
+
+        // Remove test db
+        path = Path(path.path);
+        if (path.exists) { CheckErr(FileDelete(path.path), "Could not Delete"); }
     }
 
     TEST_CASE("Create Table")
     {
-        Db db = Db("/tmp/tmp.db");
+        // Remove test db
+        Path path = Path("/tmp/tmp.db");
+        if (path.exists) { CheckErr(FileDelete(path.path), "Could not Delete"); }
+
+        Db db = Db(path.path);
         db.Print();
 
         // Columns
         Slice<DbColumn> columns = Slice<DbColumn>(&db.mem, 4);
-        columns.Append(DbColumn(0, "int", CELL_INTEGER, true, "nan", true));
-        columns.Append(DbColumn(1, "text", CELL_TEXT));
-        columns.Append(DbColumn(2, "float", CELL_REAL));
-        columns.Append(DbColumn(3, "blob", CELL_BLOB));
+        columns + DbColumn(0, "int", CELL_INTEGER, true, "nan", true);
+        columns + DbColumn(1, "text", CELL_TEXT);
+        columns + DbColumn(2, "float", CELL_REAL);
+        columns + DbColumn(3, "blob", CELL_BLOB);
 
         Str     ret = {};
         DbError err = {};
@@ -51,5 +71,9 @@ TEST_SUITE("Db")
         CheckErr(err, "ExecVoid(SQL_CREATE_TABLE) failed");
 
         db.Print();
+
+        // Remove test db
+        path = Path(path.path);
+        if (path.exists) { CheckErr(FileDelete(path.path), "Could not Delete"); }
     }
 }

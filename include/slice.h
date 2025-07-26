@@ -37,6 +37,18 @@ template <typename T> struct Slice {
         else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", len + 1, cap); }
     }
 
+    // Identical to Append
+    Slice<T>* operator+(T val)
+    {
+        if (len + 1 <= cap)
+        {
+            data[len] = val;
+            len++;
+        }
+        else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", len + 1, cap); }
+        return this;
+    }
+
     // Get ith item by reference
     T* operator[](isize i)
     {

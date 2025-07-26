@@ -3,11 +3,14 @@
 #include <ctime>      // ctime
 #include <glob.h>     // glob, globfree
 #include <sys/stat.h> // stat
+#include <unistd.h>   // unlink
 
 #include "arena.h"
 #include "log.h"
 #include "slice.h"
 #include "str.h"
+
+int FileDelete(Str path);
 
 // TODO: Use Str assuming null terminated, as validated by strlen
 typedef struct Path {

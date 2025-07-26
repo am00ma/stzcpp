@@ -207,7 +207,6 @@ Str StmtCreateTable(Str tablename, Slice<DbColumn> columns, Arena* a)
 
     RANGE(i, columns.len)
     {
-        //
         ret + "  ";
         ret + Str(&temp, 1024, "%10.*s", pstr(columns[i]->name));
         ret + "  ";

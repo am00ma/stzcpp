@@ -44,7 +44,7 @@ typedef struct Buf {
     }
 
     // Use with '+', Exactly same as Join
-    Buf operator+(Str c)
+    Buf* operator+(Str c)
     {
         if (len + c.len >= cap)
         {
@@ -53,7 +53,7 @@ typedef struct Buf {
         }
         memcpy(&buf[len], c.buf, c.len);
         len += c.len;
-        return *this; // By value
+        return this; // By reference -> clears up mysteries around chaining
     }
 
     // Get ith item by reference

@@ -22,13 +22,13 @@ TEST_SUITE("Buf")
         Buf tmp = {};
 
         // Append Str and return Str
-        tmp = buf + "Hello";
+        tmp = *(buf + "Hello");
 
         // Empty brackets returns full Str (till len)
         CHECK(tmp[] == Str("Hello"));
 
         // No gaps
-        tmp = buf + "Hi";
+        tmp = *(buf + "Hi");
         CHECK(tmp[] == Str("HelloHi"));
 
         // Confirm arena usage, return string

@@ -1,7 +1,5 @@
 #include "doctest.h"
-#include "log.h"
 #include "str.h"
-#include <cstring>
 
 int main()
 {
@@ -9,26 +7,32 @@ int main()
     TEST_SUITE("Str")
     {
 
-        TEST_CASE("Stuct size: Str")
+        TEST_CASE("Size: Str")
         {
             CHECK(sizeof(Str) == 16); // 8(buf) + 8(len)
         }
 
-        TEST_CASE("Stuct size: Strs")
+        TEST_CASE("Size: Strs")
         {
             CHECK(sizeof(Strs) == 16); // 8(Str*) + 8(len)
         }
 
         Arena perm = Arena(1024); // 1KB
 
-        TEST_CASE("Length of empty string")
+        TEST_CASE("Fields: Length of empty string")
         {
             Str x = "";
             CHECK(x.len == 0);
+            CHECK(x.buf != 0);
+
+            // When inited with const char*, we get null termination till we interact with arena
+            // This will not segfault here
+            CHECK(x.buf[x.len] == '\0');
         }
 
-        TEST_CASE("Length of constant string")
+        TEST_CASE("Fields: Length of constant string")
         {
+            // However, we register the length without the terminator
             Str x = "123456";
             CHECK(x.len == 6);
         }
@@ -103,23 +107,12 @@ int main()
             RANGE(i, y.len) { CHECK(y.buf[i] == x.buf[i]); }
         }
 
-        TEST_CASE("Strs: Initialization")
-        {
-            Str  list[3] = {"a", "b", "c"};
-            Strs parts   = Strs(list, 3);
-            CHECK(*parts[0] == Str("a"));
-            CHECK(*parts[1] == Str("b"));
-            CHECK(*parts[2] == Str("c"));
-            *parts[1] = "d";
-            CHECK(*parts[1] == Str("d"));
-        }
-
         TEST_CASE("Operator: [] - ith char by reference")
         {
             Str   x = "123456";
             char& y = x[0];
             CHECK(y == '1');
-            // y = '5'; // Not possible
+            // y = '5'; // Not possible since we have const
         }
 
         TEST_CASE("Operator: [] - get slice")
@@ -230,16 +223,17 @@ int main()
             CHECK(a.Used() == 6 + 6 + 1 + 7);
         }
 
-        TEST_CASE("Methods: Split - Default, ignore_empty, substitute_null")
+        TEST_CASE("Methods: Split - defaults, empty, null")
         {
             Arena a = perm;
             Str   x = "  123456 789 ";
 
             // ignore_empty = true, substitute_null = false
+            const char* res1[] = {"123456", "789"};
+
             Strs parts1 = x.Split(&a, " ", true, false);
             CHECK(parts1.len == 2);
-            CHECK(parts1.data[0] == Str("123456"));
-            CHECK(parts1.data[1] == Str("789"));
+            RANGE(i, parts1.len) { CHECK(parts1.data[i] == Str(res1[i])); }
 
             // ignore_empty = false, substitute_null = false
             const char* res2[] = {"", "", "123456", "789", ""};
@@ -250,15 +244,39 @@ int main()
 
             // ignore_empty = false, substitute_null = true
             const char* res3[] = {"", "", "123456", "789", ""};
-            Str         x3     = Str("  123456 789 ").Copy(&a);
-            Strs        parts3 = x3.Split(&a, " ", false, true);
+
+            Str  x3     = Str("  123456 789 ").Copy(&a);
+            Strs parts3 = x3.Split(&a, " ", false, true);
             CHECK(parts3.len == 5);
             RANGE(i, parts3.len) { CHECK(parts3.data[i] == Str(res2[i])); }
-            CHECK(x3[0] == '\0');
-            CHECK(x3[1] == '\0');
+
+            CHECK(x3[0] == '\0'); // Confirm replacement with nulls
+            CHECK(x3[1] == '\0'); //
         }
 
         TEST_CASE("TODO: Methods: Split - multichar separator") { /* TODO */ }
+
+        TEST_CASE("Strs: Initialization: From array")
+        {
+            Str  list[3] = {"a", "b", "c"};
+            Strs parts   = Strs(list, 3); // Needs repetition of '3'
+            CHECK(*parts[0] == "a");
+            CHECK(*parts[1] == "b");
+            CHECK(*parts[2] == "c");
+
+            *parts[1] = "d";         // Mutate
+            CHECK(*parts[1] == "d"); // Check mutation
+        }
+
+        TEST_CASE("TODO: Strs: Initialization: Default") { /* TODO */ }
+        TEST_CASE("TODO: Strs: Initialization: From array") { /* TODO */ }
+        TEST_CASE("TODO: Strs: Destructor: Final") { /* TODO */ }
+
+        TEST_CASE("TODO: Strs: operator+: Append") { /* TODO */ }
+
+        TEST_CASE("TODO: Strs: operator[i]: By reference") { /* TODO */ }
+        TEST_CASE("TODO: Strs: operator[i, j]: By reference") { /* TODO */ }
+        TEST_CASE("TODO: Strs: operator[i, j, a]: By value") { /* TODO */ }
     }
 
     return 0;

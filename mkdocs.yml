@@ -23,9 +23,9 @@ nav:
 
   - Fundamentals:
     - Arena: fundamentals/01-Arena.md
-    - Str  : fundamentals/02-Str.md
-    - Buf  : fundamentals/03-Buf.md
-    - Slice: fundamentals/04-Slice.md
+    - Slice: fundamentals/02-Slice.md
+    - Str  : fundamentals/03-Str.md
+    - Buf  : fundamentals/04-Buf.md
     - Map  : fundamentals/06-Map.md
     - Trie : fundamentals/07-Trie.md
     - LTrie: fundamentals/08-LTrie.md

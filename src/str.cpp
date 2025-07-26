@@ -90,7 +90,7 @@ Str Str::Copy(Arena* a, bool null_terminate)
     // NOTE: Not sure this makes sense
     if (buf == a->beg - len)
     {
-        debug("Already on top");
+        // debug("Already on top");
         *a->beg = '\0'; // NOTE: Is this correct?
         a->beg++;
 

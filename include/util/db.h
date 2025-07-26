@@ -66,7 +66,7 @@ typedef enum DbCellType {
 
 constexpr const char* DbCellTypeStr[] = {
     "NULL",    // = 0
-    "INTEGER", // = 1
+    "INT",     // = 1
     "REAL",    // = 2
     "TEXT",    // = 3
     "BLOB",    // = 4
@@ -74,12 +74,24 @@ constexpr const char* DbCellTypeStr[] = {
 };
 
 typedef struct DbColumn {
-    i32        idx;
-    Str        name;
-    DbCellType type;
-    bool       notnull;
-    Str        defaultvalue;
-    bool       primarykey;
+
+    i32        idx          = 0;
+    Str        name         = "column";
+    DbCellType type         = CELL_TEXT;
+    bool       notnull      = false;
+    Str        defaultvalue = "none";
+    bool       primarykey   = false;
+
+    DbColumn(i32 idx_ = 0, Str name_ = "column", DbCellType type_ = CELL_TEXT, bool notnull_ = false,
+             Str defaultvalue_ = "none", bool primarykey_ = false)
+    {
+        idx          = idx_;
+        name         = name_;
+        type         = type_;
+        notnull      = notnull_;
+        defaultvalue = defaultvalue_;
+        primarykey   = primarykey_;
+    }
 
 } DbColumn;
 
@@ -92,6 +104,8 @@ typedef struct DbTable {
     bool strict;
 
 } DbTable;
+
+Str StmtCreateTable(Str tablename, Slice<DbColumn> columns, Arena* a);
 
 void PrintTables(Slice<DbTable> tables);
 void PrintColumns(Slice<DbColumn> columns);

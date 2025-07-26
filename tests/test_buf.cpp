@@ -19,18 +19,17 @@ TEST_SUITE("Buf")
         Arena a   = perm;
         Buf   buf = Buf(&a, a.cap);
 
-        Str tmp = {};
+        Buf tmp = {};
 
         // Append Str and return Str
         tmp = buf + "Hello";
-        CHECK(tmp == Str("Hello"));
+
+        // Empty brackets returns full Str (till len)
+        CHECK(tmp[] == Str("Hello"));
 
         // No gaps
         tmp = buf + "Hi";
-        CHECK(tmp == Str("HelloHi"));
-
-        // Empty brackets returns full Str (till len)
-        CHECK(buf[] == Str("HelloHi"));
+        CHECK(tmp[] == Str("HelloHi"));
 
         // Confirm arena usage, return string
         CHECK(a.Used() == buf.cap);

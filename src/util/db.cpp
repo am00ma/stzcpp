@@ -1,6 +1,8 @@
 #include "util/db.h"
 #include "arena.h"
+#include "buf.h"
 #include "log.h"
+#include <cstdio>
 
 static inline bool DbOpen(sqlite3** db, Str path, int flags)
 {
@@ -194,7 +196,44 @@ Slice<DbRow> Db::ListRows(Str tablename, Slice<DbColumn> columns)
     return rows;
 }
 
-void Db::Print() { printf("Path: %.*s (%s)\n", pstr(path), valid ? "valid" : "invalid"); }
+Str StmtCreateTable(Str tablename, Slice<DbColumn> columns, Arena* a)
+{
+
+    Buf ret = Buf(a, 4096);
+
+    Arena temp = *a;
+
+    ret + Str(&temp, 1024, "CREATE TABLE %.*s(\n", pstr(tablename));
+
+    RANGE(i, columns.len)
+    {
+        //
+        ret + "  ";
+        ret + Str(&temp, 1024, "%10.*s", pstr(columns[i]->name));
+        ret + "  ";
+        ret + Str(&temp, 1024, "%10s", DbCellTypeStr[columns[i]->type]);
+        ret + (columns[i]->primarykey ? " PRIMARY KEY " : "");
+        ret + (columns[i]->notnull ? " NOT NULL " : "");
+        ret + ",\n";
+    }
+    ret.len -= 2;      // Remove last , and \n
+    ret + Str("\n);"); // Final paranthesis
+
+    return ret.Final(a);
+}
+
+void Db::Print()
+{
+    printf("Path: %.*s (%s)\n", pstr(path), valid ? "valid" : "invalid");
+
+    auto table = ListTables();
+    printf("Tables\n");
+    RANGE(i, table.len)
+    {
+        //
+        printf("  %3ld: %.*s\n", i, pstr(table[i]->name));
+    };
+}
 
 void PrintTables(Slice<DbTable> tables)
 {

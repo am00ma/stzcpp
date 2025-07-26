@@ -5,9 +5,11 @@
 #include <cassert>
 
 typedef struct Buf {
-    char* buf;
-    isize len;
-    isize cap;
+    char* buf = 0;
+    isize len = 0;
+    isize cap = 0;
+
+    Buf() = default; // Zero-init?
 
     // Initialization
     Buf(Arena* a, isize cap_)
@@ -42,7 +44,7 @@ typedef struct Buf {
     }
 
     // Use with '+', Exactly same as Join
-    Str operator+(Str c)
+    Buf operator+(Str c)
     {
         if (len + c.len >= cap)
         {
@@ -51,7 +53,7 @@ typedef struct Buf {
         }
         memcpy(&buf[len], c.buf, c.len);
         len += c.len;
-        return Str(buf, len);
+        return *this; // By value
     }
 
     // Get ith item by reference

@@ -1,8 +1,6 @@
 #include "arena.h"
 #include "log.h"
 
-#include <cassert> // assert
-
 static inline void oom(isize count, char* end, char* beg, isize pad, isize objsize)
 {
     error("Out of memory:\n"                        //
@@ -35,7 +33,7 @@ Arena::Arena(char* buf, isize cap_)
 
 char* Arena::Alloc(isize objsize, isize align, isize count, b32 flags)
 {
-    assert(count >= 0); // Can request 0?
+    Assert(count >= 0); // Can request 0?
 
     isize pad = -(uptr)beg & (align - 1); // Some way to approx mod(a,b)
     if (count > (end - beg - pad) / objsize)

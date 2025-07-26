@@ -19,7 +19,7 @@
 /* ---------------------------------------------------------------------------
  * Error handling
  * ------------------------------------------------------------------------- */
-// Technically ...
+// Crash entirely
 #define Fatal(err, ...)                                                                                                \
     if ((err) != 0)                                                                                                    \
     {                                                                                                                  \
@@ -28,6 +28,7 @@
         exit(EXIT_FAILURE);                                                                                            \
     }
 
+// Print error but continue
 #define CheckErr(err, ...)                                                                                             \
     if ((err) != 0)                                                                                                    \
     {                                                                                                                  \
@@ -35,11 +36,20 @@
         debug("[@] %s:%d", __FILE__, __LINE__);                                                                        \
     }
 
-// Spicy naming, but ok
+// Print error and return to parent
 #define Return(err, ...)                                                                                               \
     if ((err) != 0)                                                                                                    \
     {                                                                                                                  \
         error(__VA_ARGS__);                                                                                            \
         debug("[@] %s:%d", __FILE__, __LINE__);                                                                        \
         return err;                                                                                                    \
+    }
+
+// Debugger friendly assert
+// https://nullprogram.com/blog/2022/06/26/
+#define Assert(cond)                                                                                                   \
+    if (!(cond))                                                                                                       \
+    {                                                                                                                  \
+        error("[@] %s:%d", __FILE__, __LINE__);                                                                        \
+        __builtin_trap();                                                                                              \
     }

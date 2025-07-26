@@ -1,8 +1,7 @@
 #include "str.h"
+#include "log.h"
 
-#include <cassert> // assert
 #include <cstdarg> // va_start, va_end, va_list
-#include <cstring>
 
 template <typename T, int sz> int size(T (&)[sz]) { return sz; }
 
@@ -70,16 +69,16 @@ Strs::Strs(Str* data_, isize len_)
  * ------------------------------------------------------------------------- */
 char& Str::operator[](isize i)
 {
-    assert(i >= 0);
-    assert(i < len);
+    Assert(i >= 0);
+    Assert(i < len);
     return buf[i];
 }
 
 Str Str::operator[](isize beg, isize end)
 {
-    assert(beg >= 0);
-    assert(beg <= end);
-    assert(end <= len);
+    Assert(beg >= 0);
+    Assert(beg <= end);
+    Assert(end <= len);
     return {buf + beg, end - beg};
 }
 
@@ -123,7 +122,7 @@ char* Str::Cstr(Arena* a)
 Strs Str::Split(Arena* a, Str delimiter, bool ignore_empty, bool substitute_null)
 {
     // TODO: implement for len > 1
-    assert(delimiter.len == 1);
+    Assert(delimiter.len == 1);
 
     // Start position
     char* start = &buf[0];

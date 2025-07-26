@@ -1,8 +1,7 @@
 #pragma once
 
-#include "log.h" // Fatal
+#include "log.h" // Fatal, Assert
 #include "str.h" // Str
-#include <cassert>
 
 typedef struct Buf {
     char* buf = 0;
@@ -59,8 +58,8 @@ typedef struct Buf {
     // Get ith item by reference
     char* operator[](isize i)
     {
-        assert(i >= 0);
-        assert(i < len);
+        Assert(i >= 0);
+        Assert(i < len);
         return &buf[i];
     }
 
@@ -70,18 +69,18 @@ typedef struct Buf {
     // Get (i - j)th item by reference
     Str operator[](isize i, isize j)
     {
-        assert(i >= 0);
-        assert(j >= i);
-        assert(j < len);
+        Assert(i >= 0);
+        Assert(j >= i);
+        Assert(j < len);
         return Str(&buf[i], j - i);
     }
 
     // Get (i - j)th item by value
     Str operator[](isize i, isize j, Arena* a)
     {
-        assert(i >= 0);
-        assert(j >= i);
-        assert(j < len);
+        Assert(i >= 0);
+        Assert(j >= i);
+        Assert(j < len);
         return Str(&buf[i], j - i).Copy(a);
     }
 

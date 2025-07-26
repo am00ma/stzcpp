@@ -1,7 +1,5 @@
 #include "ltrie.h"
 #include "range.h"
-#include <cassert>
-#include <cstdio>
 
 #include "doctest.h"
 

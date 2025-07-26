@@ -135,7 +135,7 @@ Slice<DbColumn> Db::ListColumns(Str tablename)
         else if (type == "BLOB") col.type = CELL_BLOB;
         else if (type[0, 4] == "CHAR") col.type = CELL_TEXT;    // BUG: What if does not have that many chars?
         else if (type[0, 7] == "VARCHAR") col.type = CELL_TEXT; // BUG: What if does not have that many chars?
-        else assert(false);
+        else Assert(false);
 
         col.notnull      = sqlite3_column_int(stmt, 3) != 0;
         col.defaultvalue = Str(&mem, 1024, "%s", (const char*)sqlite3_column_text(stmt, 4));

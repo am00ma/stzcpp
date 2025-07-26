@@ -3,8 +3,6 @@
 #include "arena.h"
 #include "log.h"
 #include "range.h"
-#include <cassert>
-#include <cstring>
 
 template <typename T> struct Slice {
     T*    data;
@@ -52,26 +50,26 @@ template <typename T> struct Slice {
     // Get ith item by reference
     T* operator[](isize i)
     {
-        assert(i >= 0);
-        assert(i < len);
+        Assert(i >= 0);
+        Assert(i < len);
         return &data[i];
     }
 
     // Get (i - j)th item by reference
     Slice<T> operator[](isize i, isize j)
     {
-        assert(i >= 0);
-        assert(j >= i);
-        assert(j < len);
+        Assert(i >= 0);
+        Assert(j >= i);
+        Assert(j < len);
         return Slice<T>(&data[i], j - i, j - i);
     }
 
     // Get (i - j)th item as copy
     Slice<T> operator[](isize i, isize j, Arena* a)
     {
-        assert(i >= 0);
-        assert(j >= i);
-        assert(j < len);
+        Assert(i >= 0);
+        Assert(j >= i);
+        Assert(j < len);
         auto slice = Slice<T>(a->Make<T>(j - i), j - i, j - i);
         if (slice.len) memcpy(slice.data, &data[i], slice.len * sizeof(T));
         return slice;

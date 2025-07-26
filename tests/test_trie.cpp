@@ -1,7 +1,5 @@
 #include "range.h"
 #include "trie.h"
-#include <cassert>
-#include <cstdio>
 
 #include "doctest.h"
 
@@ -38,7 +36,7 @@ TEST_SUITE("Trie")
 
                 // Compute offset
                 offset = hash >> 62;
-                assert((offset >= 0) && (offset <= 3));
+                CHECK((offset >= 0) && (offset <= 3));
 
                 // Proceed to child
                 m = &(*m)->child[offset];

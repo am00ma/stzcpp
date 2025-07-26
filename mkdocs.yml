@@ -1,20 +1,7 @@
 site_name: stz
-dev_addr: '127.0.0.1:5555'
-
-docs_dir: docs
-site_dir: site
-extra_css:
-  - style.css
-
-theme:
-  name: material
-
-  features:
-    - content.code.copy
-    - content.code.select
 
 nav:
-  - stz: index.md
+  - Home: index.md
 
   - Definitions:
     - 1. Types: definitions/01-types.md
@@ -26,10 +13,10 @@ nav:
     - 2. Slice: fundamentals/02-Slice.md
     - 3. Str  : fundamentals/03-Str.md
     - 4. Buf  : fundamentals/04-Buf.md
-    - 5. Map  : fundamentals/06-Map.md
-    - 6. Trie : fundamentals/07-Trie.md
-    - 7. LTrie: fundamentals/08-LTrie.md
-    - 8. Table: fundamentals/09-Table.md
+    - 5. Map  : fundamentals/05-Map.md
+    - 6. Trie : fundamentals/06-Trie.md
+    - 7. LTrie: fundamentals/07-LTrie.md
+    - 8. Table: fundamentals/08-Table.md
 
   - Utilities:
     - 1. File : utilities/01-File.md
@@ -37,6 +24,18 @@ nav:
     - 3. Path : utilities/03-Path.md
     - 4. Db   : utilities/04-Db.md
     - 5. Gui  : utilities/05-Gui.md
+
+docs_dir: docs
+site_dir: site
+dev_addr: '127.0.0.1:5555'
+extra_css:
+  - style.css
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - content.code.select
 
 markdown_extensions:
   - attr_list

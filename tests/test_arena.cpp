@@ -14,7 +14,7 @@ int main()
             CHECK(sizeof(Arena) == 24); // 8(beg) + 8(end) + 8(cap)
         }
 
-        TEST_CASE("Allocation up to 2^35, without free")
+        TEST_CASE("malloc up to 2^35, without free")
         {
             // It is possible to allot astonishing amount of memory,
             // all the way upto 4 EB (MB, GB, TB, PB, EB), that too, cumulatively
@@ -29,7 +29,7 @@ int main()
             }
         }
 
-        TEST_CASE("Allocation up to 2^35, with free")
+        TEST_CASE("malloc up to 2^35, with free")
         {
             // BUG: If free is added, crashes at i=35 (32 GB)
             isize cap = 1;

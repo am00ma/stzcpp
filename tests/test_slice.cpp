@@ -60,7 +60,7 @@ int main()
             Si32  s = {&a, 2};
             s + 1;
             s + 2;
-            Si32 x = {s.data, s.len, s.cap};
+            Si32 x = {s.buf, s.len, s.cap};
             RANGE(i, x.len) { CHECK(*s[i] == *x[i]); }
         }
 

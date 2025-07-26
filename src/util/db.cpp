@@ -253,12 +253,12 @@ void PrintTables(Slice<DbTable> tables)
 
     RANGE(i, tables.len)
     {
-        printf(" %10.*s |", pstr(tables.data[i].schema));
-        printf(" %30.*s |", pstr(tables.data[i].name));
-        printf(" %10.*s |", pstr(tables.data[i].type));
-        printf(" %5d |", tables.data[i].ncol);
-        printf(" %6s |", tables.data[i].wr ? "true" : "false");
-        printf(" %6s |", tables.data[i].strict ? "true" : "false");
+        printf(" %10.*s |", pstr(tables.buf[i].schema));
+        printf(" %30.*s |", pstr(tables.buf[i].name));
+        printf(" %10.*s |", pstr(tables.buf[i].type));
+        printf(" %5d |", tables.buf[i].ncol);
+        printf(" %6s |", tables.buf[i].wr ? "true" : "false");
+        printf(" %6s |", tables.buf[i].strict ? "true" : "false");
         printf("\n");
     }
 }
@@ -277,12 +277,12 @@ void PrintColumns(Slice<DbColumn> columns)
 
     RANGE(i, columns.len)
     {
-        printf(" %5d |", columns.data[i].idx);
-        printf(" %30.*s |", pstr(columns.data[i].name));
-        printf(" %10s |", DbCellTypeStr[columns.data[i].type]);
-        printf(" %10s |", columns.data[i].notnull ? "true" : "false");
-        printf(" %10s |", columns.data[i].primarykey ? "true" : "false");
-        printf(" %-12.*s |", pstr(columns.data[i].defaultvalue));
+        printf(" %5d |", columns.buf[i].idx);
+        printf(" %30.*s |", pstr(columns.buf[i].name));
+        printf(" %10s |", DbCellTypeStr[columns.buf[i].type]);
+        printf(" %10s |", columns.buf[i].notnull ? "true" : "false");
+        printf(" %10s |", columns.buf[i].primarykey ? "true" : "false");
+        printf(" %-12.*s |", pstr(columns.buf[i].defaultvalue));
         printf("\n");
     }
 }
@@ -301,12 +301,12 @@ void PrintRows(Slice<DbRow> rows, Slice<DbColumn> columns)
 
     RANGE(i, columns.len)
     {
-        printf(" %5d |", columns.data[i].idx);
-        printf(" %30.*s |", pstr(columns.data[i].name));
-        printf(" %10s |", DbCellTypeStr[columns.data[i].type]);
-        printf(" %10s |", columns.data[i].notnull ? "true" : "false");
-        printf(" %10s |", columns.data[i].primarykey ? "true" : "false");
-        printf(" %-12.*s |", pstr(columns.data[i].defaultvalue));
+        printf(" %5d |", columns.buf[i].idx);
+        printf(" %30.*s |", pstr(columns.buf[i].name));
+        printf(" %10s |", DbCellTypeStr[columns.buf[i].type]);
+        printf(" %10s |", columns.buf[i].notnull ? "true" : "false");
+        printf(" %10s |", columns.buf[i].primarykey ? "true" : "false");
+        printf(" %-12.*s |", pstr(columns.buf[i].defaultvalue));
         printf("\n");
     }
 }

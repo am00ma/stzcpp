@@ -5,31 +5,31 @@
 
 template <typename T> struct Slice {
 
-    T*    data = 0;
-    isize len  = 0;
-    isize cap  = 0;
+    T*    buf = 0;
+    isize len = 0;
+    isize cap = 0;
 
     Slice() = default;
 
     Slice(Arena* a, isize cap_)
     {
-        len  = 0;
-        cap  = cap_;
-        data = a->Make<T>(cap);
+        len = 0;
+        cap = cap_;
+        buf = a->Make<T>(cap);
     };
 
     Slice(T* data_, isize len_, isize cap_)
     {
-        data = data_;
-        len  = len_;
-        cap  = cap_;
+        buf = data_;
+        len = len_;
+        cap = cap_;
     };
 
     Slice(T* data_, isize len_)
     {
-        data = data_;
-        len  = len_;
-        cap  = len_;
+        buf = data_;
+        len = len_;
+        cap = len_;
     };
 
     // Shrinks arena to len, releasing rest of cap
@@ -46,7 +46,7 @@ template <typename T> struct Slice {
     {
         if (len + 1 <= cap)
         {
-            data[len] = val;
+            buf[len] = val;
             len++;
         }
         else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", len + 1, cap); }
@@ -58,7 +58,7 @@ template <typename T> struct Slice {
     {
         Assert(i >= 0);
         Assert(i < len);
-        return &data[i];
+        return &buf[i];
     }
 
     // Get (i - j)th item by reference
@@ -67,7 +67,7 @@ template <typename T> struct Slice {
         Assert(i >= 0);
         Assert(j >= i);
         Assert(j < len);
-        return Slice<T>(&data[i], j - i, j - i);
+        return Slice<T>(&buf[i], j - i, j - i);
     }
 
     // Get (i - j)th item as copy
@@ -77,7 +77,7 @@ template <typename T> struct Slice {
         Assert(j >= i);
         Assert(j < len);
         auto slice = Slice<T>(a->Make<T>(j - i), j - i, j - i);
-        if (slice.len) memcpy(slice.data, &data[i], slice.len * sizeof(T));
+        if (slice.len) memcpy(slice.buf, &buf[i], slice.len * sizeof(T));
         return slice;
     }
 
@@ -85,10 +85,10 @@ template <typename T> struct Slice {
     bool operator==(Slice<T> s)
     {
         if (len != s.len) { return false; }
-        if ((len == 0) && (data == s.data)) { return true; } // Takes care of null vs empty case
+        if ((len == 0) && (buf == s.buf)) { return true; } // Takes care of null vs empty case
         RANGE(i, len)
         {
-            if (data[i] != *s[i]) return false; // Comparing by copy?
+            if (buf[i] != *s[i]) return false; // Comparing by copy?
         }
         return true;
     }
@@ -98,7 +98,7 @@ template <typename T> struct Slice {
     {
         if (len + 1 <= cap)
         {
-            data[len] = val;
+            buf[len] = val;
             len++;
         }
         else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", len + 1, cap); }

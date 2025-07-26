@@ -1,35 +1,65 @@
 # Trie
 
->  Source: [Hash trie](https://nullprogram.com/blog/2023/09/30/)
+> Source: [Hash trie](https://nullprogram.com/blog/2023/09/30/)
 
-## API
+TODO: Get rid of 'Owning/Non-owning' stuff, that can be handled outside.
+
+## Includes
 
 ```cpp
-template <typename V> struct Trie {
+--8<-- "docs/code/include/trie.h:3:3"
+```
 
-    Trie<V>* child[4] = {};
+## Fields
 
-    Str key = ""; // Also gravestone?
-    V   val = 0;  // Do we need a pointer?
+```cpp
+--8<-- "docs/code/include/trie.h:7:10"
+```
 
-    V* Insert(Str key, Arena* a, bool store_key = false);
-    V* Lookup(Str key);
+## Constructors
 
-    V* operator[](Str key, Arena* a = 0, bool store_key = false);
+```cpp
+--8<-- "docs/code/include/trie.h:15:15"
+```
 
-    // Debugging
-    Str* OrigKey(Str key);
-}
+## Destructors
+
+None
+
+## Operators
+
+```cpp
+--8<-- "docs/code/include/trie.h:21:46"
+```
+
+## Methods
+
+```cpp
+--8<-- "docs/code/include/trie.h:48:97"
 ```
 
 ## Usage
 
-```cpp
-
-```
+| no  | desc |
+| --- | ---- |
+|     |      |
 
 ## Tests
 
-```cpp
+|     | Case                                           | Correct | Total |
+| --- | ---------------------------------------------- | ------- | ----- |
+| 1.  | Algorithm                                      | 17      | 17    |
+| 2.  | Struct size                                    | 1       | 1     |
+| 3.  | Initialization                                 | 2       | 2     |
+| 4.  | Insert, Lookup: Successful                     | 1       | 1     |
+| 5.  | Insert, Lookup: Unsuccessful                   | 1       | 1     |
+| 6.  | Insert, Lookup, OrigKey: Non-owning keys       | 3       | 3     |
+| 7.  | Insert, Lookup, OrigKey: Storing keys in arena | 3       | 3     |
+| 8.  | Insert, Lookup: Operator                       | 3       | 3     |
+| 9.  | Usage: Typical usage                           | 9       | 9     |
+| 10. | Iteration: Typical usage                       | 20      | 20    |
+| ✔  | 10 / 10 cases                                  |         |       |
 
+```cpp
+--8<-- "docs/code/tests/test_trie.cpp"
 ```

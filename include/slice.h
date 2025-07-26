@@ -1,10 +1,10 @@
 #pragma once
 
 #include "arena.h"
-#include "log.h"
 #include "range.h"
 
 template <typename T> struct Slice {
+
     T*    data;
     isize len;
     isize cap;
@@ -24,16 +24,6 @@ template <typename T> struct Slice {
         cap  = cap_;
         data = a->Make<T>(cap);
     };
-
-    void Append(T val)
-    {
-        if (len + 1 <= cap)
-        {
-            data[len] = val;
-            len++;
-        }
-        else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", len + 1, cap); }
-    }
 
     // Identical to Append
     Slice<T>* operator+(T val)
@@ -85,4 +75,16 @@ template <typename T> struct Slice {
         }
         return true;
     }
+
+    // Identical to operator '+'
+    void Append(T val)
+    {
+        if (len + 1 <= cap)
+        {
+            data[len] = val;
+            len++;
+        }
+        else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", len + 1, cap); }
+    }
+
 };

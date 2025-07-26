@@ -1,70 +1,77 @@
-# LTrie
+# Trie
 
->  Source: [Hash trie](https://nullprogram.com/blog/2023/09/30/)
+> Source: [Hash trie](https://nullprogram.com/blog/2023/09/30/)
 
-## API
+TODO: Get rid of 'Owning/Non-owning' stuff, that can be handled outside.
+
+## Includes
 
 ```cpp
+--8<-- "docs/code/include/ltrie.h:3:3"
+```
 
-// Helper - Actual Trie structure
-template <typename V> struct LTrieChild {
-    LTrieChild<V>* child[4] = {};
+## LTrieChild
 
-    Str key = "";
-    V   val = 0;
+### Fields
 
-    // Debugging
-    void Print();
-    void PrintChildren();
-};
+```cpp
+--8<-- "docs/code/include/ltrie.h:7:10"
+```
 
-template <typename V> struct LTrie {
-    LTrieChild<V> root = {};
+### Methods
 
-    isize len = 0;
-    isize cap = 0;
+```cpp
+--8<-- "docs/code/include/ltrie.h:12:20"
+```
 
-    LTrieChild<V>* data;
+## LTrie
 
-    // Initialization
-    LTrie(Arena* a, isize cap_);
+Root struct to hold `LTrieChild`.
 
-    // Only 'method'
-    V* operator[](Str key, bool insert = false);
+## Fields
 
-    // Debugging
-    void Print(const char* label, bool children = false);
-}
+```cpp
+--8<-- "docs/code/include/ltrie.h:25:30"
+```
+
+## Constructors
+
+```cpp
+--8<-- "docs/code/include/ltrie.h:36:43"
+```
+
+## Destructors
+
+None
+
+## Operators
+
+```cpp
+--8<-- "docs/code/include/ltrie.h:49:73"
+```
+
+## Methods
+
+```cpp
+--8<-- "docs/code/include/ltrie.h:75:84"
 ```
 
 ## Usage
 
-```cpp
-TEST_CASE("Usage: Typical usage (second arg is for insertion)")
-{
-    Arena a    = perm;
-    STrie trie = STrie(&a, 25);
-    Str*  ret  = {};
-
-    *trie["hello", true] = "hi";
-
-    ret = trie["hello"];
-    CHECK(*ret == Str("hi"));
-
-    *trie["how", true] = "are";
-
-    ret = trie["how"];
-    CHECK(*ret == Str("are"));
-
-    *trie["you", true] = "";
-
-    ret = trie["you"];
-    CHECK(*ret == Str(""));
-}
-```
+| no  | desc |
+| --- | ---- |
+|     |      |
 
 ## Tests
 
-```cpp
+|     | Case                                            | Correct | Total |
+| --- | ----------------------------------------------- | ------- | ----- |
+| 1   | Initialization                                  | 0       | 0     |
+| 2   | Usage: Typical usage                            | 3       | 3     |
+| 3   | Insert, Lookup: Successful, unsuccessful lookup | 20      | 20    |
+| 4   | Iteration: Typical usage                        | 20      | 20    |
+| ✔  | 4 / 4 cases                                     |         |       |
 
+```cpp
+--8<-- "docs/code/tests/test_ltrie.cpp"
 ```

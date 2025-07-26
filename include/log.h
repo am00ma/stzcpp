@@ -66,7 +66,7 @@
     if ((err) != 0)                                                                                                    \
     {                                                                                                                  \
         error(__VA_ARGS__);                                                                                            \
-        debug("[@] %s:%d", __FILE__, __LINE__);                                                                        \
+        error("%s:%d", __FILE__, __LINE__);                                                                            \
         exit(EXIT_FAILURE);                                                                                            \
     }
 
@@ -75,7 +75,7 @@
     if ((err) != 0)                                                                                                    \
     {                                                                                                                  \
         error(__VA_ARGS__);                                                                                            \
-        debug("[@] %s:%d", __FILE__, __LINE__);                                                                        \
+        error("%s:%d", __FILE__, __LINE__);                                                                            \
     }
 
 // Print error and return to parent
@@ -83,7 +83,7 @@
     if ((err) != 0)                                                                                                    \
     {                                                                                                                  \
         error(__VA_ARGS__);                                                                                            \
-        debug("[@] %s:%d", __FILE__, __LINE__);                                                                        \
+        error("%s:%d", __FILE__, __LINE__);                                                                            \
         return err;                                                                                                    \
     }
 
@@ -92,6 +92,6 @@
 #define Assert(cond)                                                                                                   \
     if (!(cond))                                                                                                       \
     {                                                                                                                  \
-        error("[@] %s:%d", __FILE__, __LINE__);                                                                        \
+        error("%s:%d", __FILE__, __LINE__);                                                                            \
         __builtin_trap();                                                                                              \
     }

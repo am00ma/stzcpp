@@ -1,14 +1,12 @@
 #pragma once
 
-#include "arena.h" // Arena
-#include "log.h"   // Fatal
-#include "str.h"   // Str
-#include "types.h" // isize
+#include "str.h"
 
 /* ---------------------------------------------------------------------------
  * Since we use templates, we have to define in header file
  * ------------------------------------------------------------------------- */
 template <typename V> struct Map {
+
     Str*  keys    = 0; // Keys are strings as we need method `u64 Hash64()` and operator `==`
     V*    vals    = 0; // Any type
     isize cap_exp = 4; // Default to 16 elements
@@ -17,6 +15,8 @@ template <typename V> struct Map {
     /* ---------------------------------------------------------------------------
      * Initialization
      * ------------------------------------------------------------------------- */
+
+    Map() = default;
 
     Map(Arena* a, isize cap_exp_ = 4)
     {

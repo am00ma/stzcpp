@@ -1,6 +1,5 @@
-#include "slice.h"
-
 #include "doctest.h"
+#include "slice.h"
 
 int main()
 {

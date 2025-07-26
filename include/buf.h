@@ -1,6 +1,5 @@
 #pragma once
 
-#include "log.h" // Fatal, Assert
 #include "str.h" // Str
 
 typedef struct Buf {

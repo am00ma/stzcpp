@@ -1,35 +1,56 @@
 # Slice
 
-## API
+## Includes
 
 ```cpp
-template <typename T> struct Slice {
-    T*    data;
-    isize len;
-    isize cap;
+--8<-- "docs/code/include/slice.h:3:4"
+```
 
-    // Lifetimes
-    Slice() = default;
-    Slice(T* data_, isize len_, isize cap_)
-    Slice(Arena* a, isize cap_)
+## Fields
 
-    // Canonical way to fill up slice
-    void Append(T val);
+```cpp
+--8<-- "docs/code/include/slice.h:8:10"
+```
 
-    // Get ith item
-    T* operator[](isize i);
+## Constructors
 
-    // Get (i - j)th item
-    Slice<T> operator[](isize i, isize j);
+```cpp
+--8<-- "docs/code/include/slice.h:12:26"
+```
 
-    // Get (i - j)th item as copy
-    Slice<T> operator[](isize i, isize j, Arena* a);
+## Destructors
 
-    // str_equal
-    b32 operator==(Slice<T> s);
-};
+None
+
+## Operators
+
+```cpp
+--8<-- "docs/code/include/slice.h:28:77"
+```
+
+## Methods
+
+```cpp
+--8<-- "docs/code/include/slice.h:79:88"
 ```
 
 ## Usage
 
+| no  | desc |
+| --- | ---- |
+|     |      |
+
 ## Tests
+
+|     | Case                   | Correct | Total |
+| --- | ---------------------- | ------- | ----- |
+| 1.  | Stuct size             | 2       | 2     |
+| 2.  | Append                 | 2       | 2     |
+| 3.  | Item: By reference     | 1       | 1     |
+| 4.  | Subslice: By reference | 4       | 4     |
+| 5.  | Subslice: By reference | 4       | 4     |
+| ✔  | 5 / 5 cases            |         |       |
+
+```cpp
+--8<-- "docs/code/tests/test_slice.cpp"
+```

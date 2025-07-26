@@ -3,37 +3,37 @@
 ## Includes
 
 ```cpp
---8<-- "docs/code/include/buf.h:3:4"
+--8<-- "docs/code/include/buf.h:3:3"
 ```
 
 ## Fields
 
 ```cpp
---8<-- "docs/code/include/buf.h:8:10"
+--8<-- "docs/code/include/buf.h:7:9"
 ```
 
 ## Constructors
 
 ```cpp
---8<-- "docs/code/include/buf.h:12:20"
+--8<-- "docs/code/include/buf.h:11:19"
 ```
 
 ## Destructors
 
 ```cpp
---8<-- "docs/code/include/buf.h:22:29"
+--8<-- "docs/code/include/buf.h:21:28"
 ```
 
 ## Operators
 
 ```cpp
---8<-- "docs/code/include/buf.h:31:71"
+--8<-- "docs/code/include/buf.h:30:70"
 ```
 
 ## Methods
 
 ```cpp
---8<-- "docs/code/include/buf.h:73:84"
+--8<-- "docs/code/include/buf.h:72:83"
 ```
 
 ## Usage

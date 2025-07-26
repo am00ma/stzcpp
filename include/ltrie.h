@@ -1,10 +1,9 @@
 #pragma once
 
-#include "log.h"
 #include "str.h"
-#include <cstdio>
 
 template <typename V> struct LTrieChild {
+
     LTrieChild<V>* child[4] = {};
 
     Str key;
@@ -22,16 +21,19 @@ template <typename V> struct LTrieChild {
 };
 
 template <typename V> struct LTrie {
+
     LTrieChild<V> root = {};
 
     isize len = 0;
     isize cap = 0;
 
-    LTrieChild<V>* data;
+    LTrieChild<V>* data = 0;
 
     /* ---------------------------------------------------------------------------
      * Initialization - Usual zero init
      * ------------------------------------------------------------------------- */
+
+    LTrie() = default; // Usual zero-initialization
 
     // From Arena
     LTrie(Arena* a, isize cap_)

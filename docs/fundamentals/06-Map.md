@@ -1,58 +1,62 @@
 # Map
 
->  Source: [MSI map](https://nullprogram.com/blog/2022/08/08)
+> Source: [MSI map](https://nullprogram.com/blog/2022/08/08)
 
-## API
+## Includes
 
 ```cpp
-template <typename V> struct Map {
-    Str*  keys    = 0; // Keys are strings as we need method `u64 Hash64()` and operator `==`
-    V*    vals    = 0; // Any type
-    isize cap_exp = 4; // Default to 16 elements
-    isize len     = 0;
+--8<-- "docs/code/include/map.h:3:3"
+```
 
-    Map(Arena* a, isize cap_exp_ = 4);
+## Fields
 
-    V* Lookup(Str key);
-    V* Insert(Str key);
-}
+```cpp
+--8<-- "docs/code/include/map.h:10:13"
+```
+
+## Constructors
+
+```cpp
+--8<-- "docs/code/include/map.h:19:26"
+```
+
+## Destructors
+
+None
+
+## Operators
+
+None
+
+## Methods
+
+```cpp
+--8<-- "docs/code/include/map.h:31:68"
 ```
 
 ## Usage
 
-```cpp
-TEST_CASE("Insert, Lookup: Successful")
-{
-    Arena a       = perm;
-    isize cap_exp = 4;
-    Map   map     = Map<Str>(&a, cap_exp); // 2^4 = 16 elements when full
-
-    Str key = "hello";
-    Str val = "hi";
-
-    *map.Insert(key) = val;
-
-    Str* ret = map.Lookup(key);
-    CHECK(*ret == val);
-}
-
-TEST_CASE("Lookup: Unsuccessful TODO: API is wild currently")
-{
-    Arena a       = perm;
-    isize cap_exp = 4;
-    Map   map     = Map<Str>(&a, cap_exp); // 2^4 = 16 elements when full
-
-    Str key = "hello";
-    Str val = "hi";
-
-    *map.Insert(key) = val;
-
-    Str* ret = map.Lookup("how");
-    CHECK(ret == 0);
-}
-```
+| no  | desc |
+| --- | ---- |
+|     |      |
 
 ## Tests
+
+|     | Case                                             | Correct | Total |
+| --- | ------------------------------------------------ | ------- | ----- |
+| 1.  | Algorithm                                        | 0       | 0     |
+| 2.  | Struct size                                      | 1       | 1     |
+| 3.  | Initialization                                   | 1       | 1     |
+| 4.  | Insert, Lookup: Successful                       | 1       | 1     |
+| 5.  | Lookup: Unsuccessful TODO: API is wild currently | 1       | 1     |
+| 6.  | Insertion: Original key, original val            | 1       | 1     |
+| 7.  | Insertion: Different keys, original val          | 1       | 1     |
+| 8.  | Insertion: More than max elements                | 1       | 1     |
+| ✔  | 8 / 8 cases                                      |         |       |
+
+```cpp
+--8<-- "docs/code/tests/test_map.cpp"
+```
 
 ## Education:
 
@@ -82,6 +86,10 @@ V* Lookup(Str key)
 ```
 
 Example:
+
+```cpp
+--8<-- "docs/code/tests/test_map.cpp:17:58"
+```
 
 | var   | hex | decimal |
 | ----- | --- | ------- |

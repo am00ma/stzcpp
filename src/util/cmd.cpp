@@ -1,5 +1,5 @@
-#include "buf.h"
 #include "util/cmd.h"
+#include "slice.h"
 
 #include <sys/wait.h> // waitpid, pid
 #include <unistd.h>   // pipe, dup2, fork, close
@@ -62,29 +62,31 @@ Result<Cmd, CmdError> Cmd_Exec(Arena* perm, Str command, isize outlen, isize err
         isize cap, num_bytes;
 
         // Read stdout from the pipe NOTE: Pointer arithmatic
-        Buf out   = Buf(perm, outlen);
-        cap       = out.cap;
-        num_bytes = 0;
+        Slice<char> out = {perm, outlen};
+        cap             = out.cap;
+        num_bytes       = 0;
         do {
             if (cap <= 0) return Result<Cmd, CmdError>{{}, CMD_FAIL_UNKNOWN};
             num_bytes  = read(stdout_pipe[0], out.buf + out.len, cap);
             out.len   += num_bytes;
             cap       -= num_bytes;
         } while (num_bytes != 0);
-        result.data.stdout = out.Final(perm);
+        out.Final(perm);
+        result.data.stdout = {out.buf, out.len};
         close(stdout_pipe[0]);
 
         // Read stderr from the pipe NOTE: Pointer arithmatic
-        Buf err   = Buf(perm, errlen);
-        num_bytes = 0;
-        cap       = err.cap;
+        Slice<char> err = {perm, errlen};
+        num_bytes       = 0;
+        cap             = err.cap;
         do {
             if (cap <= 0) return Result<Cmd, CmdError>{{}, CMD_FAIL_UNKNOWN};
             num_bytes  = read(stderr_pipe[0], err.buf + err.len, cap);
             err.len   += num_bytes;
             cap       -= num_bytes;
         } while (num_bytes != 0);
-        result.data.stderr = err.Final(perm);
+        err.Final(perm);
+        result.data.stderr = {err.buf, err.len};
         close(stderr_pipe[0]);
 
         // Wait for the child process to finish and get the exit status

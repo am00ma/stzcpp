@@ -17,23 +17,26 @@ nav:
   - stz: index.md
 
   - Definitions:
-    - Types: definitions/01-types.md
-    - Log  : definitions/02-log.md
-    - Range: definitions/03-range.md
+    - 1. Types: definitions/01-types.md
+    - 2. Range: definitions/02-range.md
+    - 3. Log  : definitions/03-log.md
 
   - Fundamentals:
-    - Arena: fundamentals/01-Arena.md
-    - Slice: fundamentals/02-Slice.md
-    - Str  : fundamentals/03-Str.md
-    - Buf  : fundamentals/04-Buf.md
-    - Map  : fundamentals/06-Map.md
-    - Trie : fundamentals/07-Trie.md
-    - LTrie: fundamentals/08-LTrie.md
+    - 1. Arena: fundamentals/01-Arena.md
+    - 2. Slice: fundamentals/02-Slice.md
+    - 3. Str  : fundamentals/03-Str.md
+    - 4. Buf  : fundamentals/04-Buf.md
+    - 5. Map  : fundamentals/06-Map.md
+    - 6. Trie : fundamentals/07-Trie.md
+    - 7. LTrie: fundamentals/08-LTrie.md
+    - 8. Table: fundamentals/09-Table.md
 
   - Utilities:
-    - File: utilities/01-File.md
-    - Cmd : utilities/02-Cmd.md
-    - Gui : utilities/03-Gui.md
+    - 1. File : utilities/01-File.md
+    - 2. Cmd  : utilities/02-Cmd.md
+    - 3. Path : utilities/03-Path.md
+    - 4. Db   : utilities/04-Db.md
+    - 5. Gui  : utilities/05-Gui.md
 
 markdown_extensions:
   - attr_list

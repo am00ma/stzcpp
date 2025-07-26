@@ -5,25 +5,24 @@ Standard library based on zero initialization and arenas, inspired by [null prog
 Definitions:
 
 1. types
-2. log
-3. range
+2. range
+3. log
 
 Fundamentals:
 
 1. Arena
-2. Str
-3. Buf
-4. Slice
-5. Index
-6. Map
-7. Trie
-8. LTrie
-9. Table
+2. Slice
+3. Str
+4. Buf
+5. Map
+6. Trie
+7. LTrie
+8. Table
 
 Utilties:
 
 1. File
 2. Cmd
-3. Gui
-4. Path
-5. Db
+3. Path
+4. Db
+5. Gui

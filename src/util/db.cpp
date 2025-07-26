@@ -197,7 +197,7 @@ Slice<DbRow> Db::ListRows(Str tablename, Slice<DbColumn> columns)
 
 Str StmtCreateTable(Str tablename, Slice<DbColumn> columns, Arena* a)
 {
-
+    // NOTE: Needed for interaction with str
     Buf ret = Buf(a, 4096);
 
     Arena temp = *a;

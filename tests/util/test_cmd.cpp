@@ -1,6 +1,5 @@
-#include "util/cmd.h"
-
 #include "../doctest.h"
+#include "util/cmd.h"
 
 int main()
 {

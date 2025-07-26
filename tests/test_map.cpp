@@ -1,8 +1,5 @@
-#include "map.h"
-#include "range.h"
-#include <cstdio>
-
 #include "doctest.h"
+#include "map.h"
 
 int main()
 {

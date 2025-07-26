@@ -1,7 +1,5 @@
-#include "arena.h"
-#include "table.h"
-
 #include "doctest.h"
+#include "table.h"
 
 struct RowType {
     isize a;

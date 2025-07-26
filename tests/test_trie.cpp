@@ -1,7 +1,5 @@
-#include "range.h"
-#include "trie.h"
-
 #include "doctest.h"
+#include "trie.h"
 
 int main()
 {
@@ -21,7 +19,6 @@ int main()
         {
             STrie  trie = {};
             Arena* temp = &a;
-            printf("\n");
 
             RANGE(i, 10)
             {

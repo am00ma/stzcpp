@@ -1,7 +1,5 @@
-#include "ltrie.h"
-#include "range.h"
-
 #include "doctest.h"
+#include "ltrie.h"
 
 int main()
 {

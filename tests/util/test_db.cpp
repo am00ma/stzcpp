@@ -1,10 +1,9 @@
+#include "../doctest.h"
 #include "log.h"
 #include "slice.h"
 #include "util/db.h"
 #include "util/path.h"
 #include "util/templates/sql/create.h"
-
-#include "../doctest.h"
 
 int main()
 {

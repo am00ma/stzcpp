@@ -1,8 +1,6 @@
 #include "log.h"
 #include "util/file.h"
 
-#include <cstdio> // printf
-
 int main(void)
 {
     // ------------------------------------

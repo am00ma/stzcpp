@@ -1,7 +1,5 @@
-#include "util/path.h"
-#include <cstdio>
-
 #include "../doctest.h"
+#include "util/path.h"
 
 int main()
 {

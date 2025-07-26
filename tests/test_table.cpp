@@ -1,7 +1,6 @@
 #include "arena.h"
 #include "table.h"
 
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
 struct RowType {
@@ -30,7 +29,7 @@ TEST_SUITE("Table")
 
         auto table = Table<RowType>(cols, types, 10, &temp);
 
-        RANGE(i, table.rows.cap+2) { table.rows.Append({i, i + 10}); }
+        RANGE(i, table.rows.cap + 2) { table.rows.Append({i, i + 10}); }
 
         table.Print();
     }

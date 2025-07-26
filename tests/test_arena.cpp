@@ -136,5 +136,7 @@ int main()
         TEST_CASE("TODO: Multiple threads") { CHECK(0 == 0); }
     }
 
+    TEST_RESULTS();
+
     return 0;
 }

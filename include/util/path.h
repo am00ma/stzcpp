@@ -120,7 +120,7 @@ typedef struct Path {
 
     void Print(bool verbose = false)
     {
-        printf(COLOR_BLUE_BOLD "%.*s\n" COLOR_RESET, pstr(path));
+        printf(COLOR_BOLD_BLUE "%.*s\n" COLOR_RESET, pstr(path));
         if (verbose)
         {
             printf("    name: %.*s\n", pstr(name()));

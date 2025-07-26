@@ -224,45 +224,24 @@ void Db::Print()
 {
     printf("Path: %.*s (%s)\n", pstr(path), valid ? "valid" : "invalid");
     auto tables = ListTables();
-
-    printf(COLOR_BLUE_BOLD);
-    printf(" %10s |", "schema");
-    printf(" %30s |", "name");
-    printf(" %10s |", "type");
-    printf(" %5s |", "ncol");
-    printf(" %6s |", "wr");
-    printf(" %6s |", "strict");
-    printf(COLOR_RESET);
-    printf("\n");
+    printf(COLOR_BOLD_RED "%s\n" COLOR_RESET, "Tables");
+    PrintTables(tables);
 
     RANGE(i, tables.len)
     {
-        printf(" %10.*s |", pstr(tables[i]->schema));
-        printf(" %30.*s |", pstr(tables[i]->name));
-        printf(" %10.*s |", pstr(tables[i]->type));
-        printf(" %5d |", tables[i]->ncol);
-        printf(" %6s |", tables[i]->wr ? "true" : "false");
-        printf(" %6s |", tables[i]->strict ? "true" : "false");
-        printf("\n");
+        printf(COLOR_BOLD_RED "[%ld] %.*s\n" COLOR_RESET, i, pstr(tables[i]->name));
 
         auto cols = ListColumns(tables[i]->name);
-        printf(COLOR_BLUE_BOLD);
-        printf("%30s |", "name");
-        printf("%10s |", "dtype");
-        printf(COLOR_RESET);
-        printf("\n");
-        RANGE(j, cols.len)
-        {
-            printf(" %30.*s |", pstr(cols[j]->name));
-            printf(" %10s |", DbCellTypeStr[cols[j]->type]);
-            printf("\n");
-        }
+        PrintColumns(cols);
+
+        auto rows = ListRows(tables[i]->name, cols);
+        PrintRows(rows, cols);
     }
 }
 
 void PrintTables(Slice<DbTable> tables)
 {
-    printf(COLOR_BLUE_BOLD);
+    printf(COLOR_BOLD_BLUE);
     printf(" %10s |", "schema");
     printf(" %30s |", "name");
     printf(" %10s |", "type");
@@ -286,7 +265,31 @@ void PrintTables(Slice<DbTable> tables)
 
 void PrintColumns(Slice<DbColumn> columns)
 {
-    printf(COLOR_BLUE_BOLD);
+    printf(COLOR_BOLD_BLUE);
+    printf(" %5s |", "idx");
+    printf(" %30s |", "name");
+    printf(" %10s |", "type");
+    printf(" %10s |", "notnull");
+    printf(" %10s |", "primarykey");
+    printf(" %-12s |", "defaultvalue");
+    printf(COLOR_RESET);
+    printf("\n");
+
+    RANGE(i, columns.len)
+    {
+        printf(" %5d |", columns.data[i].idx);
+        printf(" %30.*s |", pstr(columns.data[i].name));
+        printf(" %10s |", DbCellTypeStr[columns.data[i].type]);
+        printf(" %10s |", columns.data[i].notnull ? "true" : "false");
+        printf(" %10s |", columns.data[i].primarykey ? "true" : "false");
+        printf(" %-12.*s |", pstr(columns.data[i].defaultvalue));
+        printf("\n");
+    }
+}
+
+void PrintRows(Slice<DbRow> rows, Slice<DbColumn> columns)
+{
+    printf(COLOR_BOLD_BLUE);
     printf(" %5s |", "idx");
     printf(" %30s |", "name");
     printf(" %10s |", "type");

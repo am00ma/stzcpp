@@ -1,5 +1,4 @@
 #include "str.h"
-#include "log.h"
 
 #include <cassert> // assert
 #include <cstdarg> // va_start, va_end, va_list
@@ -8,19 +7,8 @@
 template <typename T, int sz> int size(T (&)[sz]) { return sz; }
 
 /* ---------------------------------------------------------------------------
- * Initialization
+ * Initialization - Str
  * ------------------------------------------------------------------------- */
-Strs::Strs(Arena* a, isize len_)
-{
-    data = a->Make<Str>(len_);
-    len  = len_;
-};
-
-Strs::Strs(Str* data_, isize len_)
-{
-    data = data_;
-    len  = len_;
-};
 
 Str::Str(Arena* a, isize len_)
 {
@@ -41,13 +29,6 @@ Str::Str(char* buf_, isize len_)
     len = len_;
 }
 
-Str::Str(char* beg, char* end)
-{
-    assert(beg <= end);
-    buf = beg;
-    len = end - beg;
-}
-
 Str::Str(Arena* a, isize maxlen, char const* fmt, ...)
 {
     char* beg = a->beg;
@@ -59,6 +40,22 @@ Str::Str(Arena* a, isize maxlen, char const* fmt, ...)
     va_end(arg);
 
     a->beg = beg + len; // Discard extra (not null terminated?)
+};
+
+/* ---------------------------------------------------------------------------
+ * Initialization - Strs
+ * ------------------------------------------------------------------------- */
+
+Strs::Strs(Arena* a, isize len_)
+{
+    data = a->Make<Str>(len_);
+    len  = len_;
+};
+
+Strs::Strs(Str* data_, isize len_)
+{
+    data = data_;
+    len  = len_;
 };
 
 /* ---------------------------------------------------------------------------

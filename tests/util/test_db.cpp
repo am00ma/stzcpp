@@ -27,10 +27,9 @@ TEST_SUITE("Db")
 
         // Actually open, in SQL READ WRITE mode
         Db db = Db(path.path);
-        db.Print();
+        CHECK(db.valid);
 
         // Create COMPANY table
-        debug("%s\n", SQL_CREATE_TABLE);
         DbError err = db.ExecVoid(SQL_CREATE_TABLE);
         CheckErr(err, "ExecVoid(SQL_CREATE_TABLE) failed");
 
@@ -45,8 +44,8 @@ TEST_SUITE("Db")
         Path path = Path("/tmp/tmp.db");
         if (path.exists) { CheckErr(FileDelete(path.path), "Could not Delete"); }
 
-        Db db = Db(path.path);
-        db.Print();
+        Db db = Db(path.path, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, 128 * 1024 * 1024);
+        CHECK(db.valid);
 
         // Columns -> Need escaping for spaces
         Slice<DbColumn> columns = Slice<DbColumn>(&db.mem, 4);

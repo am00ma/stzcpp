@@ -1,5 +1,4 @@
 #include "arena.h"
-
 #include "doctest.h"
 
 int main()
@@ -135,8 +134,6 @@ int main()
         TEST_CASE("TODO: Non-aligned access") { CHECK(0 == 0); }
         TEST_CASE("TODO: Multiple threads") { CHECK(0 == 0); }
     }
-
-    TEST_RESULTS();
 
     return 0;
 }

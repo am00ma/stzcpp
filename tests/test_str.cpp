@@ -1,5 +1,4 @@
 #include "str.h"
-
 #include "doctest.h"
 
 int main()
@@ -73,6 +72,17 @@ int main()
             Str y = Str(x.buf, x.buf + 3);
             CHECK(y.len == 3);
             RANGE(i, y.len) { CHECK(y.buf[i] == x.buf[i]); }
+        }
+
+        TEST_CASE("Strs: Initialization")
+        {
+            Str  list[3] = {"a", "b", "c"};
+            Strs parts   = Strs(list, 3);
+            CHECK(*parts[0] == Str("a"));
+            CHECK(*parts[1] == Str("b"));
+            CHECK(*parts[2] == Str("c"));
+            *parts[1] = "d";
+            CHECK(*parts[1] == Str("d"));
         }
 
         TEST_CASE("Operator: [] - ith char by reference")
@@ -158,20 +168,7 @@ int main()
         }
 
         TEST_CASE("Methods: Split - multichar separator") { /* TODO */ }
-
-        TEST_CASE("Strs: Initialization")
-        {
-            Str  list[3] = {"a", "b", "c"};
-            Strs parts   = Strs(list, 3);
-            CHECK(*parts[0] == Str("a"));
-            CHECK(*parts[1] == Str("b"));
-            CHECK(*parts[2] == Str("c"));
-            *parts[1] = "d";
-            CHECK(*parts[1] == Str("d"));
-        }
     }
-
-    TEST_RESULTS();
 
     return 0;
 }

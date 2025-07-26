@@ -1,60 +1,78 @@
 # Str
 
-## API
+## Includes
 
 ```cpp
-typedef struct Str {
-    // Hack for holding string literals as well
-    union {
-        char*       buf = 0;
-        const char* cbuf;
-    };
-    isize len = 0;
-
-    // Default constructor
-    Str() = default;
-
-    // From string literals
-    template <isize N> constexpr Str(const char (&s)[N]);
-
-    // From const
-    Str(const char* buf_);
-
-    // From fields
-    Str(char* buf_, isize len_);
-
-    // From Arena
-    Str(Arena* a, isize len_);
-
-    // From formatted string
-    Str(Arena* a, isize len, char const* fmt, ...);
-
-    // From spans
-    Str(char* beg, char* end);
-
-    // Get ith char
-    char& operator[](isize i);
-
-    // Get slice
-    Str operator[](isize beg, isize end);
-
-    // str_equal
-    bool operator==(Str s);
-
-    // Null terminated string
-    char* Cstr(Arena* a);
-
-    // Copy to arena
-    Str Copy(Arena* a, bool null_terminate = false);
-
-    // Split (defaults to splitting lines)
-    Strs Split(Arena* a, Str delimiter = "\n", bool ignore_empty = true, bool substitute_null = false);
-
-    // FNV hash
-    u64 Hash64();
-
-} Str;
+--8<-- "docs/code/include/str.h:3:4"
 ```
+
+## Helpers
+
+```cpp
+--8<-- "docs/code/include/str.h:10:23"
+```
+
+## Fields
+
+```cpp
+--8<-- "docs/code/include/str.h:30:34"
+```
+
+## Constructors
+
+```cpp
+--8<-- "docs/code/include/str.h:40:91"
+```
+
+## Operators
+
+```cpp
+--8<-- "docs/code/include/str.h:97:116"
+```
+
+## Memory, interface with C strings
+
+```cpp
+--8<-- "docs/code/include/str.h:121:150"
+```
+
+## Split
+
+BUG: Needs to be defined outside of struct.
+
+Declaration:
+
+```cpp
+--8<-- "docs/code/include/str.h:152:153"
+```
+
+Implementation:
+
+```cpp
+--8<-- "docs/code/include/str.h:243:288"
+```
+
+## Strs
+
+### Fields
+
+```cpp
+--8<-- "docs/code/include/str.h:182:183"
+```
+
+### Initialization
+
+```cpp
+--8<-- "docs/code/include/str.h:185:197"
+```
+
+### Operators
+
+```cpp
+--8<-- "docs/code/include/str.h:199:235"
+```
+
+
 
 ## Usage
 

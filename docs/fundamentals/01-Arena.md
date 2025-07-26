@@ -64,7 +64,7 @@ Usage with support for defaults and typing:
 
 ## Tests
 
-Arena
+Arena Tests (Use `ctrl+f` to navigate to code)
 
 |     | Case                                 | Correct | Total |
 | --- | ------------------------------------ | ------- | ----- |

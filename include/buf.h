@@ -4,6 +4,7 @@
 #include "str.h" // Str
 
 typedef struct Buf {
+
     char* buf = 0;
     isize len = 0;
     isize cap = 0;
@@ -17,21 +18,6 @@ typedef struct Buf {
         len = 0;
         cap = cap_;
     }
-
-    // API for interaction, usage
-
-    // Returns Str, modifies self
-    Str Join(Str c)
-    {
-        if (len + c.len >= cap)
-        {
-            Fatal(-1, "Buf: len + c.len >= cap : %ld + %ld ( = %ld ) >= %ld", //
-                  len, c.len, len + c.len, cap);
-        }
-        memcpy(&buf[len], c.buf, c.len);
-        len += c.len;
-        return Str(buf, len);
-    };
 
     // Shrinks arena
     // NOTE: provided no new objects after declaration of Buf
@@ -83,5 +69,18 @@ typedef struct Buf {
         Assert(j < len);
         return Str(&buf[i], j - i).Copy(a);
     }
+
+    // Identical to + operator
+    Str Join(Str c)
+    {
+        if (len + c.len >= cap)
+        {
+            Fatal(-1, "Buf: len + c.len >= cap : %ld + %ld ( = %ld ) >= %ld", //
+                  len, c.len, len + c.len, cap);
+        }
+        memcpy(&buf[len], c.buf, c.len);
+        len += c.len;
+        return Str(buf, len);
+    };
 
 } Buf;

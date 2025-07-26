@@ -75,8 +75,8 @@ template <typename T> struct Slice {
         return slice;
     }
 
-    // str_equal
-    b32 operator==(Slice<T> s)
+    // Eqality
+    bool operator==(Slice<T> s)
     {
         if (len != s.len) { return false; }
         RANGE(i, len)

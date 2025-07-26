@@ -96,7 +96,5 @@ int main()
         }
     }
 
-    TEST_RESULTS();
-
     return 0;
 }

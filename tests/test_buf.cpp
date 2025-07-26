@@ -1,6 +1,4 @@
-#include "arena.h"
 #include "buf.h"
-
 #include "doctest.h"
 
 int main()
@@ -99,8 +97,6 @@ int main()
             CHECK(a.Used() == 46);
         }
     }
-
-    TEST_RESULTS();
 
     return 0;
 }

@@ -1,10 +1,11 @@
 #include "util/db.h"
+#include "arena.h"
 #include "log.h"
 
-static inline bool DbOpen(sqlite3** db, Str path, Arena* mem)
+static inline bool DbOpen(sqlite3** db, Str path, int flags)
 {
-    Arena temp = *mem;
-    int   err  = sqlite3_open(path.Cstr(&temp), db);
+    BufArena(temp, buf, 1024);
+    int err = sqlite3_open_v2(path.Cstr(&temp), db, flags, 0);
     if (err != SQLITE_OK)
     {
         error("sqlite3_open: %s", sqlite3_errmsg(*db));
@@ -15,33 +16,33 @@ static inline bool DbOpen(sqlite3** db, Str path, Arena* mem)
     return true;
 }
 
-Db::Db(Str path_, isize cap_)
+Db::Db(Str path_, int flags, isize cap_)
 {
     path  = path_;
     mem   = Arena(cap_);
-    valid = DbOpen(&db, path, &mem);
+    valid = DbOpen(&db, path, flags);
 };
 
 Db::~Db()
 {
-    int err = sqlite3_close(db);
+    int err = sqlite3_close_v2(db);
     if (err != SQLITE_OK)
     {
-        error("sqlite3_close: %d", err);
+        error("sqlite3_close: %d : %s", err, sqlite3_errmsg(db));
         valid = false;
         return;
     }
     // debug("Db closed");
 }
 
-static int callback(void* NotUsed, int argc, char** argv, char** azColName)
+int PrintCallback(void* NotUsed, int argc, char** argv, char** azColName)
 {
     RANGE(i, argc) { printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL"); }
     printf("\n");
     return 0;
 }
 
-DbError Db::ExecVoid(Str sql)
+DbError Db::ExecVoid(Str sql, DbCallback callback)
 {
     Arena temp = mem;
     // debug("Executing:\n%.*s", pstr(sql));
@@ -52,7 +53,6 @@ DbError Db::ExecVoid(Str sql)
     {
         error("SQL error: %s", zErrMsg);
         sqlite3_free(zErrMsg); // Continues so we can close
-        sqlite3_close(db);
         return DB_FAIL;
     }
     // debug("Statement executed successfully.\n");
@@ -60,7 +60,7 @@ DbError Db::ExecVoid(Str sql)
     return DB_SUCCESS;
 }
 
-Slice<Table> Db::ListTables()
+Slice<DbTable> Db::ListTables()
 {
     Arena temp  = mem;
     Str   query = "PRAGMA table_list";
@@ -72,21 +72,21 @@ Slice<Table> Db::ListTables()
     if (rc != SQLITE_OK)
     {
         error("sqlite3_prepare_v2: %.*s", pstr(query));
-        return Slice<Table>();
+        return Slice<DbTable>();
     }
     // debug("Successfully prepared statement.");
 
     // Strings are copied into database's arena
-    Slice<Table> tables = Slice<Table>(&mem, 1024);
+    Slice<DbTable> tables = Slice<DbTable>(&mem, 1024);
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
     {
-        Table table  = {};
-        table.schema = Str(&mem, 64, "%s", (const char*)sqlite3_column_text(stmt, 0));
-        table.name   = Str(&mem, 1024, "%s", (const char*)sqlite3_column_text(stmt, 1));
-        table.type   = Str(&mem, 64, "%s", (const char*)sqlite3_column_text(stmt, 2));
-        table.ncol   = sqlite3_column_int(stmt, 3);
-        table.wr     = sqlite3_column_int(stmt, 4) != 0;
-        table.strict = sqlite3_column_int(stmt, 5) != 0;
+        DbTable table = {};
+        table.schema  = Str(&mem, 64, "%s", (const char*)sqlite3_column_text(stmt, 0));
+        table.name    = Str(&mem, 1024, "%s", (const char*)sqlite3_column_text(stmt, 1));
+        table.type    = Str(&mem, 64, "%s", (const char*)sqlite3_column_text(stmt, 2));
+        table.ncol    = sqlite3_column_int(stmt, 3);
+        table.wr      = sqlite3_column_int(stmt, 4) != 0;
+        table.strict  = sqlite3_column_int(stmt, 5) != 0;
         tables.Append(table);
     }
     if (rc != SQLITE_DONE) { error("Error executing statement: %s", sqlite3_errmsg(db)); }
@@ -96,17 +96,17 @@ Slice<Table> Db::ListTables()
     if (rc != SQLITE_OK)
     {
         error("sqlite3_prepare_v2: %.*s", pstr(query));
-        return Slice<Table>();
+        return Slice<DbTable>();
     }
     // debug("Successfully finalized.\n");
 
     return tables;
 }
 
-Slice<Column> Db::ListColumns(Str table)
+Slice<DbColumn> Db::ListColumns(Str tablename)
 {
     Arena temp  = mem;
-    Str   query = Str(&temp, 1024, "PRAGMA table_info(%.*s);", pstr(table));
+    Str   query = Str(&temp, 1024, "PRAGMA table_info(%.*s);", pstr(tablename));
     // debug("query : %.*s", pstr(query));
 
     sqlite3_stmt* stmt;
@@ -115,17 +115,17 @@ Slice<Column> Db::ListColumns(Str table)
     if (rc != SQLITE_OK)
     {
         error("sqlite3_prepare_v2: %.*s", pstr(query));
-        return Slice<Column>();
+        return Slice<DbColumn>();
     }
     // debug("Successfully prepared statement.");
 
     // Strings are copied into database's arena
-    Slice<Column> columns = Slice<Column>(&mem, 1024);
+    Slice<DbColumn> columns = Slice<DbColumn>(&mem, 1024);
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
     {
-        Column col = {};
-        col.idx    = sqlite3_column_int(stmt, 0);
-        col.name   = Str(&mem, 1024, "%s", (const char*)sqlite3_column_text(stmt, 1));
+        DbColumn col = {};
+        col.idx      = sqlite3_column_int(stmt, 0);
+        col.name     = Str(&mem, 1024, "%s", (const char*)sqlite3_column_text(stmt, 1));
 
         Str type = Str(&mem, 1024, "%s", (const char*)sqlite3_column_text(stmt, 2));
         if (type[0, 3] == "INT") col.type = CELL_INTEGER;
@@ -148,17 +148,17 @@ Slice<Column> Db::ListColumns(Str table)
     if (rc != SQLITE_OK)
     {
         error("sqlite3_prepare_v2: %.*s", pstr(query));
-        return Slice<Column>();
+        return Slice<DbColumn>();
     }
     // debug("Successfully finalized.\n");
 
     return columns;
 }
 
-Slice<Row> Db::ListRows(Str table, Slice<Column> columns)
+Slice<DbRow> Db::ListRows(Str tablename, Slice<DbColumn> columns)
 {
     Arena temp  = mem;
-    Str   query = Str(&temp, 1024, "SELECT * FROM \"%.*s\";", pstr(table));
+    Str   query = Str(&temp, 1024, "SELECT * FROM \"%.*s\";", pstr(tablename));
     // debug("query : %.*s", pstr(query));
 
     sqlite3_stmt* stmt;
@@ -167,16 +167,16 @@ Slice<Row> Db::ListRows(Str table, Slice<Column> columns)
     if (rc != SQLITE_OK)
     {
         error("sqlite3_prepare_v2: %.*s", pstr(query));
-        return Slice<Row>();
+        return Slice<DbRow>();
     }
     // debug("Successfully prepared statement.");
 
     // Strings are copied into database's arena (1MB allotted)
-    Slice<Row> rows  = Slice<Row>(&mem, 1024 * 1024);
-    isize      count = 0;
+    Slice<DbRow> rows  = Slice<DbRow>(&mem, 1024 * 1024);
+    isize        count = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
     {
-        Row row = {};
+        DbRow row = {};
         rows.Append(row);
         count++;
     }
@@ -187,7 +187,7 @@ Slice<Row> Db::ListRows(Str table, Slice<Column> columns)
     if (rc != SQLITE_OK)
     {
         error("sqlite3_prepare_v2: %.*s", pstr(query));
-        return Slice<Row>();
+        return Slice<DbRow>();
     }
     // debug("Successfully finalized.\n");
 
@@ -196,7 +196,7 @@ Slice<Row> Db::ListRows(Str table, Slice<Column> columns)
 
 void Db::Print() { printf("Path: %.*s (%s)\n", pstr(path), valid ? "valid" : "invalid"); }
 
-void PrintTables(Slice<Table> tables)
+void PrintTables(Slice<DbTable> tables)
 {
     printf(COLOR_BLUE_BOLD);
     printf(" %10s |", "schema");
@@ -220,7 +220,7 @@ void PrintTables(Slice<Table> tables)
     }
 }
 
-void PrintColumns(Slice<Column> columns)
+void PrintColumns(Slice<DbColumn> columns)
 {
     printf(COLOR_BLUE_BOLD);
     printf(" %5s |", "idx");
@@ -236,7 +236,7 @@ void PrintColumns(Slice<Column> columns)
     {
         printf(" %5d |", columns.data[i].idx);
         printf(" %30.*s |", pstr(columns.data[i].name));
-        printf(" %10s |", CellTypeStr[columns.data[i].type]);
+        printf(" %10s |", DbCellTypeStr[columns.data[i].type]);
         printf(" %10s |", columns.data[i].notnull ? "true" : "false");
         printf(" %10s |", columns.data[i].primarykey ? "true" : "false");
         printf(" %-12.*s |", pstr(columns.data[i].defaultvalue));

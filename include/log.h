@@ -14,8 +14,7 @@
 
 #define title(...) (fprintf(stderr, COLOR_BLUE_BOLD), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
 #define debug(...) (fprintf(stderr, COLOR_BLUE), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
-#define error(...)                                                                                                     \
-    (fprintf(stderr, COLOR_RED "Error: "), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
+#define error(...) (fprintf(stderr, COLOR_RED "[E] "), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
 
 /* ---------------------------------------------------------------------------
  * Error handling
@@ -27,6 +26,13 @@
         error(__VA_ARGS__);                                                                                            \
         debug("[@] %s:%d", __FILE__, __LINE__);                                                                        \
         exit(EXIT_FAILURE);                                                                                            \
+    }
+
+#define CheckErr(err, ...)                                                                                             \
+    if ((err) != 0)                                                                                                    \
+    {                                                                                                                  \
+        error(__VA_ARGS__);                                                                                            \
+        debug("[@] %s:%d", __FILE__, __LINE__);                                                                        \
     }
 
 // Spicy naming, but ok

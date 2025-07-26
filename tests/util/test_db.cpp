@@ -1,4 +1,6 @@
+#include "log.h"
 #include "util/db.h"
+#include "util/templates/sql/create.h"
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "../doctest.h"
@@ -15,5 +17,8 @@ TEST_SUITE("Db")
     {
         Db db = Db("/tmp/tmp.db");
         db.Print();
+
+        DbError err = db.ExecVoid(SQL_CREATE_TABLE);
+        CheckErr(err, "ExecVoid(SQL_CREATE_TABLE) failed");
     }
 }

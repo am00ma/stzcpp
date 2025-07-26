@@ -5,10 +5,10 @@
 #include <sqlite3.h>
 
 // Early defs to prevent error later
-typedef struct Table  Table;
-typedef struct Column Column;
-typedef void*         Cell;
-typedef Slice<Cell>   Row;
+typedef struct DbTable  DbTable;
+typedef struct DbColumn DbColumn;
+typedef void*           DbCell;
+typedef Slice<DbCell>   DbRow;
 
 typedef enum {
     DB_SUCCESS = 0,
@@ -16,6 +16,12 @@ typedef enum {
 
 } DbError;
 
+// Callbacks
+typedef int DbCallback(void* NotUsed, int argc, char** argv, char** azColName);
+
+int PrintCallback(void* NotUsed, int argc, char** argv, char** azColName);
+
+// Main Struct
 typedef struct Db {
     bool valid;
 
@@ -28,25 +34,27 @@ typedef struct Db {
     Db() = default;
 
     // Connect
-    Db(Str path, isize cap = 16 * 1024 * 1024);
+    Db(Str path, int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, isize cap = 16 * 1024 * 1024);
 
     // Disconnect
     ~Db();
 
     // Methods
-    Slice<Table>  ListTables();
-    Slice<Column> ListColumns(Str table);
-    Slice<Row>    ListRows(Str table, Slice<Column> columns);
+    Slice<DbTable>  ListTables();
+    Slice<DbColumn> ListColumns(Str tablename);
+    Slice<DbRow>    ListRows(Str tablename, Slice<DbColumn> columns);
 
-    // No rows returned
-    DbError ExecVoid(Str sql);
+    // Actual interaction
+
+    // No rows returned, only print
+    DbError ExecVoid(Str sql, DbCallback callback = PrintCallback);
 
     // Debug
     void Print();
 
 } Db;
 
-typedef enum CellType {
+typedef enum DbCellType {
 
     CELL_NULL    = 0,
     CELL_INTEGER = 1,
@@ -54,9 +62,9 @@ typedef enum CellType {
     CELL_TEXT    = 3,
     CELL_BLOB    = 4,
 
-} CellType;
+} DbCellType;
 
-constexpr const char* CellTypeStr[] = {
+constexpr const char* DbCellTypeStr[] = {
     "NULL",    // = 0
     "INTEGER", // = 1
     "REAL",    // = 2
@@ -65,17 +73,17 @@ constexpr const char* CellTypeStr[] = {
     "NUMERIC", // = 5
 };
 
-typedef struct Column {
-    i32      idx;
-    Str      name;
-    CellType type;
-    bool     notnull;
-    Str      defaultvalue;
-    bool     primarykey;
+typedef struct DbColumn {
+    i32        idx;
+    Str        name;
+    DbCellType type;
+    bool       notnull;
+    Str        defaultvalue;
+    bool       primarykey;
 
-} Column;
+} DbColumn;
 
-typedef struct Table {
+typedef struct DbTable {
     Str  schema;
     Str  name;
     Str  type;
@@ -83,8 +91,8 @@ typedef struct Table {
     bool wr;
     bool strict;
 
-} Table;
+} DbTable;
 
-void PrintTables(Slice<Table> tables);
-void PrintColumns(Slice<Column> columns);
-void PrintRows(Slice<Row> rows, Slice<Column> columns);
+void PrintTables(Slice<DbTable> tables);
+void PrintColumns(Slice<DbColumn> columns);
+void PrintRows(Slice<DbRow> rows, Slice<DbColumn> columns);

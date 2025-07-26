@@ -5,11 +5,18 @@
 
 template <typename T> struct Slice {
 
-    T*    data;
-    isize len;
-    isize cap;
+    T*    data = 0;
+    isize len  = 0;
+    isize cap  = 0;
 
     Slice() = default;
+
+    Slice(Arena* a, isize cap_)
+    {
+        len  = 0;
+        cap  = cap_;
+        data = a->Make<T>(cap);
+    };
 
     Slice(T* data_, isize len_, isize cap_)
     {
@@ -18,12 +25,21 @@ template <typename T> struct Slice {
         cap  = cap_;
     };
 
-    Slice(Arena* a, isize cap_)
+    Slice(T* data_, isize len_)
     {
-        len  = 0;
-        cap  = cap_;
-        data = a->Make<T>(cap);
+        data = data_;
+        len  = len_;
+        cap  = len_;
     };
+
+    // Shrinks arena to len, releasing rest of cap
+    // NOTE: provided no new objects after declaration of Slice
+    Slice<T> Final(Arena* a)
+    {
+        a->beg -= (cap - len) * sizeof(T);
+        cap     = len;
+        return *this;
+    }
 
     // Identical to Append
     Slice<T>* operator+(T val)
@@ -69,9 +85,10 @@ template <typename T> struct Slice {
     bool operator==(Slice<T> s)
     {
         if (len != s.len) { return false; }
+        if ((len == 0) && (data == s.data)) { return true; } // Takes care of null vs empty case
         RANGE(i, len)
         {
-            if (data[i] != s[i]) return false;
+            if (data[i] != *s[i]) return false; // Comparing by copy?
         }
         return true;
     }
@@ -86,5 +103,4 @@ template <typename T> struct Slice {
         }
         else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", len + 1, cap); }
     }
-
 };

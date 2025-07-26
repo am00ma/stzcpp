@@ -1,4 +1,5 @@
 #include "doctest.h"
+#include "log.h"
 #include "str.h"
 #include <cstring>
 
@@ -221,6 +222,12 @@ int main()
             // Cstr also does not copy, just pushes arena up by one and sets zero
             y5.Cstr(&a);
             CHECK(a.Used() == 6 + 6 + 1);
+
+            // Copy with true now will now copy and use one extra space
+            // It does not know about null terminated input strings
+            // TODO: Can be prevented
+            y5.Copy(&a, true);
+            CHECK(a.Used() == 6 + 6 + 1 + 7);
         }
 
         TEST_CASE("Methods: Split - Default, ignore_empty, substitute_null")

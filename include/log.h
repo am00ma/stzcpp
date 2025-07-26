@@ -93,5 +93,6 @@
     if (!(cond))                                                                                                       \
     {                                                                                                                  \
         error("%s:%d", __FILE__, __LINE__);                                                                            \
+        error("Failed: %s", #cond);                                                                                    \
         __builtin_trap();                                                                                              \
     }

@@ -29,6 +29,13 @@ Str::Str(char* buf_, isize len_)
     len = len_;
 }
 
+// From spans
+Str::Str(char* beg_, char* end_)
+{
+    buf = beg_;
+    len = end_ - beg_;
+}
+
 Str::Str(Arena* a, isize maxlen, char const* fmt, ...)
 {
     char* beg = a->beg;

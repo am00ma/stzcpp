@@ -154,5 +154,7 @@ int main()
         // TODO: Processing time and metrics
     }
 
+    TEST_RESULTS();
+
     return 0;
 }

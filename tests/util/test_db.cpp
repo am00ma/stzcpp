@@ -73,4 +73,8 @@ int main()
             if (path.exists) { CheckErr(FileDelete(path.path), "Could not Delete"); }
         }
     }
+
+    TEST_RESULTS();
+
+    return 0;
 }

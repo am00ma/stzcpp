@@ -24,4 +24,8 @@ int main()
             CHECK(result.err == 0);
         }
     }
+
+    TEST_RESULTS();
+
+    return 0;
 }

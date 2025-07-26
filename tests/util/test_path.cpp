@@ -10,7 +10,7 @@ int main()
 
         TEST_CASE("Stuct size")
         {
-            CHECK(sizeof(Path) == 176); // Maybe bools can be condensed
+            CHECK(sizeof(Path) == 168); // Maybe bools can be condensed
         }
 
         Arena perm = Arena(1024 * 1024);
@@ -20,6 +20,7 @@ int main()
             Path path = {};
 
             path = Path("/tmp/hello/hi");
+            CHECK(path.path == "/tmp/hello/hi");
         }
 
         TEST_CASE("exists")
@@ -34,12 +35,12 @@ int main()
             // Current directory
             path = Path(".");
             CHECK(path.exists);
-            CHECK(path.name() == Str("."));
+            CHECK(path.name() == ".");
 
             // Remove Trailing slash
             path = Path("./");
             CHECK(path.exists);
-            CHECK(path.name() == Str("."));
+            CHECK(path.name() == ".");
         }
 
         TEST_CASE("not exists")
@@ -50,17 +51,17 @@ int main()
             // Empty string
             path = Path("");
             CHECK(!path.exists);
-            CHECK(path.name() == Str(""));
+            CHECK(path.name() == "");
 
             // Random file
             path = Path("./hello");
             CHECK(!path.exists);
-            CHECK(path.name() == Str("hello"));
+            CHECK(path.name() == "hello");
 
             // Does not recognize home directory yet
             path = Path("~");
             CHECK(!path.exists);
-            CHECK(path.name() == Str("~"));
+            CHECK(path.name() == "~");
         }
 
         TEST_CASE("glob")
@@ -75,10 +76,10 @@ int main()
 
             CHECK(patterns.len == 3);
             CHECK(paths.len == 4);
-            CHECK(paths[0]->path == Str("BUILDING.md"));
-            CHECK(paths[1]->path == Str("README.md"));
-            CHECK(paths[2]->path == Str("tests/util/test_path.cpp"));
-            CHECK(paths[3]->path == Str("include/range.h"));
+            CHECK(paths[0]->path == "BUILDING.md");
+            CHECK(paths[1]->path == "README.md");
+            CHECK(paths[2]->path == "tests/util/test_path.cpp");
+            CHECK(paths[3]->path == "include/range.h");
         }
 
         TEST_CASE("parent")
@@ -87,11 +88,15 @@ int main()
             Path  path;
 
             path = Path("/tmp/hello/hi/how.are.you");
-            CHECK(path.parent().path == Str("/tmp/hello/hi"));
+            CHECK(path.parent().path == "/tmp/hello/hi");
 
             // BUG: need to handle absolute paths, trailing slashes
             path = Path("./");
-            CHECK(path.parent().path == Str(""));
+            CHECK(path.parent().path == "");
         }
     }
+
+    TEST_RESULTS();
+
+    return 0;
 }

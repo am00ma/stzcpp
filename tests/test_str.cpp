@@ -1,5 +1,6 @@
-#include "str.h"
 #include "doctest.h"
+#include "str.h"
+#include <cstring>
 
 int main()
 {
@@ -57,13 +58,40 @@ int main()
             Arena a = perm;
             Str   x = Str(&a, 6);
             CHECK(x.len == 6); // 6 bytes of 0s, i.e. ""
+            CHECK(a.Used() == 6);
         }
 
         TEST_CASE("Initialization: Formatted string")
         {
             Arena a = perm;
-            Str   x = Str(&a, 20, "Hello: %s", "hi"); // needs maxlen
-            CHECK(x.len == 5 + 2 + 2);
+
+            // needs maxlen
+            Str x = Str(&a, 20, "Hello: %s", "hi");
+
+            // Uses only length needed for formatted string
+            isize len = 5 + 2 + 2;
+            CHECK(x.len == len);
+            CHECK(a.Used() == len);
+        }
+
+        TEST_CASE("Initialization: Formatted string - non-const")
+        {
+            Arena a = perm;
+
+            // Format string itself can be created
+            Str fmt = Str(&a, 20, "%s: %%10s", "Hello"); // 5 + 2 + 4 = 11
+            CHECK(fmt.len == 11);
+            char* cfmt = fmt.Cstr(&a); // + 1
+            CHECK(strlen(cfmt) == 11); // strlen does not count \0
+            CHECK(a.Used() == 12);
+
+            // Further args
+            Str x = Str(&a, 20, cfmt, "hi"); // 5 + 2 + 10 = 17
+            CHECK(x.len == 17);
+            CHECK(a.Used() == 12 + 17);
+
+            cfmt = x.Cstr(&a); // + 1
+            CHECK(a.Used() == 12 + 18);
         }
 
         TEST_CASE("Initialization: Spans")
@@ -116,9 +144,30 @@ int main()
         {
             Arena a = perm;
             Str   x = "123456";
+
+            // Copies entire string to arena
             char* y = x.Cstr(&a);
+            CHECK(a.Used() == 7);
             RANGE(i, x.len) { CHECK(y[i] == x.buf[i]); }
             CHECK(y[x.len] == '\0');
+
+            // Reset arena
+            a = perm;
+
+            // Copies entire string to arena
+            Str z = Str(&a, 5);
+            RANGE(i, z.len) { z[i] = i + 65; }
+            CHECK(a.Used() == 5);
+
+            // No copy this time
+            y = z.Cstr(&a); // + 1, as string is on top of arena
+            CHECK(a.Used() == 6);
+
+            // Alloc another string on top
+            Str z2 = Str(&a, 5);
+            RANGE(i, z2.len) { z[i] = i + 65; }
+            CHECK(y[z.len] == '\0');  // Old reference is preserved, with null terminator
+            CHECK(a.Used() == 6 + 5); // No null terminator for z2
         }
 
         TEST_CASE("Methods: Copy - Copy to arena")
@@ -126,18 +175,53 @@ int main()
             Arena a = perm;
             Str   x = "123456";
 
+            // Does not copy null terminator
             Str y1 = x.Copy(&a);
             CHECK(y1.len == x.len);
             RANGE(i, y1.len) { CHECK(y1.buf[i] == x.buf[i]); }
+            CHECK(a.Used() == 6);
 
+            // Reset arena
+            a = perm;
+
+            // Can specify to copy with null terminator though
+            // NOTE: not reflected in len, but for special occasions where we dont want the tedium of Cstr(...)
             Str y2 = x.Copy(&a, true);
             CHECK(y2.len == x.len);
             RANGE(i, y2.len) { CHECK(y2.buf[i] == x.buf[i]); }
             CHECK(y2.buf[y2.len] == '\0');
+            CHECK(a.Used() == 7);
         }
 
-        TEST_CASE("Methods: Copy - Copy to arena - without copy") { /* TODO */ }
-        TEST_CASE("Methods: Copy - Copy to arena - with copy") { /* TODO */ }
+        TEST_CASE("Methods: Copy - Copy to arena - with/without copy")
+        {
+
+            Arena a = perm;
+            Str   x = "123456";
+
+            // First copy
+            Str y1 = x.Copy(&a);
+            CHECK(y1.len == x.len);
+            RANGE(i, y1.len) { CHECK(y1.buf[i] == x.buf[i]); }
+            CHECK(a.Used() == 6);
+
+            // Second copy should not use more memory
+            Str y2 = y1.Copy(&a);
+            CHECK(a.Used() == 6);
+
+            // Even after renaming variable / copying str
+            Str y3 = y2;
+            Str y4 = y3.Copy(&a);
+            CHECK(a.Used() == 6);
+
+            // However, x is still not on arena, so `x.Copy(...)` will use mem
+            Str y5 = x.Copy(&a);
+            CHECK(a.Used() == 6 + 6);
+
+            // Cstr also does not copy, just pushes arena up by one and sets zero
+            y5.Cstr(&a);
+            CHECK(a.Used() == 6 + 6 + 1);
+        }
 
         TEST_CASE("Methods: Split - Default, ignore_empty, substitute_null")
         {
@@ -167,7 +251,7 @@ int main()
             CHECK(x3[1] == '\0');
         }
 
-        TEST_CASE("Methods: Split - multichar separator") { /* TODO */ }
+        TEST_CASE("TODO: Methods: Split - multichar separator") { /* TODO */ }
     }
 
     return 0;

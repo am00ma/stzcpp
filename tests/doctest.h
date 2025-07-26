@@ -40,9 +40,14 @@
     } while (0);
 
 // Register mismatch, but do not crash
+// Diff from doctest: cannot print lhs, rhs separately
 #define CHECK(cond)                                                                                                    \
     do {                                                                                                               \
         TEST_CHECKS++;                                                                                                 \
-        if (!(cond)) { error("Failed: %s", #cond); }                                                                   \
+        if (!(cond))                                                                                                   \
+        {                                                                                                              \
+            pretty(COLOR_YELLOW, "%s:%d", __FILE__, __LINE__);                                                  \
+            error("Failed: %s", #cond);                                                                                \
+        }                                                                                                              \
         else { TEST_SUCCESS_CHECKS++; }                                                                                \
     } while (0);

@@ -132,16 +132,23 @@ typedef struct Str {
         // NOTE: Not sure this makes sense
         if (buf == a->beg - len)
         {
-            // debug("Already on top");
-            *a->beg = '\0'; // NOTE: Is this correct?
-            a->beg++;
+            if (null_terminate)
+            {
+                // // BUG: Something is messed up here, why are we null terminating?
+                *a->beg = '\0'; // NOTE: Is this correct?
+                a->beg++;
+            }
 
-            // Not reflecting null-termination
+            // Else just return
             return *this;
         }
 
         Str dst = Str(a, len + int(null_terminate)); // zero initialized
-        if (len) memcpy(dst.buf, buf, len);
+        if (len)
+        {
+            // debug("[M] Copied");
+            memcpy(dst.buf, buf, len);
+        }
 
         // NOTE: Should this be reflected here?
         dst.len -= int(null_terminate);

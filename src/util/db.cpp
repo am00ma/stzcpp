@@ -1,5 +1,4 @@
 #include "util/db.h"
-#include "arena.h"
 #include "buf.h"
 #include "log.h"
 #include <cstdio>
@@ -53,7 +52,7 @@ DbError Db::ExecVoid(Str sql, DbCallback callback)
     int   rc      = sqlite3_exec(db, sql.Cstr(&temp), callback, 0, &zErrMsg);
     if (rc != SQLITE_OK)
     {
-        error("SQL error: %s", zErrMsg);
+        error("%d : %s: %s", rc, sqlite3_errstr(rc), zErrMsg);
         sqlite3_free(zErrMsg); // Continues so we can close
         return DB_FAIL;
     }
@@ -132,10 +131,10 @@ Slice<DbColumn> Db::ListColumns(Str tablename)
         Str type = Str(&mem, 1024, "%s", (const char*)sqlite3_column_text(stmt, 2));
         if (type[0, 3] == "INT") col.type = CELL_INTEGER;
         else if (type == "TEXT") col.type = CELL_TEXT;
-        else if (type[0, 4] == "CHAR") col.type = CELL_TEXT;
-        else if (type[0, 7] == "VARCHAR") col.type = CELL_TEXT;
         else if (type == "REAL") col.type = CELL_REAL;
         else if (type == "BLOB") col.type = CELL_BLOB;
+        else if (type[0, 4] == "CHAR") col.type = CELL_TEXT;    // BUG: What if does not have that many chars?
+        else if (type[0, 7] == "VARCHAR") col.type = CELL_TEXT; // BUG: What if does not have that many chars?
         else assert(false);
 
         col.notnull      = sqlite3_column_int(stmt, 3) != 0;
@@ -208,7 +207,7 @@ Str StmtCreateTable(Str tablename, Slice<DbColumn> columns, Arena* a)
     RANGE(i, columns.len)
     {
         ret + "  ";
-        ret + Str(&temp, 1024, "%10.*s", pstr(columns[i]->name));
+        ret + Str(&temp, 1024, "\"%10.*s\"", pstr(columns[i]->name));
         ret + "  ";
         ret + Str(&temp, 1024, "%10s", DbCellTypeStr[columns[i]->type]);
         ret + (columns[i]->primarykey ? " PRIMARY KEY " : "");
@@ -224,14 +223,41 @@ Str StmtCreateTable(Str tablename, Slice<DbColumn> columns, Arena* a)
 void Db::Print()
 {
     printf("Path: %.*s (%s)\n", pstr(path), valid ? "valid" : "invalid");
+    auto tables = ListTables();
 
-    auto table = ListTables();
-    printf("Tables\n");
-    RANGE(i, table.len)
+    printf(COLOR_BLUE_BOLD);
+    printf(" %10s |", "schema");
+    printf(" %30s |", "name");
+    printf(" %10s |", "type");
+    printf(" %5s |", "ncol");
+    printf(" %6s |", "wr");
+    printf(" %6s |", "strict");
+    printf(COLOR_RESET);
+    printf("\n");
+
+    RANGE(i, tables.len)
     {
-        //
-        printf("  %3ld: %.*s\n", i, pstr(table[i]->name));
-    };
+        printf(" %10.*s |", pstr(tables[i]->schema));
+        printf(" %30.*s |", pstr(tables[i]->name));
+        printf(" %10.*s |", pstr(tables[i]->type));
+        printf(" %5d |", tables[i]->ncol);
+        printf(" %6s |", tables[i]->wr ? "true" : "false");
+        printf(" %6s |", tables[i]->strict ? "true" : "false");
+        printf("\n");
+
+        auto cols = ListColumns(tables[i]->name);
+        printf(COLOR_BLUE_BOLD);
+        printf("%30s |", "name");
+        printf("%10s |", "dtype");
+        printf(COLOR_RESET);
+        printf("\n");
+        RANGE(j, cols.len)
+        {
+            printf(" %30.*s |", pstr(cols[j]->name));
+            printf(" %10s |", DbCellTypeStr[cols[j]->type]);
+            printf("\n");
+        }
+    }
 }
 
 void PrintTables(Slice<DbTable> tables)

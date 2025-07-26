@@ -48,7 +48,7 @@ TEST_SUITE("Db")
         Db db = Db(path.path);
         db.Print();
 
-        // Columns
+        // Columns -> Need escaping for spaces
         Slice<DbColumn> columns = Slice<DbColumn>(&db.mem, 4);
         columns + DbColumn(0, "int", CELL_INTEGER, true, "nan", true);
         columns + DbColumn(1, "text", CELL_TEXT);
@@ -59,16 +59,12 @@ TEST_SUITE("Db")
         DbError err = {};
 
         ret = StmtCreateTable("newtable", columns, &db.mem);
-        debug("%.*s\n", pstr(ret));
-
         err = db.ExecVoid(ret);
-        CheckErr(err, "ExecVoid(SQL_CREATE_TABLE) failed");
+        CHECK(err == 0);
 
-        ret = StmtCreateTable("newtable2", columns, &db.mem);
-        debug("%.*s\n", pstr(ret));
-
+        ret = StmtCreateTable("newtable", columns, &db.mem);
         err = db.ExecVoid(ret);
-        CheckErr(err, "ExecVoid(SQL_CREATE_TABLE) failed");
+        CHECK(err == 1);
 
         db.Print();
 

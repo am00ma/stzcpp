@@ -233,14 +233,14 @@ int main()
 
             Strs parts1 = x.Split(&a, " ", true, false);
             CHECK(parts1.len == 2);
-            RANGE(i, parts1.len) { CHECK(parts1.data[i] == Str(res1[i])); }
+            RANGE(i, parts1.len) { CHECK(parts1.buf[i] == Str(res1[i])); }
 
             // ignore_empty = false, substitute_null = false
             const char* res2[] = {"", "", "123456", "789", ""};
 
             Strs parts2 = x.Split(&a, " ", false, false);
             CHECK(parts2.len == 5);
-            RANGE(i, parts2.len) { CHECK(parts2.data[i] == Str(res2[i])); }
+            RANGE(i, parts2.len) { CHECK(parts2.buf[i] == Str(res2[i])); }
 
             // ignore_empty = false, substitute_null = true
             const char* res3[] = {"", "", "123456", "789", ""};
@@ -248,10 +248,44 @@ int main()
             Str  x3     = Str("  123456 789 ").Copy(&a);
             Strs parts3 = x3.Split(&a, " ", false, true);
             CHECK(parts3.len == 5);
-            RANGE(i, parts3.len) { CHECK(parts3.data[i] == Str(res2[i])); }
+            RANGE(i, parts3.len) { CHECK(parts3.buf[i] == Str(res2[i])); }
 
             CHECK(x3[0] == '\0'); // Confirm replacement with nulls
             CHECK(x3[1] == '\0'); //
+        }
+
+        TEST_CASE("Methods: StartsWith")
+        {
+            Str x = "123456";
+
+            // Positive
+            Str y = "123";
+            CHECK(x.StartsWith(y));
+
+            // Smaller than y
+            x = "12";
+            CHECK(!x.StartsWith(y));
+
+            // Null
+            x = "";
+            CHECK(!x.StartsWith(y));
+        }
+
+        TEST_CASE("Methods: EndsWith")
+        {
+            Str x = "123456";
+
+            // Positive
+            Str y = "456";
+            CHECK(x.EndsWith(y));
+
+            // Smaller than y
+            x = "56";
+            CHECK(!x.EndsWith(y));
+
+            // Null
+            x = "";
+            CHECK(!x.EndsWith(y));
         }
 
         TEST_CASE("TODO: Methods: Split - multichar separator") { /* TODO */ }

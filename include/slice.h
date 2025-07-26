@@ -56,28 +56,42 @@ template <typename T> struct Slice {
     // Get ith item by reference
     T* operator[](isize i)
     {
-        Assert(i >= 0);
-        Assert(i < len);
-        return &buf[i];
-    }
+        Assert(((i >= -1 * len) && (i < len))); // Bounds check
+        if (i < 0) { return &buf[len + i]; }    // Negative
+        return &buf[i];                         // Return reference
+    };
 
     // Get (i - j)th item by reference
     Slice<T> operator[](isize i, isize j)
     {
-        Assert(i >= 0);
-        Assert(j >= i);
-        Assert(j < len);
-        return Slice<T>(&buf[i], j - i, j - i);
+        Assert(((i >= -1 * len) && (i < len))); // Bounds check i
+        Assert(((j >= -1 * len) && (j < len))); // Bounds check j
+
+        if (i < 0) { i = len + i; } // Negative i to positive
+        if (j < 0) { j = len + j; } // Negative j to positive
+
+        // Check overlap given assured both positive (so also for [i, i] for example)
+        if ((i >= j) && (j >= 0)) { return Slice<T>(); }; // 0 >= j > i
+
+        return Slice<T>(&buf[i], j - i, j - i); // only if j > i
     }
 
     // Get (i - j)th item as copy
     Slice<T> operator[](isize i, isize j, Arena* a)
     {
-        Assert(i >= 0);
-        Assert(j >= i);
-        Assert(j < len);
+        Assert(((i >= -1 * len) && (i < len))); // Bounds check i
+        Assert(((j >= -1 * len) && (j < len))); // Bounds check j
+
+        if (i < 0) { i = len + i; } // Negative i to positive
+        if (j < 0) { j = len + j; } // Negative j to positive
+
+        // Check overlap given assured both positive (so also for [i, i] for example)
+        if ((i >= j) && (j >= 0)) { return Slice<T>(); }; // 0 >= j > i
+
+        // Diff from operator[] ref -> we are making Slice
         auto slice = Slice<T>(a->Make<T>(j - i), j - i, j - i);
         if (slice.len) memcpy(slice.buf, &buf[i], slice.len * sizeof(T));
+
         return slice;
     }
 

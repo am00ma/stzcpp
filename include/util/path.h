@@ -94,12 +94,12 @@ typedef struct Path {
         //     size_t   gl_offs;     /* Slots to reserve in gl_pathv.  */
         // } glob_t;
 
-        err = glob(patterns.data[0].Cstr(&temp), GLOB_DOOFFS, NULL, &buf);
+        err = glob(patterns.buf[0].Cstr(&temp), GLOB_DOOFFS, NULL, &buf);
         if ((err != 0) && (err != GLOB_NOMATCH)) { Fatal(err, "Failed glob: %d", err); }
 
         RANGE(i, 1, patterns.len)
         {
-            err = glob(patterns.data[i].Cstr(&temp), GLOB_DOOFFS | GLOB_APPEND, NULL, &buf);
+            err = glob(patterns.buf[i].Cstr(&temp), GLOB_DOOFFS | GLOB_APPEND, NULL, &buf);
             if ((err != 0) && (err != GLOB_NOMATCH)) { Fatal(err, "Failed glob: %d", err); }
         }
 

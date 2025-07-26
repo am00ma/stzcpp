@@ -1,4 +1,5 @@
 #include "doctest.h"
+#include "log.h"
 #include "slice.h"
 
 int main()
@@ -124,11 +125,25 @@ int main()
         {
             Arena a = perm;
 
-            Si32 s = {&a, 3};          // Init
-            RANGE(i, s.cap) { s + i; } // Append
+            Si32 s = {&a, 3};                // Init
+            RANGE(i, s.cap) { s + (i + 1); } // Append
 
             *s[0] = 10;         // Mutate
             CHECK(*s[0] == 10); // Mutated value
+
+            // Positive indices
+            CHECK(*s[0] == 10);
+            CHECK(*s[1] == 2);
+            CHECK(*s[2] == 3);
+
+            // Negative indices
+            CHECK(*s[-1] == 3);
+            CHECK(*s[-2] == 2);
+            CHECK(*s[-3] == 10);
+
+            // Assert errors
+            // CHECK(*s[-4] == 20);
+            // CHECK(*s[3] == 20);
         }
 
         TEST_CASE("operator[i, j]: By reference")
@@ -149,6 +164,33 @@ int main()
             *sub[1] = 53;
             CHECK(*sub[1] == 53); // Mutated value in subslice
             CHECK(*s[6] == 53);   // Mutated origial
+
+            // Reinit
+            a = perm;
+            s = {&a, 10};
+            RANGE(i, s.cap) { s + i; }
+
+            // Equal indices
+            sub = s[1, 1];
+            CHECK(sub.len == 0);
+
+            sub = s[-1, -1];
+            CHECK(sub.len == 0);
+
+            // From end to end
+            sub = s[-2, -1];
+            CHECK(sub.len == 1);
+
+            // From middle to end
+            sub = s[s.len / 2, -1];
+            CHECK(sub.len == (s.len / 2) - 1);
+
+            // From middle to +-0
+            sub = s[s.len / 2, -0];
+            CHECK(sub.len == 0);
+
+            sub = s[s.len / 2, 0];
+            CHECK(sub.len == 0);
         }
 
         TEST_CASE("operator[i, j, a]: By value (copy to arena)")
@@ -169,6 +211,11 @@ int main()
             *sub[1] = 53;
             CHECK(*sub[1] == 53); // Mutated value in subslice
             CHECK(*s[6] == 6);    // Retains original value
+
+            // Take subslice - negative indices
+            auto sub1 = s[-8, -5, &a];
+            auto sub2 = s[2, 5, &a];
+            CHECK(sub1 == sub2);
         }
 
         TEST_CASE("operator==: Rock solid behaviour")

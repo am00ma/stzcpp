@@ -156,6 +156,20 @@ typedef struct Str {
         return dst;
     }
 
+    // Takes care of len and bounds
+    bool StartsWith(Str s)
+    {
+        if (len < s.len) { return false; }
+        return (*this)[0, s.len] == s;
+    };
+
+    // Takes care of len and bounds
+    bool EndsWith(Str s)
+    {
+        if (len < s.len) { return false; }
+        return (*this)[len - s.len, len] == s;
+    };
+
     // Split (defaults to splitting lines)
     Strs Split(Arena* a, Str delimiter = "\n", bool ignore_empty = true, bool substitute_null = false);
 
@@ -186,37 +200,40 @@ typedef struct Str {
 
 typedef struct Strs {
 
-    Str*  data = 0; // Usual zero initialization
-    isize len  = 0;
+    Str*  buf = 0; // Usual zero initialization
+    isize len = 0;
 
     Strs() = default;
 
     Strs(Arena* a, isize len_)
     {
-        data = a->Make<Str>(len_);
-        len  = len_;
+        buf = a->Make<Str>(len_);
+        len = len_;
     }
 
     Strs(Str* data_, isize len_)
     {
-        data = data_;
-        len  = len_;
+        buf = data_;
+        len = len_;
     }
 
     // Get ith item by reference
     Str* operator[](isize i)
     {
-        if (i < 0) return 0;
-        return &data[i];
+        Assert(((i > -1 * len) && (i < len)));
+        if (i < 0) { return &buf[len - i]; } // Negative
+
+        return &buf[i];
     };
 
     // Get (i - j)th item by reference
+    // if j > len, return till len
     Strs operator[](isize i, isize j)
     {
         Assert(i >= 0);
         Assert(j >= i);
         Assert(j < len);
-        return Strs(&data[i], j - i);
+        return Strs(&buf[i], j - i);
     }
 
     // Get (i - j)th item as copy
@@ -226,7 +243,7 @@ typedef struct Strs {
         Assert(j >= i);
         Assert(j < len);
         auto slice = Strs(a->Make<Str>(j - i), j - i);
-        if (slice.len) memcpy(slice.data, &data[i], slice.len * sizeof(Str));
+        if (slice.len) memcpy(slice.buf, &buf[i], slice.len * sizeof(Str));
         return slice;
     }
 
@@ -236,7 +253,7 @@ typedef struct Strs {
         if (len != s.len) { return false; }
         RANGE(i, len)
         {
-            if (data[i] != *s[i]) { return false; }
+            if (buf[i] != *s[i]) { return false; }
         }
         return true;
     }
@@ -267,7 +284,7 @@ inline Strs Str::Split(Arena* a, Str delimiter, bool ignore_empty, bool substitu
             if (pos || !ignore_empty)
             {
                 a->Make<Str>();
-                parts.data[parts.len] = Str(start, pos);
+                parts.buf[parts.len] = Str(start, pos);
                 parts.len++;
             }
 
@@ -286,7 +303,7 @@ inline Strs Str::Split(Arena* a, Str delimiter, bool ignore_empty, bool substitu
         if (pos || !ignore_empty)
         {
             a->Make<Str>();
-            parts.data[parts.len] = Str(start, len - (start - buf));
+            parts.buf[parts.len] = Str(start, len - (start - buf));
             parts.len++;
         }
     }

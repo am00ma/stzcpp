@@ -1,23 +1,27 @@
 #pragma once
 
+#include "log.h"   // error
 #include "range.h" // RANGE
 #include "types.h" // isize, b32
 
-#include <new> // Needed for proper behaviour of new !!
+#include <new> // Needed for proper behaviour of `new` in `Make` !!
 
 #include <cstdio>  // printf
-#include <cstdlib> // malloc
+#include <cstdlib> // malloc, free
 
 /* ---------------------------------------------------------------------------
  * Arena
  * ------------------------------------------------------------------------- */
 typedef enum {
+
     NOZERO   = 0x1,
     SOFTFAIL = 0x2,
     DEFAULTS = 0x4,
+
 } ArenaFlags;
 
 typedef struct Arena {
+
     char* beg = 0;
     char* end = 0;
     isize cap = 0;
@@ -25,19 +29,63 @@ typedef struct Arena {
     // Default constructor
     Arena() = default;
 
-    // Lifetime
-    Arena(isize cap_);
-    Arena(isize cap_, Arena* src);
-    Arena(char* buf, isize cap_);
+    // Use `malloc`, 0 capacity arena if malloc fails
+    Arena(isize cap_)
+    {
+        cap = cap_;
+        beg = (char*)malloc(cap);
+        end = beg ? beg + cap : 0;
+    }
+
+    // Take from another arena
+    Arena(isize cap_, Arena* src, b32 flags = 0)
+    {
+        cap = cap_;
+        beg = src->Make<char>(cap);
+        end = beg ? beg + cap : 0;
+    }
+
+    // Given buffer and capacity
+    Arena(char* buf, isize cap_)
+    {
+        beg = buf;
+        cap = beg ? cap_ : 0; // Zero-cap arena if invalid buf
+        end = beg ? beg + cap : 0;
+    }
 
     // No free by destructor
-    // as only applicable if it wasnt allocated with constructors
-    void Free() { free(end - cap); };
+    //    ( as only applicable if it was allocated
+    //      with malloc constructor: Arena(isizze cap_) )
+    void Free()
+    {
+        if (end - cap) free(end - cap);
+    }
 
-    // Meat
-    char* Alloc(isize objsize, isize align, isize count, b32 flags);
+    // Generic allocation function
+    char* Alloc(isize objsize, isize align, isize count, b32 flags)
+    {
+        Assert(count >= 0); // Can request 0?
 
-    // Syntactic sugar
+        isize pad = -(uptr)beg & (align - 1); // Some way to approx mod(a,b)
+        if (count > (end - beg - pad) / objsize)
+        {
+            if (flags & SOFTFAIL) return 0;
+
+            Fatal(-1, "Alloc failed: count: %ld < req: %ld; used: %ld / cap: %ld", count, (end - beg - pad / objsize),
+                  cap - (end - beg), cap);
+            return 0;
+        }
+
+        isize total  = count * objsize;
+        char* p      = beg + pad;
+        beg         += pad + total;
+
+        if (!(flags & NOZERO)) { p = (char*)memset(p, 0, total); }
+
+        return p;
+    }
+
+    // Wrapper with support for defaults and typing
     template <typename T, typename... A> T* Make(isize count = 1, b32 flags = 0, A... args)
     {
         T* r = (T*)Alloc(sizeof(T), alignof(T), count, flags);
@@ -52,12 +100,15 @@ typedef struct Arena {
         return r;
     }
 
+    // Debugging
     inline isize Used() { return cap - (end - beg); }
+    inline char* OrigBeg() { return (end - cap); };
 
-    char* OrigBeg() { return (end - cap); };
-
-    // Debug
-    void Print(const char* label);
+    void Print(const char* label)
+    {
+        printf("%s: used: %ld / cap: %ld (beg: %p, end: %p)\n", //
+               label, cap - (end - beg), cap, (void*)beg, (void*)end);
+    }
 
 } Arena;
 

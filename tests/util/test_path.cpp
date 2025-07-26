@@ -1,95 +1,97 @@
 #include "util/path.h"
 #include <cstdio>
 
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "../doctest.h"
 
-TEST_SUITE("Path")
+int main()
 {
-
-    TEST_CASE("Stuct size")
+    TEST_SUITE("Path")
     {
-        CHECK(sizeof(Path) == 176); // Maybe bools can be condensed
-    }
 
-    Arena perm = Arena(1024 * 1024);
+        TEST_CASE("Stuct size")
+        {
+            CHECK(sizeof(Path) == 176); // Maybe bools can be condensed
+        }
 
-    TEST_CASE("Initialization")
-    {
-        Path path = {};
+        Arena perm = Arena(1024 * 1024);
 
-        path = Path("/tmp/hello/hi");
-    }
+        TEST_CASE("Initialization")
+        {
+            Path path = {};
 
-    TEST_CASE("exists")
-    {
-        Arena a    = perm;
-        Path  path = {};
+            path = Path("/tmp/hello/hi");
+        }
 
-        // Current file
-        path = Path(__FILE__);
-        CHECK(path.exists);
+        TEST_CASE("exists")
+        {
+            Arena a    = perm;
+            Path  path = {};
 
-        // Current directory
-        path = Path(".");
-        CHECK(path.exists);
-        CHECK(path.name() == Str("."));
+            // Current file
+            path = Path(__FILE__);
+            CHECK(path.exists);
 
-        // Remove Trailing slash
-        path = Path("./");
-        CHECK(path.exists);
-        CHECK(path.name() == Str("."));
-    }
+            // Current directory
+            path = Path(".");
+            CHECK(path.exists);
+            CHECK(path.name() == Str("."));
 
-    TEST_CASE("not exists")
-    {
-        Arena a    = perm;
-        Path  path = {};
+            // Remove Trailing slash
+            path = Path("./");
+            CHECK(path.exists);
+            CHECK(path.name() == Str("."));
+        }
 
-        // Empty string
-        path = Path("");
-        CHECK(!path.exists);
-        CHECK(path.name() == Str(""));
+        TEST_CASE("not exists")
+        {
+            Arena a    = perm;
+            Path  path = {};
 
-        // Random file
-        path = Path("./hello");
-        CHECK(!path.exists);
-        CHECK(path.name() == Str("hello"));
+            // Empty string
+            path = Path("");
+            CHECK(!path.exists);
+            CHECK(path.name() == Str(""));
 
-        // Does not recognize home directory yet
-        path = Path("~");
-        CHECK(!path.exists);
-        CHECK(path.name() == Str("~"));
-    }
+            // Random file
+            path = Path("./hello");
+            CHECK(!path.exists);
+            CHECK(path.name() == Str("hello"));
 
-    TEST_CASE("glob")
-    {
-        Arena a    = perm;
-        Path  path = Path("./");
+            // Does not recognize home directory yet
+            path = Path("~");
+            CHECK(!path.exists);
+            CHECK(path.name() == Str("~"));
+        }
 
-        Str  list[]   = {"*.md", "tests/**/*path.cpp", "**/range.h"};
-        Strs patterns = Strs(list, 3);
+        TEST_CASE("glob")
+        {
+            Arena a    = perm;
+            Path  path = Path("./");
 
-        Slice<Path> paths = path.Glob(patterns, &a);
+            Str  list[]   = {"*.md", "tests/**/*path.cpp", "**/range.h"};
+            Strs patterns = Strs(list, 3);
 
-        CHECK(patterns.len == 3);
-        CHECK(paths.len == 4);
-        CHECK(paths[0]->path == Str("BUILDING.md"));
-        CHECK(paths[1]->path == Str("README.md"));
-        CHECK(paths[2]->path == Str("tests/util/test_path.cpp"));
-        CHECK(paths[3]->path == Str("include/range.h"));
-    }
+            Slice<Path> paths = path.Glob(patterns, &a);
 
-    TEST_CASE("parent")
-    {
-        Arena a = perm;
-        Path  path;
+            CHECK(patterns.len == 3);
+            CHECK(paths.len == 4);
+            CHECK(paths[0]->path == Str("BUILDING.md"));
+            CHECK(paths[1]->path == Str("README.md"));
+            CHECK(paths[2]->path == Str("tests/util/test_path.cpp"));
+            CHECK(paths[3]->path == Str("include/range.h"));
+        }
 
-        path = Path("/tmp/hello/hi/how.are.you");
-        CHECK(path.parent().path == Str("/tmp/hello/hi"));
+        TEST_CASE("parent")
+        {
+            Arena a = perm;
+            Path  path;
 
-        // BUG: need to handle absolute paths, trailing slashes
-        path = Path("./");
-        CHECK(path.parent().path == Str(""));
+            path = Path("/tmp/hello/hi/how.are.you");
+            CHECK(path.parent().path == Str("/tmp/hello/hi"));
+
+            // BUG: need to handle absolute paths, trailing slashes
+            path = Path("./");
+            CHECK(path.parent().path == Str(""));
+        }
     }
 }

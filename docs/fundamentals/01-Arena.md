@@ -2,33 +2,64 @@
 
 ## API
 
+### Includes
+
 ```cpp
-typedef struct Arena {
-    char* beg = 0;
-    char* end = 0;
-    isize cap = 0;
+--8<-- "docs/code/include/arena.h:3:10"
+```
 
-    // Default constructor
-    Arena() = default;
+### Fields
 
-    // Lifetime
-    Arena(isize cap_);
-    Arena(isize cap_, Arena* src);
+```cpp
+--8<-- "docs/code/include/arena.h:25:27"
+```
 
-    // Rarely used
-    void  Free();
-    char* OrigBeg();
+### Initialization
 
-    // Meat
-    char* Alloc(isize objsize, isize align, isize count, b32 flags);
+Flags:
 
-    // Syntactic sugar (args can be used to default initialize)
-    T* Make(isize count = 1, b32 flags = 0, A... args);
+```cpp
+--8<-- "docs/code/include/arena.h:15:21"
+```
 
-    // Debug
-    void Print(const char* label);
+From various memories:
 
-} Arena;
+```cpp
+--8<-- "docs/code/include/arena.h:29:54"
+```
+
+From `char[]` on stack:
+
+```cpp
+--8<-- "docs/code/include/arena.h:115:117"
+```
+
+### Destruction
+
+Rare case that requires `Free:`
+
+```cpp
+--8<-- "docs/code/include/arena.h:56:62"
+```
+
+### Methods
+
+Allocation algorithm with padding computation:
+
+```cpp
+--8<-- "docs/code/include/arena.h:64:86"
+```
+
+Usage with support for defaults and typing:
+
+```cpp
+--8<-- "docs/code/include/arena.h:88:101"
+```
+
+### Debugging
+
+```cpp
+--8<-- "docs/code/include/arena.h:103:111"
 ```
 
 ## Usage

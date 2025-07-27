@@ -38,18 +38,27 @@
  *
  * */
 
-#include "log.h"   // error
+#include "log.h"   // Fatal, debug
 #include "range.h" // RANGE
 #include "types.h" // isize, b32
 
-#include <new> // Needed for proper behaviour of `new` in `Make` !!
-
 #include <cstdio>  // printf
 #include <cstdlib> // malloc, free
+#include <new>     // Needed for proper behaviour of `new` in `Make` !!
+
+/* ---------------------------------------------------------------------------
+ * Helpers
+ * ------------------------------------------------------------------------- */
+
+// Arena on stack, exact behaviour as on heap
+#define BufArena(a, buf, cap)                                                                                          \
+    char  buf[cap] = {};                                                                                               \
+    Arena a        = Arena(buf, cap);
 
 /* ---------------------------------------------------------------------------
  * Flags for allocation
  * ------------------------------------------------------------------------- */
+
 typedef enum {
 
     NOZERO   = 0x1,
@@ -184,11 +193,3 @@ typedef struct Arena {
     }
 
 } Arena;
-
-/* ---------------------------------------------------------------------------
- * Arena on stack
- * ------------------------------------------------------------------------- */
-
-#define BufArena(a, buf, cap)                                                                                          \
-    char  buf[cap] = {};                                                                                               \
-    Arena a        = Arena(buf, cap);

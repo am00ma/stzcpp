@@ -31,8 +31,8 @@
  *
  *   Methods:
  *
- *      char* Cstr(Arena* a);                            // C style null-terminated string
- *      Str Copy(Arena* a, bool null_terminate = false); // Ownership by copying to arena
+ *      char* Cstr(Arena* a);                              // C style null-terminated string
+ *      Str   Copy(Arena* a, bool null_terminate = false); // Ownership by copying to arena
  *
  *      bool StartsWith(Str s);
  *      bool EndsWith(Str s);
@@ -63,7 +63,7 @@
  *
  * */
 
-#include "slice.h"
+#include "slice.h" // RANGE, Arena, Slice
 #include <cstdarg> // va_start, va_end, va_list
 
 /* ---------------------------------------------------------------------------
@@ -78,12 +78,15 @@
 #define FNV_64_OFFSET_BASIS 0xcbf29ce484222325
 #define FNV_64_PRIME        1099511628211
 
-typedef Slice<char> Buf;
+// Useful typedefs
 typedef struct Str  Str;
 typedef Slice<Str>  Strs;
 
+// Maybe we need to duplicate code just to handle Str concat
+typedef Slice<char> Buf;
+
 /* ---------------------------------------------------------------------------
- * Counted string
+ * Str
  * ------------------------------------------------------------------------- */
 typedef struct Str {
 
@@ -163,7 +166,7 @@ typedef struct Str {
         return buf[i];                          // Return reference
     }
 
-    // Get substring TODO: Should support negative indexing like Slice does ...
+    // Get substring (supports negative indexing)
     Str operator[](isize i, isize j)
     {
         // Bounds check
@@ -250,16 +253,20 @@ typedef struct Str {
         // Start position
         char* start = &buf[0];
 
-        // Alloc dynamically (no other user/variable on arena)
+        // Will use Final, so this is last allocation on arena
         Slice<Str> parts = Slice<Str>(a, max_parts);
-        for (int i = 0; i < len; i++)
+
+        // Respect ignore_empty and substitute_null
+        RANGE(i, len)
         {
             if (buf[i] == delimiter.buf[0])
             {
+                // Append new part
                 isize pos = &buf[i] - start;
                 if (pos || !ignore_empty) { parts + Str(start, pos); }
 
                 // Trick like strtok to get char**
+                // Take care that buf is not const literal
                 if (substitute_null) buf[i] = '\0';
 
                 // Skip delimiter

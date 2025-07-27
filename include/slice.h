@@ -44,7 +44,6 @@
  * */
 
 #include "arena.h"
-#include "range.h"
 
 template <typename T> struct Slice {
 
@@ -131,22 +130,24 @@ template <typename T> struct Slice {
     }
 
     // Get (i - j)th item as copy, supporting negative indices
-    // TODO: Provide Copy method instead?
     Slice<T> operator[](isize i, isize j, Arena* a)
     {
-        Assert(((i >= -1 * len) && (i < len))); // Bounds check i - inclusive
-        Assert(((j > -1 * len) && (j <= len))); // Bounds check j - exclusive
+        // Bounds check
+        Assert(((i >= -1 * len) && (i < len)));
+        Assert(((j > -1 * len) && (j <= len)));
 
-        if (i < 0) { i = len + i; } // Negative i to positive
-        if (j < 0) { j = len + j; } // Negative j to positive
+        // Negative to positive
+        if (i < 0) { i = len + i; }
+        if (j < 0) { j = len + j; }
 
         // Check overlap given assured both positive (so also for [i, i] for example)
         if ((i >= j) && (j >= 0)) { return Slice<T>(); }; // 0 >= j > i
 
         // NOTE: here behavior seems to differ from get by ref for i == j
 
-        // Diff from operator[] ref -> we are making Slice
-        auto slice = Slice<T>(a->Make<T>(j - i), j - i, j - i);
+        // Diff from operator[] by ref -> we are making Slice
+        isize len   = j - i;
+        auto  slice = Slice<T>(a->Make<T>(len), len, len);
         if (slice.len) memcpy(slice.buf, &buf[i], slice.len * sizeof(T));
 
         return slice;
@@ -162,6 +163,21 @@ template <typename T> struct Slice {
             if (buf[i] != *s[i]) return false; // Comparing by copy?
         }
         return true;
+    }
+
+    // Copy to arena
+    Slice<T> Copy(Arena* a)
+    {
+        // If on top of arena, return directly TODO: Figure out alignment
+        if (buf == a->beg - (len - sizeof(T))) { return *this; }
+
+        Slice<T> dst = Slice<T>(a, len, len);
+        if (len)
+        {
+            // debug("[M] Copied");
+            memcpy(dst.buf, buf, len * sizeof(T));
+        }
+        return dst;
     }
 
     // Identical to operator '+', for ppl who dislike operators

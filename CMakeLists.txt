@@ -11,9 +11,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE "cmake/ClangOverrides.txt")
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
-find_package(SDL2 REQUIRED)
-find_package(SDL2_image REQUIRED)
-find_package(SQLite3 REQUIRED)
+# find_package(SDL2 REQUIRED)
+# find_package(SDL2_image REQUIRED)
+# find_package(SQLite3 REQUIRED)
 
 add_library(${PROJECT_NAME} STATIC)
 
@@ -27,18 +27,12 @@ target_link_libraries(${PROJECT_NAME}
 
 target_sources(${PROJECT_NAME}
     PRIVATE
-        src/arena.cpp
-        src/str.cpp
-        src/slice.cpp
-        src/map.cpp
-        src/trie.cpp
-        src/ltrie.cpp
-        src/table.cpp
-        src/util/cmd.cpp
-        src/util/file.cpp
-        src/util/gui.cpp
-        src/util/path.cpp
-        src/util/db.cpp
+        src/stz.cpp
+        # src/util/cmd.cpp
+        # src/util/file.cpp
+        # src/util/gui.cpp
+        # src/util/path.cpp
+        # src/util/db.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -54,22 +48,26 @@ target_include_directories(${PROJECT_NAME}
 
 # without it public headers won't get installed
 set(public_headers
+    # Definitions
     include/types.h
     include/range.h
     include/log.h
     include/doctest.h
+    # Fundamentals
     include/arena.h
     include/str.h
     include/slice.h
-    include/map.h
-    include/trie.h
-    include/ltrie.h
-    include/table.h
-    include/util/cmd.h
-    include/util/file.h
-    include/util/gui.h
-    include/util/path.h
-    include/util/db.h
+    # Data
+    # include/map.h
+    # include/trie.h
+    # include/ltrie.h
+    # include/table.h
+    # Utilities
+    # include/util/cmd.h
+    # include/util/file.h
+    # include/util/gui.h
+    # include/util/path.h
+    # include/util/db.h
 )
 
 # not for MSVC

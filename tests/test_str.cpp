@@ -14,7 +14,7 @@ int main()
 
         TEST_CASE("Size: Strs")
         {
-            CHECK(sizeof(Strs) == 16); // 8(Str*) + 8(len)
+            CHECK(sizeof(Strs) == 24); // 8(Str*) + 8(len) + 8(cap)
         }
 
         Arena perm = Arena(1024); // 1KB
@@ -223,37 +223,6 @@ int main()
             CHECK(a.Used() == 6 + 6 + 1 + 7);
         }
 
-        TEST_CASE("Methods: Split - defaults, empty, null")
-        {
-            Arena a = perm;
-            Str   x = "  123456 789 ";
-
-            // ignore_empty = true, substitute_null = false
-            const char* res1[] = {"123456", "789"};
-
-            Strs parts1 = x.Split(&a, " ", true, false);
-            CHECK(parts1.len == 2);
-            RANGE(i, parts1.len) { CHECK(parts1.buf[i] == Str(res1[i])); }
-
-            // ignore_empty = false, substitute_null = false
-            const char* res2[] = {"", "", "123456", "789", ""};
-
-            Strs parts2 = x.Split(&a, " ", false, false);
-            CHECK(parts2.len == 5);
-            RANGE(i, parts2.len) { CHECK(parts2.buf[i] == Str(res2[i])); }
-
-            // ignore_empty = false, substitute_null = true
-            const char* res3[] = {"", "", "123456", "789", ""};
-
-            Str  x3     = Str("  123456 789 ").Copy(&a);
-            Strs parts3 = x3.Split(&a, " ", false, true);
-            CHECK(parts3.len == 5);
-            RANGE(i, parts3.len) { CHECK(parts3.buf[i] == Str(res2[i])); }
-
-            CHECK(x3[0] == '\0'); // Confirm replacement with nulls
-            CHECK(x3[1] == '\0'); //
-        }
-
         TEST_CASE("Methods: StartsWith")
         {
             Str x = "123456";
@@ -288,29 +257,40 @@ int main()
             CHECK(!x.EndsWith(y));
         }
 
-        TEST_CASE("TODO: Methods: Split - multichar separator") { /* TODO */ }
-
-        TEST_CASE("Strs: Initialization: From array")
+        TEST_CASE("Methods: Split - defaults, empty, null")
         {
-            Str  list[3] = {"a", "b", "c"};
-            Strs parts   = Strs(list, 3); // Needs repetition of '3'
-            CHECK(*parts[0] == "a");
-            CHECK(*parts[1] == "b");
-            CHECK(*parts[2] == "c");
+            Arena a = perm;
+            Str   x = "  123456 789 ";
 
-            *parts[1] = "d";         // Mutate
-            CHECK(*parts[1] == "d"); // Check mutation
+            isize max_parts = 16; // Default is 1024
+
+            // ignore_empty = true, substitute_null = false
+            const char* res1[] = {"123456", "789"};
+
+            Strs parts1 = x.Split(&a, " ", true, false, max_parts);
+            CHECK(parts1.len == 2);
+            RANGE(i, parts1.len) { CHECK(parts1.buf[i] == Str(res1[i])); }
+
+            // ignore_empty = false, substitute_null = false
+            const char* res2[] = {"", "", "123456", "789", ""};
+
+            Strs parts2 = x.Split(&a, " ", false, false, max_parts);
+            CHECK(parts2.len == 5);
+            RANGE(i, parts2.len) { CHECK(parts2.buf[i] == Str(res2[i])); }
+
+            // ignore_empty = false, substitute_null = true
+            const char* res3[] = {"", "", "123456", "789", ""};
+
+            Str  x3     = Str("  123456 789 ").Copy(&a);
+            Strs parts3 = x3.Split(&a, " ", false, true, max_parts);
+            CHECK(parts3.len == 5);
+            RANGE(i, parts3.len) { CHECK(parts3.buf[i] == Str(res2[i])); }
+
+            CHECK(x3[0] == '\0'); // Confirm replacement with nulls
+            CHECK(x3[1] == '\0'); //
         }
 
-        TEST_CASE("TODO: Strs: Initialization: Default") { /* TODO */ }
-        TEST_CASE("TODO: Strs: Initialization: From array") { /* TODO */ }
-        TEST_CASE("TODO: Strs: Destructor: Final") { /* TODO */ }
-
-        TEST_CASE("TODO: Strs: operator+: Append") { /* TODO */ }
-
-        TEST_CASE("TODO: Strs: operator[i]: By reference") { /* TODO */ }
-        TEST_CASE("TODO: Strs: operator[i, j]: By reference") { /* TODO */ }
-        TEST_CASE("TODO: Strs: operator[i, j, a]: By value") { /* TODO */ }
+        TEST_CASE("TODO: Methods: Split - multichar separator") { /* TODO */ }
     }
 
     return 0;

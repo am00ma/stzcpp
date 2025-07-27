@@ -1,5 +1,4 @@
 #include "doctest.h"
-#include "log.h"
 #include "slice.h"
 
 int main()
@@ -71,6 +70,17 @@ int main()
             CHECK(x.len == x.cap);
             CHECK(*x[0] == 1);
             CHECK(*x[1] == 2);
+        }
+
+        TEST_CASE("Initialization: From const array -> using {...}")
+        {
+            Si32 x = (const i32[]){1, 2, 3}; // Needs (const T[]) casting
+            CHECK(*x[0] == 1);
+            CHECK(*x[1] == 2);
+            CHECK(*x[2] == 3);
+
+            *x[1] = 4;         // Mutate
+            CHECK(*x[1] == 4); // Check mutation
         }
 
         TEST_CASE("Destructor: Reclaim arena -> using Final(...)")

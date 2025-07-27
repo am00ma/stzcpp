@@ -1,4 +1,46 @@
 #pragma once
+/*
+ * Slice:
+ *
+ *   Fields:
+ *
+ *      T*    buf = 0;
+ *      isize len = 0;
+ *      isize cap = 0;
+ *
+ *   Lifetime:
+ *
+ *      Slice();
+ *
+ *      Slice(T* buf, isize len_, isize cap_);
+ *      Slice(T* buf, isize len_);
+ *      Slice(Arena* a, isize cap_);
+ *
+ *      Slice<T> Final(Arena* a); // Use with caution
+ *
+ *   Operators:
+ *
+ *      Slice<T>* operator+ (T val);                      // Append
+ *      T*        operator[](isize i);                    // By reference
+ *      Slice<T>  operator[](isize i, isize j);           // By reference
+ *      Slice<T>  operator[](isize i, isize j, Arena* a); // By copy
+ *      bool      operator==(Slice<T> s);                 // Equality
+ *
+ *   Methods:
+ *
+ *      Slice<T>* Append(T val);
+ *
+ *   Debugging:
+ *
+ *      void Print();
+ *
+ * Notes:
+ *
+ *  1. `Slice(T* buf, isize len_);` is convinience to set len equal to cap on init
+ *  2. `Slice<T> Final(Arena* a);` is tricky but very useful
+ *  3. `cap` is needed only for debugging and `Free`
+ *
+ * */
 
 #include "arena.h"
 #include "range.h"
@@ -18,16 +60,16 @@ template <typename T> struct Slice {
         buf = a->Make<T>(cap);
     };
 
-    Slice(T* data_, isize len_, isize cap_)
+    Slice(T* buf_, isize len_, isize cap_)
     {
-        buf = data_;
+        buf = buf_;
         len = len_;
         cap = cap_;
     };
 
-    Slice(T* data_, isize len_)
+    Slice(T* buf_, isize len_)
     {
-        buf = data_;
+        buf = buf_;
         len = len_;
         cap = len_;
     };
@@ -53,7 +95,7 @@ template <typename T> struct Slice {
         return this;
     }
 
-    // Get ith item by reference
+    // Get ith item by reference, supporting negative indices
     T* operator[](isize i)
     {
         Assert(((i >= -1 * len) && (i < len))); // Bounds check
@@ -61,7 +103,7 @@ template <typename T> struct Slice {
         return &buf[i];                         // Return reference
     };
 
-    // Get (i - j)th item by reference
+    // Get (i - j)th item by reference, supporting negative indices
     Slice<T> operator[](isize i, isize j)
     {
         Assert(((i >= -1 * len) && (i < len))); // Bounds check i
@@ -76,7 +118,7 @@ template <typename T> struct Slice {
         return Slice<T>(&buf[i], j - i, j - i); // only if j > i
     }
 
-    // Get (i - j)th item as copy
+    // Get (i - j)th item as copy, supporting negative indices
     Slice<T> operator[](isize i, isize j, Arena* a)
     {
         Assert(((i >= -1 * len) && (i < len))); // Bounds check i
@@ -107,8 +149,8 @@ template <typename T> struct Slice {
         return true;
     }
 
-    // Identical to operator '+'
-    void Append(T val)
+    // Identical to operator '+', for ppl who dislike operators
+    Slice<T>* Append(T val)
     {
         if (len + 1 <= cap)
         {
@@ -116,5 +158,6 @@ template <typename T> struct Slice {
             len++;
         }
         else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", len + 1, cap); }
+        return this;
     }
 };

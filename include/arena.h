@@ -1,4 +1,43 @@
 #pragma once
+/*
+ * Arena:
+ *
+ *   Fields:
+ *
+ *      char* beg = 0;
+ *      char* end = 0;
+ *      isize cap = 0;
+ *
+ *   Lifetime:
+ *
+ *      Arena();
+ *
+ *      Arena(isize cap_);
+ *      Arena(isize cap_, Arena* src, b32 flags = 0);
+ *      Arena(char* buf, isize cap_);
+ *
+ *      void Free();
+ *
+ *   Operators:
+ *
+ *   Methods:
+ *
+ *      char* Alloc(isize objsize, isize align, isize count, b32 flags);
+ *      T*    Make<V>(isize count = 1, b32 flags = 0, A... args);
+ *
+ *   Debugging:
+ *
+ *      isize Used();
+ *      isize OrigBeg();
+ *      void  Print();
+ *
+ * Notes:
+ *
+ *  1. Free() always has signature `void Free();`
+ *  2. Only method really used is `Make<V>`
+ *  3. `cap` is needed only for debugging and `Free`
+ *
+ * */
 
 #include "log.h"   // error
 #include "range.h" // RANGE
@@ -10,7 +49,7 @@
 #include <cstdlib> // malloc, free
 
 /* ---------------------------------------------------------------------------
- * Arena
+ * Flags for allocation
  * ------------------------------------------------------------------------- */
 typedef enum {
 
@@ -20,11 +59,18 @@ typedef enum {
 
 } ArenaFlags;
 
+/* ---------------------------------------------------------------------------
+ * Arena
+ * ------------------------------------------------------------------------- */
 typedef struct Arena {
 
     char* beg = 0;
     char* end = 0;
     isize cap = 0;
+
+    /* ---------------------------------------------------------------------------
+     * Lifetime
+     * ------------------------------------------------------------------------- */
 
     // Default constructor
     Arena() = default;
@@ -60,6 +106,10 @@ typedef struct Arena {
     {
         if (end - cap) free(end - cap);
     }
+
+    /* ---------------------------------------------------------------------------
+     * Methods
+     * ------------------------------------------------------------------------- */
 
     // Generic allocation function
     char* Alloc(isize objsize, isize align, isize count, b32 flags)
@@ -100,7 +150,14 @@ typedef struct Arena {
         return r;
     }
 
-    // Debugging
+    /* ---------------------------------------------------------------------------
+     * Operators (Cannot really take T as argument unfortunately)
+     * ------------------------------------------------------------------------- */
+
+    /* ---------------------------------------------------------------------------
+     * Debugging
+     * ------------------------------------------------------------------------- */
+
     inline isize Used() { return cap - (end - beg); }
     inline char* OrigBeg() { return (end - cap); };
 
@@ -111,6 +168,10 @@ typedef struct Arena {
     }
 
 } Arena;
+
+/* ---------------------------------------------------------------------------
+ * Helpers
+ * ------------------------------------------------------------------------- */
 
 #define BufArena(a, buf, cap)                                                                                          \
     char  buf[cap] = {};                                                                                               \

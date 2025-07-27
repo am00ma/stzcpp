@@ -12,9 +12,10 @@
  *
  *      Slice();
  *
- *      Slice(T* buf, isize len_, isize cap_);
- *      Slice(T* buf, isize len_);
- *      Slice(Arena* a, isize cap_);
+ *      Slice(T* buf, isize len_, isize cap_);               // From buf
+ *      Slice(T* buf, isize len_);                           // len = cap
+ *      Slice(Arena* a, isize cap_);                         // On arena
+ *      template <isize N> constexpr Slice(T (&s)[N]);       // From literals
  *
  *      Slice<T> Final(Arena* a); // Use with caution
  *
@@ -72,6 +73,14 @@ template <typename T> struct Slice {
         buf = buf_;
         len = len_;
         cap = len_;
+    };
+
+    // TODO: Not working
+    template <isize N> constexpr Slice(const T (&s)[N])
+    {
+        buf = (T*)s;
+        len = N;
+        cap = N;
     };
 
     // Shrinks arena to len, releasing rest of cap

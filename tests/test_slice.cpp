@@ -220,15 +220,17 @@ int main()
 
         TEST_CASE("operator==: Rock solid behaviour")
         {
+            auto s0 = Si32({1, 2});
+
             // NOTE: Had to keep track of lengths manually, can we use `size`?
-            Si32 s1 = {(i32[]){1, 2}, 2, 2};
-            Si32 s2 = {(i32[]){3, 4}, 2, 2};
-            Si32 s3 = {(i32[]){3, 4}, 2, 2};
-            Si32 s4 = {(i32[]){4, 3}, 2, 2};
-            Si32 s5 = {(i32[]){3, 4, 5}, 3, 3};
-            Si32 s6 = {(i32[]){3}, 1, 1};
-            Si32 s7 = {(i32[]){}, 0, 0}; // Same as null pointer for first element (s8)
-            Si32 s8 = {0, 0, 0};
+            auto s1 = Si32({1, 2});
+            auto s2 = Si32({3, 4});
+            auto s3 = Si32({3, 4});
+            auto s4 = Si32({4, 3});
+            auto s5 = Si32({3, 4, 5});
+            auto s6 = Si32({3});
+            auto s7 = Si32({});
+            Si32 s8 = {0, 0, 0}; // Explicit 0 for buf
 
             // Self Equality
             CHECK(s1 == s1);

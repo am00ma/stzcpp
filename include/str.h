@@ -1,18 +1,75 @@
 #pragma once
+/*
+ * Str:
+ *
+ *   Fields:
+ *
+ *      union {
+ *          char*       buf = 0;
+ *          const char* cbuf;
+ *      };
+ *      isize len = 0;
+ *
+ *   Lifetime:
+ *
+ *      Str();
+ *
+ *      template <isize N> constexpr Str(const char (&s)[N]);  // From string literals
+ *
+ *      Str(const char* buf_);                     // From const char *
+ *      Str(char* buf_, isize len_);               // From buf and len
+ *      Str(Arena* a, isize len_, b32 flags = 0);  // Allocate from arena
+ *      Str(char* beg_, char* end_);               // From span
+ *
+ *      Str(Arena* a, isize maxlen, char const* fmt, ...); // Formatted string on arena
+ *
+ *   Operators:
+ *
+ *      char& operator[](isize i);              // ith char by ref
+ *      Str   operator[](isize beg, isize end); // Substring
+ *      bool  operator==(Str   s);              // Equality
+ *
+ *   Methods:
+ *
+ *      char* Cstr(Arena* a);                            // C style null-terminated string
+ *      Str Copy(Arena* a, bool null_terminate = false); // Ownership by copying to arena
+ *
+ *      bool StartsWith(Str s);
+ *      bool EndsWith(Str s);
+ *      u64  Hash64()
+ *
+ *      Slice<Str> Split(
+ *          Arena* a,
+ *          Str    delimiter       = "\n",
+ *          bool   ignore_empty    = true,
+ *          bool   substitute_null = false,
+ *          isize  max_parts       = 1024
+ *      );
+ *
+ *   Debugging:
+ *
+ *      void Print(const char* label);
+ *
+ *   Helpers:
+ *
+ *      typedef Slice<Str> Strs;
+ *
+ * Notes:
+ *
+ *  1. `Slice(T* buf, isize len_);` is convinience to set len equal to cap on init
+ *  2. `Slice<T> Final(Arena* a);` is tricky but very useful
+ *  3. `cap` is needed only for debugging and `Free`
+ *  4. `Strs` is commonly used so typedefd here
+ *
+ * */
 
-#include "arena.h" // Arena
+#include "arena.h"
+#include "slice.h"
 #include <cstdarg> // va_start, va_end, va_list
 
 /* ---------------------------------------------------------------------------
  * Helpers
  * ------------------------------------------------------------------------- */
-
-// Fron stackoverflow, could not figure out how to use
-template <typename T, int sz> int size(T (&)[sz]) { return sz; }
-
-// Used in each other's declarations
-typedef struct Str  Str;
-typedef struct Strs Strs;
 
 // For printing with `%.*s`
 #define pstr(x)  (int)x.len, x.buf
@@ -26,6 +83,7 @@ typedef struct Strs Strs;
  * Counted string
  * ------------------------------------------------------------------------- */
 typedef struct Str {
+
     // Hack for holding string literals as well
     union {
         char*       buf = 0;
@@ -171,7 +229,44 @@ typedef struct Str {
     };
 
     // Split (defaults to splitting lines)
-    Strs Split(Arena* a, Str delimiter = "\n", bool ignore_empty = true, bool substitute_null = false);
+    Slice<Str> Split(Arena* a, Str delimiter = "\n", bool ignore_empty = true, bool substitute_null = false,
+                     isize max_parts = 1024)
+    {
+        // TODO: implement for len > 1
+        Assert(delimiter.len == 1);
+
+        // Start position
+        char* start = &buf[0];
+
+        // Alloc dynamically (no other user/variable on arena)
+        Slice<Str> parts = Slice<Str>(a, max_parts);
+        for (int i = 0; i < len; i++)
+        {
+            if (buf[i] == delimiter.buf[0])
+            {
+                isize pos = &buf[i] - start;
+                if (pos || !ignore_empty) { parts + Str(start, pos); }
+
+                // Trick like strtok to get char**
+                if (substitute_null) buf[i] = '\0';
+
+                // Skip delimiter
+                start = &buf[i] + 1;
+            }
+        }
+
+        // Last part, if any remaining
+        if ((isize)(start - buf) <= len)
+        {
+            isize pos = len - (start - buf);
+            if (pos || !ignore_empty) { parts + Str(start, len - (start - buf)); }
+        }
+
+        // Reclaim space
+        parts.Final(a);
+
+        return parts;
+    };
 
     // FNV hash
     u64 Hash64()
@@ -195,118 +290,6 @@ typedef struct Str {
 } Str;
 
 /* ---------------------------------------------------------------------------
- * List of strings: Strs - Slice<Str> without cap -> is this really needed? Why data and not buf?
+ * Special case of Slice of Strs
  * ------------------------------------------------------------------------- */
-
-typedef struct Strs {
-
-    Str*  buf = 0; // Usual zero initialization
-    isize len = 0;
-
-    Strs() = default;
-
-    Strs(Arena* a, isize len_)
-    {
-        buf = a->Make<Str>(len_);
-        len = len_;
-    }
-
-    Strs(Str* data_, isize len_)
-    {
-        buf = data_;
-        len = len_;
-    }
-
-    // Get ith item by reference
-    Str* operator[](isize i)
-    {
-        Assert(((i > -1 * len) && (i < len)));
-        if (i < 0) { return &buf[len - i]; } // Negative
-
-        return &buf[i];
-    };
-
-    // Get (i - j)th item by reference
-    // if j > len, return till len
-    Strs operator[](isize i, isize j)
-    {
-        Assert(i >= 0);
-        Assert(j >= i);
-        Assert(j < len);
-        return Strs(&buf[i], j - i);
-    }
-
-    // Get (i - j)th item as copy
-    Strs operator[](isize i, isize j, Arena* a)
-    {
-        Assert(i >= 0);
-        Assert(j >= i);
-        Assert(j < len);
-        auto slice = Strs(a->Make<Str>(j - i), j - i);
-        if (slice.len) memcpy(slice.buf, &buf[i], slice.len * sizeof(Str));
-        return slice;
-    }
-
-    // Eqality - actually compare strings, order
-    bool operator==(Strs s)
-    {
-        if (len != s.len) { return false; }
-        RANGE(i, len)
-        {
-            if (buf[i] != *s[i]) { return false; }
-        }
-        return true;
-    }
-
-} Strs;
-
-/* ---------------------------------------------------------------------------
- * Outliers
- * ------------------------------------------------------------------------- */
-
-// BUG: Needs `inline` -> how does that change anything about definitions?
-// Needs to be defined after Strs
-inline Strs Str::Split(Arena* a, Str delimiter, bool ignore_empty, bool substitute_null)
-{
-    // TODO: implement for len > 1
-    Assert(delimiter.len == 1);
-
-    // Start position
-    char* start = &buf[0];
-
-    // Alloc dynamically (no other user/variable on arena)
-    Strs parts = Strs(a, 0);
-    for (int i = 0; i < len; i++)
-    {
-        if (buf[i] == delimiter.buf[0])
-        {
-            isize pos = &buf[i] - start;
-            if (pos || !ignore_empty)
-            {
-                a->Make<Str>();
-                parts.buf[parts.len] = Str(start, pos);
-                parts.len++;
-            }
-
-            // Trick like strtok to get char**
-            if (substitute_null) buf[i] = '\0';
-
-            // Skip delimiter
-            start = &buf[i] + 1;
-        }
-    }
-
-    // Last part, if any remaining
-    if ((isize)(start - buf) <= len)
-    {
-        isize pos = len - (start - buf);
-        if (pos || !ignore_empty)
-        {
-            a->Make<Str>();
-            parts.buf[parts.len] = Str(start, len - (start - buf));
-            parts.len++;
-        }
-    }
-
-    return parts;
-}
+typedef Slice<Str> Strs;

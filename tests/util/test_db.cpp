@@ -1,4 +1,4 @@
-#include "../doctest.h"
+#include "doctest.h"
 #include "log.h"
 #include "slice.h"
 #include "util/db.h"

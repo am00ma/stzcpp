@@ -57,6 +57,7 @@ set(public_headers
     include/types.h
     include/range.h
     include/log.h
+    include/doctest.h
     include/arena.h
     include/str.h
     include/slice.h

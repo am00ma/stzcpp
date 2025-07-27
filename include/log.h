@@ -96,3 +96,14 @@
         error("Failed: %s", #cond);                                                                                    \
         __builtin_trap();                                                                                              \
     }
+
+// Support to print lhs and rhs
+// https://nullprogram.com/blog/2022/06/26/
+#define PAssert(cond1, cond2, fmt)                                                                                     \
+    if (!(cond1 == cond2))                                                                                             \
+    {                                                                                                                  \
+        error("%s:%d", __FILE__, __LINE__);                                                                            \
+        error("✗ : %s != %s", #cond1, #cond2);                                                                         \
+        error("    " fmt " != " fmt, cond1, cond2);                                                                    \
+        __builtin_trap();                                                                                              \
+    }

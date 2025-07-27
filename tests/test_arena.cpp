@@ -9,8 +9,9 @@ int main()
 
         TEST_CASE("Stuct size")
         {
-            // The struct itself is very light, with 3 64 bit integers
-            CHECK(sizeof(Arena) == 24); // 8(beg) + 8(end) + 8(cap)
+            // The struct itself is very light, with 3 64-bit integers
+            isize size = 24;
+            Equal(sizeof(Arena), size, "%ld"); // 8(beg) + 8(end) + 8(cap)
         }
 
         TEST_CASE("malloc up to 2^35, without free")
@@ -21,8 +22,8 @@ int main()
             isize cap = 1;
             RANGE(i, 63)
             {
-                Arena a = Arena(cap);
-                CHECK(a.cap == cap);
+                Arena a = {cap};
+                Equal(a.cap, cap, "%ld");
 
                 cap *= 2;
             }
@@ -32,11 +33,10 @@ int main()
         {
             // BUG: If free is added, crashes at i=35 (32 GB)
             isize cap = 1;
-            // RANGE(i, 63)
             RANGE(i, 35)
             {
-                Arena a = Arena(cap);
-                CHECK(a.cap == cap);
+                Arena a = {cap};
+                Equal(a.cap, cap, "%ld");
                 a.Free();
 
                 cap *= 2;
@@ -44,20 +44,20 @@ int main()
         }
 
         // Make arena once to borrow for each case
-        Arena perm = Arena(1024); // 1 KB
+        Arena perm = {1024}; // 1 KB
 
         TEST_CASE("Allocated sizes")
         {
             Arena a = perm;
             i32*  x = a.Make<i32>();
-            CHECK(a.Used() == 4);
+            Equal(a.Used(), (isize)4, "%ld");
         }
 
         TEST_CASE("Zeroed Initialization for primitives")
         {
             Arena a = perm;
             i32*  y = a.Make<i32>(3);
-            RANGE(i, 3) { CHECK(y[i] == 0); }
+            RANGE(i, 3) { Equal(y[i], 0, "%d"); }
         }
 
         // Arbitrary datatype
@@ -72,8 +72,8 @@ int main()
             Item* y = a.Make<Item>(3);
             RANGE(i, 3)
             {
-                CHECK(y[i].a == 0);
-                CHECK(y[i].b == 0);
+                Equal(y[i].a, 0, "%d");
+                Equal(y[i].b, 0, "%d");
             }
         }
 
@@ -83,19 +83,19 @@ int main()
             Item* y = a.Make<Item>(3, DEFAULTS);
             RANGE(i, 3)
             {
-                CHECK(y[i].a == 4);
-                CHECK(y[i].b == 8);
+                Equal(y[i].a, 4, "%d");
+                Equal(y[i].b, 8, "%d");
             }
         }
 
-        TEST_CASE("Elements with default args")
+        TEST_CASE("Elements with default args, but overriden")
         {
             Arena a = perm;
             Item* y = a.Make<Item>(3, DEFAULTS, 3, 5); // Have to get order of new correct
             RANGE(i, 3)
             {
-                CHECK(y[i].a == 3);
-                CHECK(y[i].b == 5);
+                Equal(y[i].a, 3, "%d");
+                Equal(y[i].b, 5, "%d");
             }
         }
 
@@ -107,8 +107,8 @@ int main()
             {
                 // Returns results from prev arena,
                 // so we can assert != 0
-                CHECK(y[i].a != 0);
-                CHECK(y[i].b != 0);
+                NotEqual(y[i].a, 0, "%d");
+                NotEqual(y[i].b, 0, "%d");
             }
         }
 
@@ -119,8 +119,8 @@ int main()
             Item* y = a.Make<Item>(3);
             RANGE(i, 3)
             {
-                CHECK(y[i].a == 0);
-                CHECK(y[i].b == 0);
+                Equal(y[i].a, 0, "%d");
+                Equal(y[i].b, 0, "%d");
             }
         }
 
@@ -128,7 +128,7 @@ int main()
         {
             Arena a = perm;
             Item* y = a.Make<Item>(1024, SOFTFAIL);
-            CHECK(y == 0);
+            Equal(y, (Item*)0, "%p");
         }
 
         TEST_CASE("TODO: Non-aligned access") { CHECK(0 == 0); }

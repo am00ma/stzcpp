@@ -1,4 +1,4 @@
-#include "../doctest.h"
+#include "doctest.h"
 #include "util/path.h"
 
 int main()

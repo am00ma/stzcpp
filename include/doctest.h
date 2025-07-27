@@ -20,18 +20,12 @@
 
 // Putting statements at end of for loop makes them execute after scope
 
-// clang-format off
 #define TEST_CASE(label)                                                                                               \
-    for (TEST_INDEX = 0; TEST_INDEX < 1;                                                                               \
-            (                                                                                                          \
-            pretty(COLOR_RESET, "|  %3d | %-50s | %8d | %8d |", TEST_CASES+1, label, TEST_SUCCESS_CHECKS, TEST_CHECKS),\
-            TEST_SUCCESS_CASES += (TEST_SUCCESS_CHECKS == TEST_CHECKS),                                                \
-            TEST_CHECKS = 0, TEST_SUCCESS_CHECKS = 0,                                                                  \
-            TEST_INDEX++,                                                                                              \
-            TEST_CASES++                                                                                               \
-            )                                                                                                          \
-        )
-// clang-format on
+    for (TEST_INDEX = 0; TEST_INDEX < 1; (pretty(COLOR_RESET, "%s|  %3d | %-50s | %8d | %8d |",                        \
+                                                 (TEST_SUCCESS_CHECKS == TEST_CHECKS) ? COLOR_RESET : COLOR_RED,       \
+                                                 TEST_CASES + 1, label, TEST_SUCCESS_CHECKS, TEST_CHECKS),             \
+                                          TEST_SUCCESS_CASES += (TEST_SUCCESS_CHECKS == TEST_CHECKS),                  \
+                                          TEST_CHECKS = 0, TEST_SUCCESS_CHECKS = 0, TEST_INDEX++, TEST_CASES++))
 
 // https://nullprogram.com/blog/2022/06/26/
 #define ASSERT(cond)                                                                                                   \
@@ -41,7 +35,7 @@
         else { TEST_SUCCESS_CHECKS++; }                                                                                \
     } while (0);
 
-// Register mismatch, but do not crash
+// Print failed condition, but do not crash
 // Diff from doctest: cannot print lhs, rhs separately
 #define CHECK(cond)                                                                                                    \
     do {                                                                                                               \
@@ -50,6 +44,32 @@
         {                                                                                                              \
             pretty(COLOR_YELLOW, "%s:%d", __FILE__, __LINE__);                                                         \
             error("Failed: %s", #cond);                                                                                \
+        }                                                                                                              \
+        else { TEST_SUCCESS_CHECKS++; }                                                                                \
+    } while (0);
+
+// Diff from doctest: cannot print lhs, rhs separately
+// Different for positive (==) and negative (!=)
+#define Equal(cond1, cond2, fmt)                                                                                       \
+    do {                                                                                                               \
+        TEST_CHECKS++;                                                                                                 \
+        if (!(cond1 == cond2))                                                                                         \
+        {                                                                                                              \
+            pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
+            pretty(COLOR_YELLOW, "   %s != %s", #cond1, #cond2);                                                       \
+            pretty(COLOR_YELLOW, "   " fmt " != " fmt "\n", cond1, cond2);                                             \
+        }                                                                                                              \
+        else { TEST_SUCCESS_CHECKS++; }                                                                                \
+    } while (0);
+
+#define NotEqual(cond1, cond2, fmt)                                                                                    \
+    do {                                                                                                               \
+        TEST_CHECKS++;                                                                                                 \
+        if (!(cond1 != cond2))                                                                                         \
+        {                                                                                                              \
+            pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
+            pretty(COLOR_YELLOW, "   %s != %s", #cond1, #cond2);                                                       \
+            pretty(COLOR_YELLOW, "   " fmt " != " fmt "\n", cond1, cond2);                                             \
         }                                                                                                              \
         else { TEST_SUCCESS_CHECKS++; }                                                                                \
     } while (0);

@@ -22,13 +22,12 @@
  *
  *   Methods:
  *
- *      char* Alloc(isize objsize, isize align, isize count, b32 flags);
- *      T*    Make<V>(isize count = 1, b32 flags = 0, A... args);
+ *      isize Used();
+ *      isize Available<V>();
+ *      T*    Make<V>(isize count = 1, b32 flags = 0, A... args); // Use Alloc to allocate on arena
  *
  *   Debugging:
  *
- *      isize Used();
- *      isize OrigBeg();
  *      void  Print();
  *
  * Notes:
@@ -108,45 +107,65 @@ typedef struct Arena {
     }
 
     /* ---------------------------------------------------------------------------
-     * Methods
+     * Methods (Should we inline these things?)
      * ------------------------------------------------------------------------- */
 
-    // Generic allocation function
-    char* Alloc(isize objsize, isize align, isize count, b32 flags)
+    isize Used() { return cap - (end - beg); }
+
+    // How many objects can be allocated? TODO: Check floor, ceil
+    template <typename T, typename... A> isize Available()
     {
-        Assert(count >= 0); // Can request 0?
-
-        isize pad = -(uptr)beg & (align - 1); // Some way to approx mod(a,b)
-        if (count > (end - beg - pad) / objsize)
-        {
-            if (flags & SOFTFAIL) return 0;
-
-            Fatal(-1, "Alloc failed: count: %ld < req: %ld; used: %ld / cap: %ld", count, (end - beg - pad / objsize),
-                  cap - (end - beg), cap);
-            return 0;
-        }
-
-        isize total  = count * objsize;
-        char* p      = beg + pad;
-        beg         += pad + total;
-
-        if (!(flags & NOZERO)) { p = (char*)memset(p, 0, total); }
-
-        return p;
+        isize pad = -(uptr)beg & (alignof(T) - 1);
+        return (end - beg - pad) / sizeof(T);
     }
 
     // Wrapper with support for defaults and typing
     template <typename T, typename... A> T* Make(isize count = 1, b32 flags = 0, A... args)
     {
-        T* r = (T*)Alloc(sizeof(T), alignof(T), count, flags);
+        // If count < 0, things are really messed up
+        // Though, can request size 0, NOTE: will just get top of arena?
+        Assert(count >= 0);
 
-        // Allows for zero / default init NOTE: needs `#include <new>`
-        // https://en.cppreference.com/w/cpp/language/new#Placement_new
+        // Compute leftover after accounting for alignment
+        isize align   = alignof(T);
+        isize objsize = sizeof(T);
+        isize pad     = -(uptr)beg & (align - 1); // Some way to approx mod(a,b)
+
+        // Check if we have enough space to allocate
+        if (count > (end - beg - pad) / objsize)
+        {
+            // SOFTFAIL support
+            if (flags & SOFTFAIL) return 0;
+
+            // Else drop to debugger
+            Fatal(-1, "Alloc failed: count: %ld < req: %ld; used: %ld / cap: %ld", //
+                  count, (end - beg - pad / objsize), cap - (end - beg), cap);
+        }
+
+        // Advance the arena
+        isize total  = count * objsize;
+        char* p      = beg + pad;
+        beg         += pad + total;
+        // debug("[A] Used: %ld / Cap: %ld", cap - (end - beg), cap);
+
+        // By default, zero initialized
+        if (!(flags & NOZERO))
+        {
+            // debug("[A] Memset: %ld", total);
+            p = (char*)memset(p, 0, total);
+        }
+
+        // Convert to proper type
+        T* r = (T*)p;
+
+        // Allows for zero / default init (Needs to be specially requested through flags)
+        // NOTE: needs `#include <new>`: https://en.cppreference.com/w/cpp/language/new#Placement_new
         if (flags & DEFAULTS)
         {
             RANGE(i, count) { new ((void*)&r[i]) T(args...); }
         }
 
+        // Return with proper type info
         return r;
     }
 
@@ -158,19 +177,16 @@ typedef struct Arena {
      * Debugging
      * ------------------------------------------------------------------------- */
 
-    inline isize Used() { return cap - (end - beg); }
-    inline char* OrigBeg() { return (end - cap); };
-
     void Print(const char* label)
     {
-        printf("%s: used: %ld / cap: %ld (beg: %p, end: %p)\n", //
-               label, cap - (end - beg), cap, (void*)beg, (void*)end);
+        debug("[A] %s: used: %ld / cap: %ld (beg: %p, end: %p)\n", //
+              label, cap - (end - beg), cap, (void*)beg, (void*)end);
     }
 
 } Arena;
 
 /* ---------------------------------------------------------------------------
- * Helpers
+ * Arena on stack
  * ------------------------------------------------------------------------- */
 
 #define BufArena(a, buf, cap)                                                                                          \

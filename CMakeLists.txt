@@ -29,7 +29,6 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         src/arena.cpp
         src/str.cpp
-        src/buf.cpp
         src/slice.cpp
         src/map.cpp
         src/trie.cpp
@@ -60,7 +59,6 @@ set(public_headers
     include/log.h
     include/arena.h
     include/str.h
-    include/buf.h
     include/slice.h
     include/map.h
     include/trie.h

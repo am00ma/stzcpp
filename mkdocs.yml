@@ -12,11 +12,10 @@ nav:
     - 1. Arena: fundamentals/01-Arena.md
     - 2. Slice: fundamentals/02-Slice.md
     - 3. Str  : fundamentals/03-Str.md
-    - 4. Buf  : fundamentals/04-Buf.md
-    - 5. Map  : fundamentals/05-Map.md
-    - 6. Trie : fundamentals/06-Trie.md
-    - 7. LTrie: fundamentals/07-LTrie.md
-    - 8. Table: fundamentals/08-Table.md
+    - 4. Map  : fundamentals/04-Map.md
+    - 5. Trie : fundamentals/05-Trie.md
+    - 6. LTrie: fundamentals/06-LTrie.md
+    - 7. Table: fundamentals/07-Table.md
 
   - Utilities:
     - 1. File : utilities/01-File.md

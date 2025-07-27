@@ -12,8 +12,8 @@
 
 int FileDelete(Str path);
 
-// TODO: Use Str assuming null terminated, as validated by strlen
 typedef struct Path {
+
     Str  path   = {};
     bool exists = false;
 

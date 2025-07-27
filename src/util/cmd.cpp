@@ -1,5 +1,4 @@
 #include "util/cmd.h"
-#include "slice.h"
 
 #include <sys/wait.h> // waitpid, pid
 #include <unistd.h>   // pipe, dup2, fork, close
@@ -62,9 +61,9 @@ Result<Cmd, CmdError> Cmd_Exec(Arena* perm, Str command, isize outlen, isize err
         isize cap, num_bytes;
 
         // Read stdout from the pipe NOTE: Pointer arithmatic
-        Slice<char> out = {perm, outlen};
-        cap             = out.cap;
-        num_bytes       = 0;
+        Buf out   = {perm, outlen};
+        cap       = out.cap;
+        num_bytes = 0;
         do {
             if (cap <= 0) return Result<Cmd, CmdError>{{}, CMD_FAIL_UNKNOWN};
             num_bytes  = read(stdout_pipe[0], out.buf + out.len, cap);
@@ -76,9 +75,9 @@ Result<Cmd, CmdError> Cmd_Exec(Arena* perm, Str command, isize outlen, isize err
         close(stdout_pipe[0]);
 
         // Read stderr from the pipe NOTE: Pointer arithmatic
-        Slice<char> err = {perm, errlen};
-        num_bytes       = 0;
-        cap             = err.cap;
+        Buf err   = {perm, errlen};
+        num_bytes = 0;
+        cap       = err.cap;
         do {
             if (cap <= 0) return Result<Cmd, CmdError>{{}, CMD_FAIL_UNKNOWN};
             num_bytes  = read(stderr_pipe[0], err.buf + err.len, cap);

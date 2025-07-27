@@ -63,7 +63,6 @@
  *
  * */
 
-#include "arena.h"
 #include "slice.h"
 #include <cstdarg> // va_start, va_end, va_list
 
@@ -78,6 +77,10 @@
 // Hash
 #define FNV_64_OFFSET_BASIS 0xcbf29ce484222325
 #define FNV_64_PRIME        1099511628211
+
+typedef Slice<char> Buf;
+typedef struct Str  Str;
+typedef Slice<Str>  Strs;
 
 /* ---------------------------------------------------------------------------
  * Counted string
@@ -297,8 +300,3 @@ typedef struct Str {
     }
 
 } Str;
-
-/* ---------------------------------------------------------------------------
- * Special case of Slice of Strs
- * ------------------------------------------------------------------------- */
-typedef Slice<Str> Strs;

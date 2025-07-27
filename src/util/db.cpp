@@ -1,5 +1,4 @@
 #include "util/db.h"
-#include "buf.h"
 #include "log.h"
 #include <cstdio>
 
@@ -197,27 +196,28 @@ Slice<DbRow> Db::ListRows(Str tablename, Slice<DbColumn> columns)
 
 Str StmtCreateTable(Str tablename, Slice<DbColumn> columns, Arena* a)
 {
-    // NOTE: Needed for interaction with str
-    Buf ret = Buf(a, 4096);
-
-    Arena temp = *a;
-
-    ret + Str(&temp, 1024, "CREATE TABLE %.*s(\n", pstr(tablename));
-
-    RANGE(i, columns.len)
-    {
-        ret + "  ";
-        ret + Str(&temp, 1024, "\"%10.*s\"", pstr(columns[i]->name));
-        ret + "  ";
-        ret + Str(&temp, 1024, "%10s", DbCellTypeStr[columns[i]->type]);
-        ret + (columns[i]->primarykey ? " PRIMARY KEY " : "");
-        ret + (columns[i]->notnull ? " NOT NULL " : "");
-        ret + ",\n";
-    }
-    ret.len -= 2;      // Remove last , and \n
-    ret + Str("\n);"); // Final paranthesis
-
-    return ret.Final(a);
+    // // NOTE: Needed for interaction with str
+    // Buf ret = Buf(a, 4096);
+    //
+    // Arena temp = *a;
+    //
+    // ret + Str(&temp, 1024, "CREATE TABLE %.*s(\n", pstr(tablename));
+    //
+    // RANGE(i, columns.len)
+    // {
+    //     ret + "  ";
+    //     ret + Str(&temp, 1024, "\"%10.*s\"", pstr(columns[i]->name));
+    //     ret + "  ";
+    //     ret + Str(&temp, 1024, "%10s", DbCellTypeStr[columns[i]->type]);
+    //     ret + (columns[i]->primarykey ? " PRIMARY KEY " : "");
+    //     ret + (columns[i]->notnull ? " NOT NULL " : "");
+    //     ret + ",\n";
+    // }
+    // ret.len -= 2;      // Remove last , and \n
+    // ret + Str("\n);"); // Final paranthesis
+    //
+    // return ret.Final(a);
+    return Str("");
 }
 
 void Db::Print()

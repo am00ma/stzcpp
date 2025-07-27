@@ -108,36 +108,42 @@ template <typename T> struct Slice {
     T* operator[](isize i)
     {
         Assert(((i >= -1 * len) && (i < len))); // Bounds check
-        if (i < 0) { return &buf[len + i]; }    // Negative
+        if (i < 0) { i = len + i; }             // Negative
         return &buf[i];                         // Return reference
     };
 
     // Get (i - j)th item by reference, supporting negative indices
     Slice<T> operator[](isize i, isize j)
     {
-        Assert(((i >= -1 * len) && (i < len))); // Bounds check i
-        Assert(((j >= -1 * len) && (j < len))); // Bounds check j
+        // Bounds check
+        Assert(((i >= -1 * len) && (i < len)));
+        Assert(((j >= -1 * len) && (j < len)));
 
-        if (i < 0) { i = len + i; } // Negative i to positive
-        if (j < 0) { j = len + j; } // Negative j to positive
+        // Negative to positive
+        if (i < 0) { i = len + i; }
+        if (j < 0) { j = len + j; }
 
         // Check overlap given assured both positive (so also for [i, i] for example)
-        if ((i >= j) && (j >= 0)) { return Slice<T>(); }; // 0 >= j > i
+        if ((i > j) && (j >= 0)) { return Slice<T>(); }; // 0 >= j > i
 
-        return Slice<T>(&buf[i], j - i, j - i); // only if j > i
+        // Guaranteed only if j >= i (if i==j, len=cap=0, but address is of ith element)
+        return Slice<T>(&buf[i], j - i, j - i);
     }
 
     // Get (i - j)th item as copy, supporting negative indices
+    // TODO: Provide Copy method instead?
     Slice<T> operator[](isize i, isize j, Arena* a)
     {
-        Assert(((i >= -1 * len) && (i < len))); // Bounds check i
-        Assert(((j >= -1 * len) && (j < len))); // Bounds check j
+        Assert(((i >= -1 * len) && (i < len))); // Bounds check i - inclusive
+        Assert(((j > -1 * len) && (j <= len))); // Bounds check j - exclusive
 
         if (i < 0) { i = len + i; } // Negative i to positive
         if (j < 0) { j = len + j; } // Negative j to positive
 
         // Check overlap given assured both positive (so also for [i, i] for example)
         if ((i >= j) && (j >= 0)) { return Slice<T>(); }; // 0 >= j > i
+
+        // NOTE: here behavior seems to differ from get by ref for i == j
 
         // Diff from operator[] ref -> we are making Slice
         auto slice = Slice<T>(a->Make<T>(j - i), j - i, j - i);

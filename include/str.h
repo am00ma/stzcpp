@@ -155,18 +155,28 @@ typedef struct Str {
     // Get ith char
     char& operator[](isize i)
     {
-        Assert(i >= 0);
-        Assert(i < len);
-        return buf[i];
+        Assert(((i >= -1 * len) && (i < len))); // Bounds check
+        if (i < 0) { return buf[len + i]; }     // Negative
+        return buf[i];                          // Return reference
     }
 
-    // Get slice
-    Str operator[](isize beg, isize end)
+    // Get substring TODO: Should support negative indexing like Slice does ...
+    Str operator[](isize i, isize j)
     {
-        Assert(beg >= 0);
-        Assert(beg <= end);
-        Assert(end <= len);
-        return {buf + beg, end - beg};
+        // Bounds check
+        Assert(((i >= -1 * len) && (i < len)));
+        Assert(((j > -1 * len) && (j <= len)));
+
+        // Negative to positive
+        if (i < 0) { i = len + i; }
+        if (j < 0) { j = len + j; }
+
+        // Check overlap given assured both positive (so also for [i, i] for example)
+        // If none, return empty string, not error
+        if ((i > j) && (j >= 0)) { return {}; }; // 0 >= j > i
+
+        // Guaranteed only if j >= i (if i==j, len=0, but address is of ith element)
+        return {buf + i, j - i};
     }
 
     // Equality
@@ -187,13 +197,12 @@ typedef struct Str {
     Str Copy(Arena* a, bool null_terminate = false)
     {
         // If on top of arena, just advance arena for reserved 0 byte
-        // NOTE: Not sure this makes sense
         if (buf == a->beg - len)
         {
+            // Refer to tests for complete behaviour
             if (null_terminate)
             {
-                // // BUG: Something is messed up here, why are we null terminating?
-                *a->beg = '\0'; // NOTE: Is this correct?
+                *a->beg = '\0';
                 a->beg++;
             }
 

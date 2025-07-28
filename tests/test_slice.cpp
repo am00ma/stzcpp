@@ -114,5 +114,24 @@ int main()
             x0 + y2;
             TCheck(x0 == y3);
         }
+
+        TEST_CASE("Operator +: Extend items more than capacity")
+        {
+            Arena temp = perm;
+
+            Slice<i32> x = {3, &temp, NOZERO};
+            List<i32>  y = (i32[]){1, 2, 3};
+            x + y;
+            TCheck(x == y);
+
+            Slice<i32> x0 = {4, &temp, NOZERO};
+            List<i32>  y1 = (i32[]){1, 2};
+            List<i32>  y2 = (i32[]){3, 4};
+            List<i32>  y3 = (i32[]){1, 2, 3, 4};
+            x0 + y1;
+            x0 + y2;
+            x0 + (i32[]){1}; // Dropped with error
+            TCheck(x0 == y3);
+        }
     }
 }

@@ -49,21 +49,76 @@ template <typename T> struct Slice : List<T> {
         cap          = cap_;
     };
 
-    Slice<T> Final(Arena* a); // Use with caution
+    // Shrinks arena
+    // NOTE: provided no new objects after declaration of Buf
+    List<T> Final(Arena* a)
+    {
+        a->beg -= cap - (List<T>::len * sizeof(T));
+        cap     = List<T>::len; // So nothing can be added later
+        return List<T>(List<T>::buf, List<T>::len);
+    };
 
     /* ---------------------------------------------------------------------------
      * Operators
      * ------------------------------------------------------------------------- */
 
-    List<T> operator+(T val);       // Append
-    List<T> operator+(List<T> val); // Extend
+    // Append an item and increment len, exactly same as Append
+    List<T> operator+(T val)
+    {
+        if (List<T>::len + 1 <= cap)
+        {
+            List<T>::buf[List<T>::len] = val;
+            List<T>::len++;
+        }
+        else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", List<T>::len + 1, cap); }
+        return *this;
+    }
+
+    // Extend slice by copying items (unrolled operator+)
+    List<T> operator+(List<T> val)
+    {
+        RANGE(i, val.len)
+        {
+            if (List<T>::len + 1 <= cap)
+            {
+                List<T>::buf[List<T>::len] = *val[i];
+                List<T>::len++;
+            }
+            else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", List<T>::len + 1, cap); }
+        }
+        return List<T>(List<T>::buf, List<T>::len);
+    }
 
     /* ---------------------------------------------------------------------------
      * Methods
      * ------------------------------------------------------------------------- */
 
-    List<T> Append(T val);       // Append
-    List<T> Extend(List<T> val); // Extend
+    // Exactly same as operator+ to append item
+    List<T> Append(T val)
+    {
+        if (List<T>::len + 1 <= cap)
+        {
+            List<T>::buf[List<T>::len] = val;
+            List<T>::len++;
+        }
+        else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", List<T>::len + 1, cap); }
+        return List<T>(List<T>::buf, List<T>::len);
+    }
+
+    // Exactly same as operator+ to extend slice, unrolled
+    List<T> Extend(List<T> val)
+    {
+        RANGE(i, val.len)
+        {
+            if (List<T>::len + 1 <= cap)
+            {
+                List<T>::buf[List<T>::len] = *val[i];
+                List<T>::len++;
+            }
+            else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", List<T>::len + 1, cap); }
+        }
+        return List<T>(List<T>::buf, List<T>::len);
+    }
 
     /* ---------------------------------------------------------------------------
      * Debugging

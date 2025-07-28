@@ -99,25 +99,6 @@ template <typename T> struct List {
         return slice;
     }
 
-    // // Same as copy
-    // List<T> operator[](Arena* a)
-    // {
-    //     // If on top of arena, return directly
-    //     // TODO: Why doesn't padding and alignment mess up things here?
-    //     if ((char*)buf == a->beg - (len * sizeof(T)))
-    //     {
-    //         // debug("[M] Copy avoided");
-    //         return *this;
-    //     }
-    //     List<T> dst = List<T>(len, a);
-    //     if (len)
-    //     {
-    //         // debug("[M] Copied");
-    //         memcpy(dst.buf, buf, len * sizeof(T));
-    //     }
-    //     return dst;
-    // }
-
     /* ---------------------------------------------------------------------------
      * Methods
      * ------------------------------------------------------------------------- */

@@ -226,7 +226,70 @@ void Print(const char* label)
 
 ## Tests
 
+| No. | Case                                      | Correct | Total |
+| --- | ----------------------------------------- | ------- | ----- |
+| 1   | Deps: alignof, sizeof                     | 26      | 26    |
+| 2   | Size: struct                              | 1       | 1     |
+| 3   | malloc up to 2^35, without free           | 63      | 63    |
+| 4   | malloc up to 2^35, with free              | 35      | 35    |
+| 5   | Allocated sizes                           | 1       | 1     |
+| 6   | Zeroed Initialization for primitives      | 3       | 3     |
+| 7   | Zeroed Initialization for structs         | 6       | 6     |
+| 8   | Elements with defaults                    | 6       | 6     |
+| 9   | Elements with default args, but overriden | 6       | 6     |
+| 10  | Non-zeroed Initialization                 | 6       | 6     |
+| 11  | Zeroed Initialization                     | 6       | 6     |
+| 12  | Soft-fail                                 | 1       | 1     |
+| 13  | TODO: Non-aligned access                  | 1       | 1     |
+| 14  | TODO: Multiple threads                    | 1       | 1     |
+| --- | ----                                      | ------- | ----- |
+| ✔  | Cases: 14 / 14                            | 162     | 162   |
+
 Arena Tests (Use `ctrl+f` to navigate to code)
+
+### 1. Deps: alignof, sizeof
+
+| type                                  | sizeof | alignof | comment           |
+| ------------------------------------- | ------ | ------- | ----------------- |
+| char                                  | 1      | 1       | Expected          |
+| u16                                   | 2      | 2       | Expected          |
+| u32                                   | 4      | 4       | Expected          |
+| u64                                   | 8      | 8       | Expected          |
+| i16                                   | 2      | 2       | Expected          |
+| i32                                   | 4      | 4       | Expected          |
+| i64                                   | 8      | 8       | Expected          |
+| `struct s1 { u16 a, b, c; }`          | 6      | 2       | Ok                |
+| `struct s5 {i32 a; i16 b;}`           | 8      | 4       | _why != 6?_       |
+| `struct s2 { u16 a, b, c; char d[] }` | 6      | 2       | `d[]` not counted |
+| `<char> struct s3 {u32 a; V e[];}`    | 4      | 4       | `e[]` not counted |
+| `<i16> struct s3 {u32 a; V e[];}`     | 4      | 4       | `e[]` not counted |
+| `<i16> struct s4 {u32 a; V e[3];}`    | 12     | 4       | _why 12?_         |
+
+### 2. Size: struct
+
+### 3. malloc up to 2^35, without free
+
+### 4. malloc up to 2^35, with free
+
+### 5. Allocated sizes
+
+### 6. Zeroed Initialization for primitives
+
+### 7. Zeroed Initialization for structs
+
+### 8. Elements with defaults
+
+### 9. Elements with default args, but overriden
+
+### 10. Non-zeroed Initialization
+
+### 11. Zeroed Initialization
+
+### 12. Soft-fail
+
+### 13. TODO: Non-aligned access
+
+### 14. TODO: Multiple threads
 
 ```cpp
 --8<-- "docs/code/tests/test_arena.cpp"

@@ -79,11 +79,8 @@
 #define FNV_64_PRIME        1099511628211
 
 // Useful typedefs
-typedef struct Str  Str;
-typedef Slice<Str>  Strs;
-
-// Maybe we need to duplicate code just to handle Str concat
-typedef Slice<char> Buf;
+typedef struct Str Str;
+typedef Slice<Str> Strs;
 
 /* ---------------------------------------------------------------------------
  * Str
@@ -98,7 +95,7 @@ typedef struct Str {
     isize len = 0;
 
     /* ---------------------------------------------------------------------------
-     * Constructors
+     * Lifetime
      * ------------------------------------------------------------------------- */
 
     // Default constructor -> zero by default
@@ -307,3 +304,33 @@ typedef struct Str {
     }
 
 } Str;
+
+/* ---------------------------------------------------------------------------
+ * Buf - for joining strings
+ * ------------------------------------------------------------------------- */
+
+typedef struct Buf : Slice<char> {
+
+    isize cap = 0;
+
+    // From Arena
+    Buf(Arena* a, isize cap_, b32 flags = 0)
+    {
+        buf = a->Make<char>(cap_, flags);
+        len = 0;
+        cap = cap_;
+    }
+
+    // // Specially for strings
+    // Str operator+(Str val)
+    // {
+    //     if (len + val.len <= cap)
+    //     {
+    //         buf[len] = val;
+    //         len++;
+    //     }
+    //     else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", len + 1, cap); }
+    //     return this;
+    // }
+
+} Buf;

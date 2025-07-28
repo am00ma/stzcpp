@@ -25,14 +25,14 @@ int main()
             TEqual(sizeof(u16), (isize)2, "%ld");
             TEqual(alignof(u16), (isize)2, "%ld");
 
-            TEqual(sizeof(i16), (isize)2, "%ld");
-            TEqual(alignof(i16), (isize)2, "%ld");
-
             TEqual(sizeof(u32), (isize)4, "%ld");
             TEqual(alignof(u32), (isize)4, "%ld");
 
             TEqual(sizeof(u64), (isize)8, "%ld");
             TEqual(alignof(u64), (isize)8, "%ld");
+
+            TEqual(sizeof(i16), (isize)2, "%ld");
+            TEqual(alignof(i16), (isize)2, "%ld");
 
             TEqual(sizeof(i32), (isize)4, "%ld");
             TEqual(alignof(i32), (isize)4, "%ld");

@@ -20,9 +20,9 @@ add_library(${PROJECT_NAME} STATIC)
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         stzd
-        SDL2
-        SDL2_image
-        sqlite3
+        # SDL2
+        # SDL2_image
+        # sqlite3
 )
 
 target_sources(${PROJECT_NAME}
@@ -55,8 +55,8 @@ set(public_headers
     include/doctest.h
     # Fundamentals
     include/arena.h
-    include/str.h
-    include/slice.h
+    # include/str.h
+    # include/slice.h
     # Data
     # include/map.h
     # include/trie.h

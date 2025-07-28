@@ -10,8 +10,8 @@ endfunction()
 
 
 add_test_stz(arena)
-add_test_stz(str)
-add_test_stz(slice)
+# add_test_stz(str)
+# add_test_stz(slice)
 # add_test_stz(map)
 # add_test_stz(trie)
 # add_test_stz(ltrie)

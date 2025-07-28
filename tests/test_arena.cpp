@@ -57,6 +57,7 @@ int main()
 
             // template <typename V> struct s3 {
             //     u32  a;
+            //     char d[];
             //     V    e[];
             // };
             // --> Errors with
@@ -100,7 +101,7 @@ int main()
             TEqual(sizeof(Arena), size, "%ld"); // 8(beg) + 8(end) + 8(cap)
         }
 
-        TEST_CASE("malloc up to 2^35, without free")
+        TEST_CASE("Malloc: up to 2^35, without free")
         {
             // It is possible to allot astonishing amount of memory,
             // all the way upto 4 EB (MB, GB, TB, PB, EB), that too, cumulatively
@@ -115,7 +116,7 @@ int main()
             }
         }
 
-        TEST_CASE("malloc up to 2^35, with free")
+        TEST_CASE("Malloc: up to 2^35, with free")
         {
             // BUG: If free is added, crashes at i=35 (32 GB)
             isize cap = 1;
@@ -132,14 +133,22 @@ int main()
         // Make arena once to borrow for each case
         Arena perm = {1024}; // 1 KB
 
-        TEST_CASE("Allocated sizes")
+        TEST_CASE("Alloc: Allocated sizes (well aligned)")
         {
             Arena a = perm;
             i32*  x = a.Make<i32>();
             TEqual(a.Used(), (isize)4, "%ld");
         }
 
-        TEST_CASE("Zeroed Initialization for primitives")
+        TEST_CASE("Alloc: Allocated sizes (half aligned)")
+        {
+            // NOTE: only 2 used
+            Arena a = perm;
+            i16*  x = a.Make<i16>();
+            TEqual(a.Used(), (isize)2, "%ld");
+        }
+
+        TEST_CASE("Alloc: Zeroed for primitives")
         {
             Arena a = perm;
             i32*  y = a.Make<i32>(3);
@@ -152,7 +161,7 @@ int main()
             i32 b = 8;
         } Item;
 
-        TEST_CASE("Zeroed Initialization for structs")
+        TEST_CASE("Alloc: Zeroed for structs")
         {
             Arena a = perm;
             Item* y = a.Make<Item>(3);
@@ -163,7 +172,7 @@ int main()
             }
         }
 
-        TEST_CASE("Elements with defaults")
+        TEST_CASE("Alloc: Elements with defaults")
         {
             Arena a = perm;
             Item* y = a.Make<Item>(3, DEFAULTS);
@@ -174,7 +183,7 @@ int main()
             }
         }
 
-        TEST_CASE("Elements with default args, but overriden")
+        TEST_CASE("Alloc: Elements with overriden defaults")
         {
             Arena a = perm;
             Item* y = a.Make<Item>(3, DEFAULTS, 3, 5); // Have to get order of new correct
@@ -185,40 +194,34 @@ int main()
             }
         }
 
-        TEST_CASE("Non-zeroed Initialization")
+        TEST_CASE("Alloc: Non-zeroed")
         {
             Arena a = perm;
+
+            // Values to overwrite
+            Arena b   = a;
+            Item* tmp = b.Make<Item>(3, DEFAULTS);
+
+            // No memset (now using Arena a, so will overwrite Arena b)
             Item* y = a.Make<Item>(3, NOZERO);
             RANGE(i, 3)
             {
                 // Returns results from prev arena,
-                // so we can assert != 0
-                TNotEqual(y[i].a, 0, "%d");
-                TNotEqual(y[i].b, 0, "%d");
+                // so we can assert the value
+                TEqual(y[i].a, 4, "%d");
+                TEqual(y[i].b, 8, "%d");
             }
         }
 
-        // For contrast, after above
-        TEST_CASE("Zeroed Initialization")
-        {
-            Arena a = perm;
-            Item* y = a.Make<Item>(3);
-            RANGE(i, 3)
-            {
-                TEqual(y[i].a, 0, "%d");
-                TEqual(y[i].b, 0, "%d");
-            }
-        }
-
-        TEST_CASE("Soft-fail")
+        TEST_CASE("Alloc: Soft-fail")
         {
             Arena a = perm;
             Item* y = a.Make<Item>(1024, SOFTFAIL);
             TEqual(y, (Item*)0, "%p");
         }
 
-        TEST_CASE("TODO: Non-aligned access") { TCheck(0 == 0); }
-        TEST_CASE("TODO: Multiple threads") { TCheck(0 == 0); }
+        TEST_CASE("TODO: Alloc: Non-aligned") { TCheck(0 == 0); }
+        TEST_CASE("TODO: Alloc: Threaded") { TCheck(0 == 0); }
     }
 
     return 0;

@@ -16,6 +16,13 @@
 #define COLOR_CYAN    "\033[0;36m"
 #define COLOR_WHITE   "\033[0;37m"
 
+#define COLOR_BOLD         "\033[1m"
+#define COLOR_ITALIC       "\033[3m"
+#define COLOR_ULINE        "\033[4m"
+#define COLOR_RESET_BOLD   "\033[22m"
+#define COLOR_RESET_ITALIC "\033[23m"
+#define COLOR_RESET_ULINE  "\033[24m"
+
 #define COLOR_BOLD_BLACK   "\033[1;30m"
 #define COLOR_BOLD_RED     "\033[1;31m"
 #define COLOR_BOLD_GREEN   "\033[1;32m"
@@ -86,7 +93,6 @@ Specify custom color, `\n` terminated.
 ```cpp
 #define pretty(color, ...) (fprintf(stderr, color), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
 ```
-
 
 ## Error handling
 
@@ -177,4 +183,10 @@ Not equal version of above.
         error("    " fmt " == " fmt, cond1, cond2);                                                                    \
         __builtin_trap();                                                                                              \
     }
+```
+
+## Usage
+
+```cpp
+--8<-- "docs/code/examples/definitions/example_log_1.cpp"
 ```

@@ -14,6 +14,13 @@
 #define COLOR_CYAN    "\033[0;36m"
 #define COLOR_WHITE   "\033[0;37m"
 
+#define COLOR_BOLD         "\033[1m"
+#define COLOR_ITALIC       "\033[3m"
+#define COLOR_ULINE        "\033[4m"
+#define COLOR_RESET_BOLD   "\033[22m"
+#define COLOR_RESET_ITALIC "\033[23m"
+#define COLOR_RESET_ULINE  "\033[24m"
+
 #define COLOR_BOLD_BLACK   "\033[1;30m"
 #define COLOR_BOLD_RED     "\033[1;31m"
 #define COLOR_BOLD_GREEN   "\033[1;32m"
@@ -61,6 +68,7 @@
 /* ---------------------------------------------------------------------------
  * Error handling
  * ------------------------------------------------------------------------- */
+
 // Crash entirely
 #define Fatal(err, ...)                                                                                                \
     if ((err) != 0)                                                                                                    \
@@ -97,9 +105,14 @@
         __builtin_trap();                                                                                              \
     }
 
-// Support to print lhs and rhs
-// https://nullprogram.com/blog/2022/06/26/
-#define Equal(cond1, cond2, fmt)                                                                                     \
+/* ---------------------------------------------------------------------------
+ * Testing
+ * ------------------------------------------------------------------------- */
+
+// NOTE: Unfortunately, cannot print Str, need special func
+
+// Support to print lhs and rhs,
+#define Equal(cond1, cond2, fmt)                                                                                       \
     if (!(cond1 == cond2))                                                                                             \
     {                                                                                                                  \
         error("%s:%d", __FILE__, __LINE__);                                                                            \
@@ -108,11 +121,32 @@
         __builtin_trap();                                                                                              \
     }
 
-#define NotEqual(cond1, cond2, fmt)                                                                                     \
+// However needs a separate notequal condition
+#define NotEqual(cond1, cond2, fmt)                                                                                    \
     if (!(cond1 != cond2))                                                                                             \
     {                                                                                                                  \
         error("%s:%d", __FILE__, __LINE__);                                                                            \
         error("    %s == %s", #cond1, #cond2);                                                                         \
         error("    " fmt " == " fmt, cond1, cond2);                                                                    \
+        __builtin_trap();                                                                                              \
+    }
+
+// Support for string comparison
+#define EqualStr(str1, str2)                                                                                           \
+    if (!(str1 == str2))                                                                                               \
+    {                                                                                                                  \
+        error("%s:%d", __FILE__, __LINE__);                                                                            \
+        error("    %s != %s", #str1, #str2);                                                                           \
+        error("    %.*s != %.*s", pstr(str1), pstr(str2));                                                             \
+        __builtin_trap();                                                                                              \
+    }
+
+// Support for string comparison
+#define NotEqualStr(str1, str2)                                                                                        \
+    if (!(str1 != str2))                                                                                               \
+    {                                                                                                                  \
+        error("%s:%d", __FILE__, __LINE__);                                                                            \
+        error("    %s == %s", #str1, #str2);                                                                           \
+        error("    %.*s == %.*s", pstr(str1), pstr(str2));                                                             \
         __builtin_trap();                                                                                              \
     }

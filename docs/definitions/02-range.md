@@ -11,3 +11,9 @@
 #define RANGE3(i, a, b)    for (isize i = (a); i < (b); i++)
 #define RANGE4(i, a, b, c) for (isize i = (a); i < (b); i += (c))
 ```
+
+## Usage
+
+```cpp
+--8<-- "docs/code/examples/definitions/example_range_1.cpp"
+```

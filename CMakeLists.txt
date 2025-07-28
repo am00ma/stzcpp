@@ -89,5 +89,5 @@ include(Installing)
 # --------------------- Tests ---------------------
 add_subdirectory(tests)
 
-# # --------------------- Examples ---------------------
-# add_subdirectory(examples)
+# --------------------- Examples ---------------------
+add_subdirectory(examples)

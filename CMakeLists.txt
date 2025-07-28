@@ -25,15 +25,8 @@ target_link_libraries(${PROJECT_NAME}
         # sqlite3
 )
 
-target_sources(${PROJECT_NAME}
-    PRIVATE
-        src/stz.cpp
-        # src/util/cmd.cpp
-        # src/util/file.cpp
-        # src/util/gui.cpp
-        # src/util/path.cpp
-        # src/util/db.cpp
-)
+# 'Unity' build?
+target_sources(${PROJECT_NAME} PRIVATE src/stz.cpp)
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
@@ -55,6 +48,7 @@ set(public_headers
     include/doctest.h
     # Fundamentals
     include/arena.h
+    include/list.h
     # include/str.h
     # include/slice.h
     # Data

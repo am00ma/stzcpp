@@ -4,25 +4,14 @@ nav:
   - Home: index.md
 
   - Definitions:
-    - 1. Types: definitions/01-types.md
-    - 2. Range: definitions/02-range.md
-    - 3. Log  : definitions/03-log.md
+    - 1. Types  : definitions/01-types.md
+    - 2. Range  : definitions/02-range.md
+    - 3. Log    : definitions/03-log.md
+    - 4. Doctest: definitions/04-doctest.md
 
   - Fundamentals:
     - 1. Arena: fundamentals/01-Arena.md
-    - 2. Slice: fundamentals/02-Slice.md
-    - 3. Str  : fundamentals/03-Str.md
-    - 4. Map  : fundamentals/04-Map.md
-    - 5. Trie : fundamentals/05-Trie.md
-    - 6. LTrie: fundamentals/06-LTrie.md
-    - 7. Table: fundamentals/07-Table.md
-
-  - Utilities:
-    - 1. File : utilities/01-File.md
-    - 2. Cmd  : utilities/02-Cmd.md
-    - 3. Path : utilities/03-Path.md
-    - 4. Db   : utilities/04-Db.md
-    - 5. Gui  : utilities/05-Gui.md
+    - 2. List : fundamentals/02-List.md
 
 docs_dir: docs
 site_dir: site

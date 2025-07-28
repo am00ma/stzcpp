@@ -3,8 +3,8 @@ function(add_example_stz TNAME FNAME)
     target_link_libraries(example_${TNAME} PRIVATE stz)
 endfunction()
 
-add_example_stz(range_1 definitions)
-add_example_stz(log_1 definitions)
+# add_example_stz(range_1 definitions)
+# add_example_stz(log_1 definitions)
 
 # add_example_stz(arena, fundamentals)
 # add_example_stz(str, fundamentals)

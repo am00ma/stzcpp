@@ -6,7 +6,7 @@
 
 // Fundamentals
 #include "arena.h"
-// #include "slice.h"
+#include "list.h"
 // #include "str.h"
 
 // Data

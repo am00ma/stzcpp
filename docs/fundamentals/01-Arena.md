@@ -2,36 +2,123 @@
 
 ## API
 
+```cpp
+
+typedef struct Arena{
+
+    // Fields
+    char* beg = 0;
+    char* end = 0;
+    isize cap = 0;
+
+    // Lifetime:
+    Arena();                                      // Zero init?
+    Arena(isize cap_);                            // Given capacity, uses malloc
+    Arena(isize cap_, Arena* src, b32 flags = 0); // From another arena
+    Arena(char* buf, isize cap_);                 // From fields
+
+    void Free();
+
+    // Operators:
+
+    // Methods:
+    isize Used();
+    isize Available<V>();
+    T*    Make<V>(isize count = 1, b32 flags = 0, A... args);
+
+    // Debugging:
+    void  Print();
+
+}
+
+// Arena on stack, exact behaviour as on heap
+#define BufArena(a, buf, cap)                                                                                          \
+    char  buf[cap] = {};                                                                                               \
+    Arena a        = Arena(buf, cap);
+
+```
+
+## Code
+
 ### Includes
 
+How to deal with system includes?
+
+- `cstdio`
+- `cstdlib`
+- `new`
+
 ```cpp
---8<-- "docs/code/include/arena.h:3:10"
+#include "log.h"   // Fatal, debug
+#include "range.h" // RANGE
+#include "types.h" // isize, b32
+
+#include <cstdio>  // printf
+#include <cstdlib> // malloc, free
+#include <new>     // Needed for proper behaviour of `new` in `Make` !!
 ```
 
 ### Fields
 
+Total size: 24 bytes (3 \* 64bits)
+
 ```cpp
---8<-- "docs/code/include/arena.h:25:27"
+char* beg = 0;
+char* end = 0;
+isize cap = 0;
 ```
 
-### Initialization
+### Lifetime
 
-Flags:
-
-```cpp
---8<-- "docs/code/include/arena.h:15:21"
-```
-
-From various memories:
+- Zero init?
+- Given capacity, uses malloc
+- From another arena
+- From fields
 
 ```cpp
---8<-- "docs/code/include/arena.h:29:54"
+// Default constructor
+Arena() = default;
+
+// Use `malloc`, 0 capacity arena if malloc fails
+Arena(isize cap_)
+{
+    cap = cap_;
+    beg = (char*)malloc(cap);
+    end = beg ? beg + cap : 0;
+}
+
+// Take from another arena
+Arena(isize cap_, Arena* src, b32 flags = 0)
+{
+    cap = cap_;
+    beg = src->Make<char>(cap);
+    end = beg ? beg + cap : 0;
+}
+
+// Given buffer and capacity
+Arena(char* buf, isize cap_)
+{
+    beg = buf;
+    cap = beg ? cap_ : 0; // Zero-cap arena if invalid buf
+    end = beg ? beg + cap : 0;
+}
+
+// No free by destructor
+//    ( as only applicable if it was allocated
+//      with malloc constructor: Arena(isizze cap_) )
+void Free()
+{
+    if (end - cap) free(end - cap);
+}
 ```
 
 From `char[]` on stack:
 
 ```cpp
---8<-- "docs/code/include/arena.h:115:117"
+// Arena on stack, exact behaviour as on heap
+#define BufArena(a, buf, cap)                                                                                          \
+    char  buf[cap] = {};                                                                                               \
+    Arena a        = Arena(buf, cap);
 ```
 
 ### Destruction
@@ -39,54 +126,113 @@ From `char[]` on stack:
 Rare case that requires `Free:`
 
 ```cpp
---8<-- "docs/code/include/arena.h:56:62"
+// No free by destructor
+//    ( as only applicable if it was allocated
+//      with malloc constructor: Arena(isizze cap_) )
+void Free()
+{
+    if (end - cap) free(end - cap);
+}
 ```
 
 ### Methods
 
-Allocation algorithm with padding computation:
+Checking used space and available space for given type:
 
 ```cpp
---8<-- "docs/code/include/arena.h:64:86"
+isize Used() { return cap - (end - beg); }
+
+// How many objects can be allocated?
+// TODO: Check floor, ceil, padding
+template <typename T, typename... A> isize Available()
+{
+    isize pad = -(uptr)beg & (alignof(T) - 1);
+    return (end - beg - pad) / sizeof(T);
+}
 ```
 
 Usage with support for defaults and typing:
 
 ```cpp
---8<-- "docs/code/include/arena.h:88:101"
+
+typedef enum {
+
+    NOZERO   = 0x1,
+    SOFTFAIL = 0x2,
+    DEFAULTS = 0x4,
+
+} ArenaFlags;
+
+// Wrapper with support for defaults and typing
+template <typename T, typename... A> T* Make(isize count = 1, b32 flags = 0, A... args)
+{
+    // If count < 0, things are really messed up
+    // Though, can request size 0, NOTE: will just get top of arena?
+    Assert(count >= 0);
+
+    // Compute leftover after accounting for alignment
+    isize align   = alignof(T);
+    isize objsize = sizeof(T);
+    isize pad     = -(uptr)beg & (align - 1); // Some way to approx mod(a,b)
+
+    // Check if we have enough space to allocate
+    if (count > (end - beg - pad) / objsize)
+    {
+        // SOFTFAIL support
+        if (flags & SOFTFAIL) return 0;
+
+        // Else drop to debugger
+        Fatal(-1, "Alloc failed: count: %ld < req: %ld; used: %ld / cap: %ld", //
+                count, (end - beg - pad / objsize), cap - (end - beg), cap);
+    }
+
+    // Advance the arena
+    isize total  = count * objsize;
+    char* p      = beg + pad;
+    beg         += pad + total;
+    // debug("[A] Used: %ld / Cap: %ld", cap - (end - beg), cap);
+
+    // By default, zero initialized
+    if (!(flags & NOZERO))
+    {
+        // debug("[A] Memset: %ld", total);
+        p = (char*)memset(p, 0, total);
+    }
+
+    // Convert to proper type
+    T* r = (T*)p;
+
+    // Allows for zero / default init (Needs to be specially requested through flags)
+    // NOTE: needs `#include <new>`: https://en.cppreference.com/w/cpp/language/new#Placement_new
+    if (flags & DEFAULTS)
+    {
+        RANGE(i, count) { new ((void*)&r[i]) T(args...); }
+    }
+
+    // Return with proper type info
+    return r;
+}
 ```
 
 ### Debugging
 
 ```cpp
---8<-- "docs/code/include/arena.h:103:111"
+void Print(const char* label)
+{
+    debug("[A] %s: used: %ld / cap: %ld (beg: %p, end: %p)\n", //
+            label, cap - (end - beg), cap, (void*)beg, (void*)end);
+}
 ```
 
 ## Tests
 
 Arena Tests (Use `ctrl+f` to navigate to code)
 
-|     | Case                                 | Correct | Total |
-| --- | ------------------------------------ | ------- | ----- |
-| 1.  | Stuct size                           | 1       | 1     |
-| 2.  | malloc up to 2^35, without free      | 63      | 63    |
-| 3.  | malloc up to 2^35, with free         | 35      | 35    |
-| 4.  | Allocated sizes                      | 1       | 1     |
-| 5.  | Zeroed Initialization for primitives | 3       | 3     |
-| 6.  | Zeroed Initialization for structs    | 6       | 6     |
-| 7.  | Elements with defaults               | 6       | 6     |
-| 8.  | Elements with default args           | 6       | 6     |
-| 9.  | Non-zeroed Initialization            | 6       | 6     |
-| 10. | Zeroed Initialization                | 6       | 6     |
-| 11. | Soft-fail                            | 1       | 1     |
-| 12. | TODO: Non-aligned access             | 1       | 1     |
-| 13. | TODO: Multiple threads               | 1       | 1     |
-
 ```cpp
 --8<-- "docs/code/tests/test_arena.cpp"
 ```
 
-## Usage
+## TODO: Usage
 
 Examples:
 

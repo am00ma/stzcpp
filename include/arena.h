@@ -1,42 +1,4 @@
 #pragma once
-/*
- * Arena:
- *
- *   Fields:
- *
- *      char* beg = 0;
- *      char* end = 0;
- *      isize cap = 0;
- *
- *   Lifetime:
- *
- *      Arena();
- *
- *      Arena(isize cap_);
- *      Arena(isize cap_, Arena* src, b32 flags = 0);
- *      Arena(char* buf, isize cap_);
- *
- *      void Free();
- *
- *   Operators:
- *
- *   Methods:
- *
- *      isize Used();
- *      isize Available<V>();
- *      T*    Make<V>(isize count = 1, b32 flags = 0, A... args); // Use Alloc to allocate on arena
- *
- *   Debugging:
- *
- *      void  Print();
- *
- * Notes:
- *
- *  1. Free() always has signature `void Free();`
- *  2. Only method really used is `Make<V>`
- *  3. `cap` is needed only for debugging and `Free`
- *
- * */
 
 #include "log.h"   // Fatal, debug
 #include "range.h" // RANGE
@@ -177,10 +139,6 @@ typedef struct Arena {
         // Return with proper type info
         return r;
     }
-
-    /* ---------------------------------------------------------------------------
-     * Operators (Cannot really take T as argument unfortunately)
-     * ------------------------------------------------------------------------- */
 
     /* ---------------------------------------------------------------------------
      * Debugging

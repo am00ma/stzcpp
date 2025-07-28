@@ -108,13 +108,20 @@ int main()
 
             // Initialize a slice
             Si32 s = {&a, 10};
+            Equal(a.Used(), (isize)40, "%ld");
 
-            // Append
-            RANGE(i, s.cap) { s + i; }
+            // Append, not all the way to cap
+            RANGE(i, s.cap - 3) { s + i; }
 
             // Check values
-            CHECK(s.len == s.cap);
+            CHECK(s.len == s.cap - 3);
             RANGE(i, s.len){CHECK(*s[i] == i)};
+            Equal(a.Used(), (isize)40, "%ld"); // Still using cap space
+
+            // Reclaim space
+            s.Final(&a);
+            Equal(s.len, s.cap, "%ld");
+            Equal(a.Used(), (isize)28, "%ld"); // 4*7
         }
 
         TEST_CASE("operator+: Append more than capacity")

@@ -3,11 +3,11 @@
 ## Range over loops
 
 ```cpp
---8<-- "docs/code/include/range.h:18:23"
-```
+#define RANGE(...) RANGEx(__VA_ARGS__, RANGE4, RANGE3, RANGE2, RANGE1)(__VA_ARGS__)
+#define RANGEx(a, b, c, d, e, ...) e
 
-## For each kind of loops (TODO)
-
-```cpp
---8<-- "docs/code/include/range.h:8:13"
+#define RANGE1(i)          for (isize i = 0  ; i < 1  ; i++)
+#define RANGE2(i, b)       for (isize i = 0  ; i < (b); i++)
+#define RANGE3(i, a, b)    for (isize i = (a); i < (b); i++)
+#define RANGE4(i, a, b, c) for (isize i = (a); i < (b); i += (c))
 ```

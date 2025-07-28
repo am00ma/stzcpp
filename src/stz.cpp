@@ -8,6 +8,7 @@
 #include "arena.h"
 #include "list.h"
 #include "slice.h"
+#include "str.h"
 
 // Data
 

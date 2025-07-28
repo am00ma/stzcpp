@@ -1,6 +1,5 @@
 #include "doctest.h"
 #include "slice.h"
-#include <cstdio>
 
 int main()
 {

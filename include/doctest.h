@@ -85,26 +85,26 @@
         else { TEST_SUCCESS_CHECKS++; }                                                                                \
     } while (0);
 
-#define TEqualStr(cond1, cond2)                                                                                        \
+#define TEqualStr(str1, str2)                                                                                          \
     do {                                                                                                               \
         TEST_CHECKS++;                                                                                                 \
-        if (!(cond1 == cond2))                                                                                         \
+        if (!(str1 == str2))                                                                                           \
         {                                                                                                              \
             pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
-            pretty(COLOR_YELLOW, "   %s != %s", #cond1, #cond2);                                                       \
-            pretty(COLOR_YELLOW, "   %.*s != %.*s\n", pstr(cond1), pstr(cond2));                                       \
+            pretty(COLOR_YELLOW, "   %s != %s", #str1, #str2);                                                         \
+            pretty(COLOR_YELLOW, "   %.*s != %.*s\n", pstr(str1), pstr(str2));                                         \
         }                                                                                                              \
         else { TEST_SUCCESS_CHECKS++; }                                                                                \
     } while (0);
 
-#define TNotEqualStr(cond1, cond2)                                                                                     \
+#define TNotEqualStr(str1, str2)                                                                                       \
     do {                                                                                                               \
         TEST_CHECKS++;                                                                                                 \
-        if (!(cond1 != cond2))                                                                                         \
+        if (!(str1 != str2))                                                                                           \
         {                                                                                                              \
             pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
-            pretty(COLOR_YELLOW, "   %s == %s", #cond1, #cond2);                                                       \
-            pretty(COLOR_YELLOW, "   %.*s == %.*s\n", pstr(cond1), pstr(cond2));                                       \
+            pretty(COLOR_YELLOW, "   %s == %s", #str1, #str2);                                                         \
+            pretty(COLOR_YELLOW, "   %.*s == %.*s\n", pstr(str1), pstr(str2));                                         \
         }                                                                                                              \
         else { TEST_SUCCESS_CHECKS++; }                                                                                \
     } while (0);

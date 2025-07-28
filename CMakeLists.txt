@@ -50,6 +50,7 @@ set(public_headers
     include/arena.h
     include/list.h
     include/slice.h
+    include/str.h
     # include/str.h
     # Data
     # include/map.h

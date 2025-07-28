@@ -39,6 +39,17 @@ template <typename T> struct F : G<T> {
     }
 };
 
+// Template, but specified
+typedef struct H : G<char> {
+    char c = 6;
+
+    H(char a_, char b_)
+    {
+        a = a_;
+        b = b_;
+    }
+} H;
+
 int main()
 {
     TEST_SUITE("Inheritence")
@@ -107,6 +118,8 @@ int main()
             TEqual(sizeof(F<char>), (isize)3, "%ld");
             TEqual(sizeof(F<u16>), (isize)6, "%ld");
             TEqual(sizeof(F<u32>), (isize)12, "%ld");
+
+            TEqual(sizeof(H), (isize)3, "%ld");
         }
     }
 

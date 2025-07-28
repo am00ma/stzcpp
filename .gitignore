@@ -1,12 +1,12 @@
 /build
 /site
 /dist
+/install
+/docs/code
+/old
 
 /.cache
+/.envrc
 /compile_commands.json
-docs/prior-art/genres.drawio
-docs/genres.ods
-install
-.envrc
-docs/skeeto-public-inbox.mbox
-docs/tables.pdf
+/docs/skeeto-public-inbox.mbox
+/docs/tables.pdf

@@ -101,10 +101,13 @@ template <typename T> struct List {
 
     List<T> Copy(Arena* a)
     {
-        // If on top of arena, return directly TODO: Figure out alignment
-        // debug("[M] Copy avoided");
-        // Somehow is working inspite of alignment and stuff
-        if ((char*)buf == a->beg - (len * sizeof(T))) { return *this; }
+        // If on top of arena, return directly
+        // TODO: Why doesn't padding and alignment mess up things here?
+        if ((char*)buf == a->beg - (len * sizeof(T)))
+        {
+            // debug("[M] Copy avoided");
+            return *this;
+        }
 
         List<T> dst = List<T>(len, a);
         if (len)

@@ -49,8 +49,8 @@ set(public_headers
     # Fundamentals
     include/arena.h
     include/list.h
+    include/slice.h
     # include/str.h
-    # include/slice.h
     # Data
     # include/map.h
     # include/trie.h

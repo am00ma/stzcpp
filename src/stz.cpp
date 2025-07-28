@@ -1,13 +1,13 @@
 // Definitions
-#include "types.h"
-#include "range.h"
-#include "log.h"
 #include "doctest.h"
+#include "log.h"
+#include "range.h"
+#include "types.h"
 
 // Fundamentals
 #include "arena.h"
 #include "list.h"
-// #include "str.h"
+#include "slice.h"
 
 // Data
 

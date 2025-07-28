@@ -4,12 +4,14 @@
 
 template <typename T> struct Slice : List<T> {
 
+    // TODO: Why are these not inherited from List<T>?
     // Hack for holding, init from const literals as well
     union {
         T*       buf = 0;
         const T* cbuf;
     };
     isize len = 0;
+
     isize cap = 0;
 
     /* ---------------------------------------------------------------------------

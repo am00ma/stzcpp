@@ -1,19 +1,19 @@
 #include "doctest.h"
-#include "list.h"
+#include "slice.h"
 #include <cstdio>
 
 int main()
 {
-    TEST_SUITE("List")
+    TEST_SUITE("Slice")
     {
 
         TEST_CASE("Size: struct")
         {
             // Independent of template type
-            isize sz = 16;
-            TEqual(sizeof(List<char>), sz, "%ld");
-            TEqual(sizeof(List<u32>), sz, "%ld");
-            TEqual(sizeof(List<u16>), sz, "%ld");
+            isize sz = 24;
+            TEqual(sizeof(Slice<char>), sz, "%ld");
+            TEqual(sizeof(Slice<u32>), sz, "%ld");
+            TEqual(sizeof(Slice<u16>), sz, "%ld");
         }
 
         // Create arena on stack
@@ -22,11 +22,11 @@ int main()
         TEST_CASE("Template type: i32, char")
         {
             // Need to specify (i32[]) though
-            List<i32> b = (i32[]){1, 2, 3};
+            Slice<i32> b = (i32[]){1, 2, 3};
             TEqual(b.len, (isize)3, "%ld");
 
             // Treats '\0' as valid char and part of len
-            List<char> a = "hello";
+            Slice<char> a = "hello";
             TEqual(a.len, (isize)6, "%ld");
         }
 
@@ -38,36 +38,36 @@ int main()
             } s1_ = {};
 
             // Need to specify (s1[]) though
-            List<s1> b = (s1[]){{1, 2}, {3, 4}, {5, 6}};
+            Slice<s1> b = (s1[]){{1, 2}, {3, 4}, {5, 6}};
             TEqual(b.len, (isize)3, "%ld");
         }
 
         TEST_CASE("Initialization: Zero-init")
         {
-            List<char> x0 = {};
+            Slice<char> x0 = {};
             TEqual(x0.buf, (void*)0, "%p");
             TEqual(x0.len, (isize)0, "%ld");
 
-            List<i32> x1 = {};
+            Slice<i32> x1 = {};
             TEqual(x1.buf, (void*)0, "%p");
             TEqual(x1.len, (isize)0, "%ld");
         }
 
         TEST_CASE("Initialization: From fields")
         {
-            List<char> x0 = "hello";
-            List<char> x1 = {x0.buf, x0.len};
+            Slice<char> x0 = "hello";
+            Slice<char> x1 = {x0.buf, x0.len};
             TEqual(x1.buf, x0.buf, "%p");
             TEqual(x1.len, x0.len, "%ld");
         }
 
         TEST_CASE("Initialization: From literals")
         {
-            List<char> x0 = "hello";
+            Slice<char> x0 = "hello";
             TNotEqual(x0.buf, (void*)0, "%p");
             TEqual(x0.len, (isize)6, "%ld");
 
-            List<i32> x1 = (i32[]){1, 2, 3};
+            Slice<i32> x1 = (i32[]){1, 2, 3};
             TEqual(x1.len, (isize)3, "%ld");
         }
 
@@ -75,7 +75,7 @@ int main()
         {
             Arena temp = perm;
 
-            List<i32> x = {3, &temp, NOZERO};
+            Slice<i32> x = {3, &temp, NOZERO};
             RANGE(i, x.len) { *x[i] = i; };
             RANGE(i, x.len) { TEqual(*x[i], (i32)i, "%d"); };
         }
@@ -88,13 +88,13 @@ int main()
                 bool operator==(s1 s) { return ((a == s.a) && (b == s.b)); };
             } s1_ = {};
 
-            List<s1> x0 = {};
+            Slice<s1> x0 = {};
             TCheck(x0 == x0); // Nulls are equal
 
-            List<s1> x1 = (s1[]){{2, 4}};
-            List<s1> x2 = (s1[]){{2, 4}};
-            List<s1> x3 = (s1[]){{3, 4}};
-            List<s1> x4 = (s1[]){{4, 2}};
+            Slice<s1> x1 = (s1[]){{2, 4}};
+            Slice<s1> x2 = (s1[]){{2, 4}};
+            Slice<s1> x3 = (s1[]){{3, 4}};
+            Slice<s1> x4 = (s1[]){{4, 2}};
 
             TCheck(x1 != x0);
 
@@ -107,7 +107,7 @@ int main()
 
         TEST_CASE("Operator [i]: Indexing")
         {
-            List<char> x0 = "hello";
+            Slice<char> x0 = "hello";
             TEqual(*x0[0], 'h', "%c");
             TEqual(*x0[1], 'e', "%c");
             TEqual(*x0[2], 'l', "%c");
@@ -130,13 +130,13 @@ int main()
 
         TEST_CASE("Operator [i, j]: Sublist - By reference")
         {
-            List<char> x0 = "hello";
+            Slice<char> x0 = "hello";
             x0.len--; // Remove '\0' so negative indexing works
 
-            List<char> x1 = "llo";
+            Slice<char> x1 = "llo";
             x1.len--; // Remove '\0' so we can compare
 
-            List<char> x2 = "ll";
+            Slice<char> x2 = "ll";
             x2.len--; // Remove '\0' so we can compare
 
             List<char> y = {};
@@ -163,7 +163,7 @@ int main()
             Arena a = perm;
 
             // Needs mutable, not literal
-            List<char> z = {x0.len, &a, NOZERO};
+            Slice<char> z = {x0.len, &a, NOZERO};
             RANGE(i, x0.len) { *z[i] = *x0[i]; }
             y = z[2, 5];
 
@@ -172,7 +172,7 @@ int main()
             *y[1] = 'g';
 
             // Check mutation
-            List<char> x4 = "ggo";
+            Slice<char> x4 = "ggo";
             x4.len--;
             TCheck(y == x4);
         }
@@ -182,13 +182,13 @@ int main()
             // Borrow some memory
             Arena a = perm;
 
-            List<char> x0 = "hello";
+            Slice<char> x0 = "hello";
             x0.len--; // Remove '\0' so negative indexing works
 
-            List<char> x1 = "llo";
+            Slice<char> x1 = "llo";
             x1.len--; // Remove '\0' so we can compare
 
-            List<char> x2 = "ll";
+            Slice<char> x2 = "ll";
             x2.len--; // Remove '\0' so we can compare
 
             List<char> y = {};
@@ -211,8 +211,8 @@ int main()
             // TODO: Needs to be checked
 
             // Copy to arena
-            List<char> x0 = "hello";
-            List<char> y  = x0.Copy(&a);
+            Slice<char> x0 = "hello";
+            List<char>  y  = x0.Copy(&a);
             TCheck(y == x0);
 
             // Check usage (hello + \0)
@@ -222,8 +222,8 @@ int main()
             a = perm;
 
             // Copy to arena
-            List<i64> z0 = (i64[]){1, 2, 3, 4, 5, 6};
-            List<i64> y1 = z0.Copy(&a);
+            Slice<i64> z0 = (i64[]){1, 2, 3, 4, 5, 6};
+            List<i64>  y1 = z0.Copy(&a);
             TCheck(y1 == z0);
 
             // Check usage
@@ -233,8 +233,8 @@ int main()
             a = perm;
 
             // Copy to arena
-            List<u32> z1 = (u32[]){1, 2, 3, 4, 5, 6};
-            List<u32> y2 = z1.Copy(&a);
+            Slice<u32> z1 = (u32[]){1, 2, 3, 4, 5, 6};
+            List<u32>  y2 = z1.Copy(&a);
             TCheck(y2 == z1);
 
             // Check usage
@@ -244,7 +244,7 @@ int main()
             a = perm;
 
             // Copy to arena
-            List<u32[3]> z2 = (u32[][3]){{1, 1, 1}, {2, 2, 2}};
+            Slice<u32[3]> z2 = (u32[][3]){{1, 1, 1}, {2, 2, 2}};
             RANGE(i, 2) RANGE(j, 3) { TEqual((u32)i + 1, (*z2[i])[j], "%d"); }
 
             List<u32[3]> y3 = z2.Copy(&a);
@@ -264,8 +264,8 @@ int main()
             Arena a = perm;
 
             // Copy to arena
-            List<i16> x0 = (i16[]){1, 2, 3, 4, 5, 6};
-            List<i16> y0 = x0.Copy(&a);
+            Slice<i16> x0 = (i16[]){1, 2, 3, 4, 5, 6};
+            List<i16>  y0 = x0.Copy(&a);
             TCheck(y0 == x0);
 
             // Check usage
@@ -275,7 +275,7 @@ int main()
             a = perm;
 
             // Copy to arena
-            List<i16[3]> z2 = (i16[][3]){{1, 1, 1}, {2, 2, 2}};
+            Slice<i16[3]> z2 = (i16[][3]){{1, 1, 1}, {2, 2, 2}};
             RANGE(i, 2) RANGE(j, 3) { TEqual((i16)i + 1, (*z2[i])[j], "%d"); }
 
             List<i16[3]> y3 = z2.Copy(&a);

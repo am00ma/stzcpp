@@ -1,6 +1,5 @@
 #include "doctest.h"
 #include "list.h"
-#include <cstdio>
 
 int main()
 {

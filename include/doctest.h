@@ -1,6 +1,7 @@
 #pragma once
 
-#include "log.h"
+#include "log.h"  // title, error, pretty
+#include <cstdio> // printf, stderr, stdout
 
 // clang-format off
 #define TEST_SUITE(label)                                                                                              \

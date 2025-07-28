@@ -9,6 +9,7 @@ function(add_test_util TNAME)
 endfunction()
 
 
+add_test_stz(inheritence)
 add_test_stz(arena)
 add_test_stz(list)
 add_test_stz(slice)

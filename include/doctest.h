@@ -88,11 +88,11 @@
 #define TEqualStr(str1, str2)                                                                                          \
     do {                                                                                                               \
         TEST_CHECKS++;                                                                                                 \
-        if (!(str1 == str2))                                                                                           \
+        if (!((str1) == (str2)))                                                                                       \
         {                                                                                                              \
             pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
             pretty(COLOR_YELLOW, "   %s != %s", #str1, #str2);                                                         \
-            pretty(COLOR_YELLOW, "   %.*s != %.*s\n", pstr(str1), pstr(str2));                                         \
+            pretty(COLOR_YELLOW, "   %.*s != %.*s\n", pstr((str1)), pstr((str2)));                                     \
         }                                                                                                              \
         else { TEST_SUCCESS_CHECKS++; }                                                                                \
     } while (0);

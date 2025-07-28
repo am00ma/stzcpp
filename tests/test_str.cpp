@@ -34,6 +34,9 @@ int main()
         {
             Arena a = perm;
 
+            TEqualStr(Str("hello"), Str("hello"));
+            TNotEqualStr(Str("hello"), Str("hi"));
+
             Str a1 = "hello";
             Str a2 = "hello hi";
             Str a3 = a1.Copy(&a);
@@ -47,12 +50,18 @@ int main()
         TEST_CASE("Operator []: with literals")
         {
             Str a = "hello hi how are you";
+            TEqual(a.len, (isize)20, "%ld");
 
+            // Needs paranthesis, `Str(...)`
             TEqualStr((a[0, 5]), Str("hello"));
             TEqualStr((a[6, 8]), Str("hi"));
             TEqualStr((a[9, 12]), Str("how"));
             TEqualStr((a[13, 16]), Str("are"));
             TEqualStr((a[17, 20]), Str("you"));
+
+            // Other way of init for check, `(Str) ...`
+            Str b = a[0, 5];
+            TEqualStr(b, (Str) "hello");
         }
     }
 }

@@ -76,6 +76,8 @@ int main()
             Arena temp = perm;
 
             Slice<i32> x = {3, &temp, NOZERO};
+
+            x.len = x.cap; // NOTE: Special case, not appending
             RANGE(i, x.len) { *x[i] = i; };
             RANGE(i, x.len) { TEqual(*x[i], (i32)i, "%d"); };
         }
@@ -164,6 +166,8 @@ int main()
 
             // Needs mutable, not literal
             Slice<char> z = {x0.len, &a, NOZERO};
+
+            z.len = z.cap; // NOTE: Special case, not appending
             RANGE(i, x0.len) { *z[i] = *x0[i]; }
             y = z[2, 5];
 
@@ -172,7 +176,7 @@ int main()
             *y[1] = 'g';
 
             // Check mutation
-            Slice<char> x4 = "ggo";
+            List<char> x4 = "ggo";
             x4.len--;
             TCheck(y == x4);
         }
@@ -183,7 +187,9 @@ int main()
             Arena a = perm;
 
             Slice<char> x0 = "hello";
+            TEqual(x0.len, (isize)6, "%ld");
             x0.len--; // Remove '\0' so negative indexing works
+            TEqual(x0.len, (isize)5, "%ld");
 
             Slice<char> x1 = "llo";
             x1.len--; // Remove '\0' so we can compare

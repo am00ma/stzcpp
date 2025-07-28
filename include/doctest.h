@@ -3,7 +3,6 @@
 #include "log.h"
 
 // clang-format off
-// TODO: Can remormat to for loop as well
 #define TEST_SUITE(label)                                                                                              \
     const char* TEST_TITLE          = label;                                                                           \
     int         TEST_DONE           = 0;                                                                               \
@@ -25,8 +24,6 @@
                   TEST_SUCCESS_TOTAL, TEST_TOTAL),                                                                     \
           TEST_DONE++))
 
-// Putting statements at end of for loop makes them execute after scope
-
 #define TEST_CASE(label)                                                                                               \
     for (TEST_INDEX = 0; TEST_INDEX < 1; (pretty(COLOR_RESET, "%s|  %3d | %-50s | %8d | %8d |",                        \
                                                  (TEST_SUCCESS_CHECKS == TEST_CHECKS) ? "" : COLOR_RED,                \
@@ -37,17 +34,18 @@
                                           TEST_CHECKS = 0, TEST_SUCCESS_CHECKS = 0, TEST_INDEX++, TEST_CASES++))
 // clang-format on
 
+// Condition to trigger debugger / crash
 // https://nullprogram.com/blog/2022/06/26/
-#define ASSERT(cond)                                                                                                   \
+#define TAssert(cond)                                                                                                  \
     do {                                                                                                               \
         TEST_CHECKS++;                                                                                                 \
         if (!(cond)) { __builtin_trap(); }                                                                             \
         else { TEST_SUCCESS_CHECKS++; }                                                                                \
     } while (0);
 
-// Print failed condition, but do not crash
+// Condition to print, but do not crash
 // Diff from doctest: cannot print lhs, rhs separately
-#define CHECK(cond)                                                                                                    \
+#define TCheck(cond)                                                                                                   \
     do {                                                                                                               \
         TEST_CHECKS++;                                                                                                 \
         if (!(cond))                                                                                                   \
@@ -58,9 +56,10 @@
         else { TEST_SUCCESS_CHECKS++; }                                                                                \
     } while (0);
 
-// Diff from doctest:
-// Need to call seperate funcs to print lhs, rhs separately
-// Different for positive (==) and negative (!=)
+// Variations on Equal, NotEqual, etc. to count tests
+// Diff from doctest: Need to call seperate funcs to print lhs, rhs separately
+// So different funcs for positive (==) and negative (!=)
+
 #define TEqual(cond1, cond2, fmt)                                                                                      \
     do {                                                                                                               \
         TEST_CHECKS++;                                                                                                 \
@@ -79,8 +78,32 @@
         if (!(cond1 != cond2))                                                                                         \
         {                                                                                                              \
             pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
+            pretty(COLOR_YELLOW, "   %s == %s", #cond1, #cond2);                                                       \
+            pretty(COLOR_YELLOW, "   " fmt " == " fmt "\n", cond1, cond2);                                             \
+        }                                                                                                              \
+        else { TEST_SUCCESS_CHECKS++; }                                                                                \
+    } while (0);
+
+#define TEqualStr(cond1, cond2)                                                                                        \
+    do {                                                                                                               \
+        TEST_CHECKS++;                                                                                                 \
+        if (!(cond1 == cond2))                                                                                         \
+        {                                                                                                              \
+            pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
             pretty(COLOR_YELLOW, "   %s != %s", #cond1, #cond2);                                                       \
-            pretty(COLOR_YELLOW, "   " fmt " != " fmt "\n", cond1, cond2);                                             \
+            pretty(COLOR_YELLOW, "   %.*s != %.*s\n", pstr(cond1), pstr(cond2));                                       \
+        }                                                                                                              \
+        else { TEST_SUCCESS_CHECKS++; }                                                                                \
+    } while (0);
+
+#define TNotEqualStr(cond1, cond2)                                                                                     \
+    do {                                                                                                               \
+        TEST_CHECKS++;                                                                                                 \
+        if (!(cond1 != cond2))                                                                                         \
+        {                                                                                                              \
+            pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
+            pretty(COLOR_YELLOW, "   %s == %s", #cond1, #cond2);                                                       \
+            pretty(COLOR_YELLOW, "   %.*s == %.*s\n", pstr(cond1), pstr(cond2));                                       \
         }                                                                                                              \
         else { TEST_SUCCESS_CHECKS++; }                                                                                \
     } while (0);

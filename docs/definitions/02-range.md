@@ -1,6 +1,12 @@
 # Range
 
-## Range over loops
+## Usage
+
+```cpp
+--8<-- "docs/code/examples/definitions/example_range_1.cpp"
+```
+
+## Code
 
 ```cpp
 #define RANGE(...) RANGEx(__VA_ARGS__, RANGE4, RANGE3, RANGE2, RANGE1)(__VA_ARGS__)
@@ -12,8 +18,3 @@
 #define RANGE4(i, a, b, c) for (isize i = (a); i < (b); i += (c))
 ```
 
-## Usage
-
-```cpp
---8<-- "docs/code/examples/definitions/example_range_1.cpp"
-```

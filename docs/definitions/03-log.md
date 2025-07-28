@@ -1,5 +1,11 @@
 # Log
 
+## Usage
+
+```cpp
+--8<-- "docs/code/examples/definitions/example_log_1.cpp"
+```
+
 ## Pretty output
 
 ### Terminal Colors
@@ -183,10 +189,4 @@ Not equal version of above.
         error("    " fmt " == " fmt, cond1, cond2);                                                                    \
         __builtin_trap();                                                                                              \
     }
-```
-
-## Usage
-
-```cpp
---8<-- "docs/code/examples/definitions/example_log_1.cpp"
 ```

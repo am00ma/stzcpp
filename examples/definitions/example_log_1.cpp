@@ -1,4 +1,5 @@
 #include "log.h"   // title
+#include "str.h"   // Str print, condition checks
 #include <cstdio>  // printf inside macros
 #include <cstdlib> // Needed for exit (Fatal)
 
@@ -43,6 +44,34 @@ int main()
 
     // Will print message and return to caller
     // Return(1, "Print an error if err != 0; and return from func");
+
+    /* ------------------------------------------------------
+     *    Error Handling
+     *------------------------------------------------------*/
+
+    // Check versions print and continue like tests
+
+    // Passing
+    int a = 10;
+    Equal(a, 10, "%d");
+    CheckEqual(a, 10, "%d");
+    CheckNotEqual(a, 10, "%d");
+
+    int b = 20;
+    NotEqual(a, b, "%d");
+    CheckEqual(a, b, "%d");
+    CheckNotEqual(a, b, "%d");
+
+    // Checking strings
+    Str s1 = "a";
+    Str s2 = "b";
+    NotEqualStr(s1, s2);
+    CheckEqualStr(s1, s2);
+    CheckNotEqualStr(s1, s2);
+
+    // Need to type Str("literal")
+    CheckEqualStr(s1, Str("a"));
+    CheckNotEqualStr(s1, Str("a"));
 
     return 0;
 }

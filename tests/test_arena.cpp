@@ -217,8 +217,8 @@ int main()
             TEqual(y, (Item*)0, "%p");
         }
 
-        TEST_CASE("TODO: Non-aligned access") { CHECK(0 == 0); }
-        TEST_CASE("TODO: Multiple threads") { CHECK(0 == 0); }
+        TEST_CASE("TODO: Non-aligned access") { TCheck(0 == 0); }
+        TEST_CASE("TODO: Multiple threads") { TCheck(0 == 0); }
     }
 
     return 0;

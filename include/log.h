@@ -150,3 +150,36 @@
         error("    %.*s == %.*s", pstr(str1), pstr(str2));                                                             \
         __builtin_trap();                                                                                              \
     }
+
+// Just print and continue
+#define CheckEqual(cond1, cond2, fmt)                                                                                  \
+    if (!(cond1 == cond2))                                                                                             \
+    {                                                                                                                  \
+        error("%s:%d", __FILE__, __LINE__);                                                                            \
+        error("    %s != %s", #cond1, #cond2);                                                                         \
+        error("    " fmt " != " fmt, cond1, cond2);                                                                    \
+    }
+
+#define CheckNotEqual(cond1, cond2, fmt)                                                                               \
+    if (!(cond1 != cond2))                                                                                             \
+    {                                                                                                                  \
+        error("%s:%d", __FILE__, __LINE__);                                                                            \
+        error("    %s == %s", #cond1, #cond2);                                                                         \
+        error("    " fmt " == " fmt, cond1, cond2);                                                                    \
+    }
+
+#define CheckEqualStr(str1, str2)                                                                                      \
+    if (!(str1 == str2))                                                                                               \
+    {                                                                                                                  \
+        error("%s:%d", __FILE__, __LINE__);                                                                            \
+        error("    %s != %s", #str1, #str2);                                                                           \
+        error("    %.*s != %.*s", pstr(str1), pstr(str2));                                                             \
+    }
+
+#define CheckNotEqualStr(str1, str2)                                                                                   \
+    if (!(str1 != str2))                                                                                               \
+    {                                                                                                                  \
+        error("%s:%d", __FILE__, __LINE__);                                                                            \
+        error("    %s == %s", #str1, #str2);                                                                           \
+        error("    %.*s == %.*s", pstr(str1), pstr(str2));                                                             \
+    }

@@ -109,6 +109,10 @@
  * Testing
  * ------------------------------------------------------------------------- */
 
+// For printing %.*s
+#define pstr(s)  (int)s.len, s.buf
+#define ppstr(s) (int)s->len, s->buf
+
 // NOTE: Unfortunately, cannot print Str, need special func
 
 // Support to print lhs and rhs,

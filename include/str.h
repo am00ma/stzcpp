@@ -2,10 +2,6 @@
 
 #include "list.h"
 
-// For printing %.*s
-#define pstr(s)  (int)s.len, s.buf
-#define ppstr(s) (int)s->len, s->buf
-
 typedef struct Str : List<char> {
 
     /* ---------------------------------------------------------------------------

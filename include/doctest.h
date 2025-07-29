@@ -181,3 +181,27 @@
         }                                                                                                              \
         else { TEST_SUCCESS_CHECKS++; }                                                                                \
     } while (0);
+
+#define TNull(cond1)                                                                                                   \
+    do {                                                                                                               \
+        TEST_CHECKS++;                                                                                                 \
+        if ((cond1))                                                                                                  \
+        {                                                                                                              \
+            pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
+            pretty(COLOR_YELLOW, "   %s != (nil)", #cond1);                                                           \
+            pretty(COLOR_YELLOW, "   %p != (nil)\n", cond1);                                                          \
+        }                                                                                                              \
+        else { TEST_SUCCESS_CHECKS++; }                                                                                \
+    } while (0);
+
+#define TNotNull(cond1)                                                                                                \
+    do {                                                                                                               \
+        TEST_CHECKS++;                                                                                                 \
+        if (!(cond1))                                                                                                  \
+        {                                                                                                              \
+            pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
+            pretty(COLOR_YELLOW, "   %s == (nil)", #cond1);                                                           \
+            pretty(COLOR_YELLOW, "   %p == (nil)\n", cond1);                                                          \
+        }                                                                                                              \
+        else { TEST_SUCCESS_CHECKS++; }                                                                                \
+    } while (0);

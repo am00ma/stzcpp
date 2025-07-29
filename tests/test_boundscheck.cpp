@@ -1,5 +1,4 @@
 #include "doctest.h"
-#include "log.h"
 #include "range.h"
 
 typedef struct List {
@@ -26,27 +25,43 @@ typedef struct List {
     {
         if (len != s.len)
         {
-            // debug("[L] Found False");
+            // debug("[L] operator==: Not equal");
             return false;
         }
-        if ((len == 0) && (buf == s.buf)) { return true; } // Takes care of null vs empty case
+
+        // Takes care of null vs empty case
+        if ((len == 0) && (buf == s.buf))
+        {
+            // debug("[L] operator==: len = 0 && buf addrs are same");
+            return true;
+        }
+
         for (int i = 0; i < len; i++)
         {
-            if (buf[i] != *s[i]) return false; // Comparing by copy?
+            // NOTE: Comparing by copy?
+            if (buf[i] != *s[i])
+            {
+                // debug("[L] operator==: Not equal at %d", i);
+                return false;
+            }
         }
+
+        // debug("[L] operator==: Equality (len: %d)", len);
         return true;
     }
 
+    // Examples for len: 3
+    //   valid:              -3, -2, -1, 0, 1, 2,
+    //    null: -inf ... -4,                      3 ... inf
     char* operator[](int i)
     {
-        // Examples:
-        //   len: 3
-        //    in: -3, 0, 2
-        //   out: -inf ... -4
-        //   out: 3 ... inf
+        // Null/empty string should not return char
+        // if (len == 0), below condition is always true
 
-        if (!((i >= -1 * len) && (i < len))) { return 0; }; // Bounds check with valid return (just null)
+        // Bounds check with valid return (just null) - better for testing
+        if (!((i >= -1 * len) && (i < len))) { return 0; };
 
+        // // Fatal on out of bounds access
         // AssertMsg((i >= -1 * len) && (i < len), // Bounds check
         //           "\ni = %d\n"                  //
         //           "  |           len = %d\n"    //
@@ -55,10 +70,13 @@ typedef struct List {
         //           i, len, i >= -1 * len, i < len);
 
         if (i < 0) { i = len + i; } // Negative
+        // debug("[L]  len, i >>  %d, %d", len, i);
 
         return &buf[i]; // Return reference
     }
 
+    // Examples for len: 3
+    // Behaviour devided by (left | bottom) / (top & right) / (within table)
     List operator[](int i, int j)
     {
         // debug("[L]  len >>  %d", len);
@@ -67,7 +85,7 @@ typedef struct List {
         // Handle left or bottom - return empty
         if ((i >= len) || (j <= -1 * len))
         {
-            // debug("[L] left or bottom >> i, j: %d, %d", i, j);
+            // debug("[L] left | bottom >> i, j: %d, %d", i, j);
             return List();
         }
 
@@ -123,6 +141,36 @@ int main()
             // Over bounds
             RANGE(i, 3, 10) { TNull(a[i]); }
             RANGE(i, -10, -3) { TNull(a[i]); }
+
+            // Null String in python:
+            //
+            // a = ""
+            //
+            // Traceback (most recent call last):
+            //   File "/home/x/hub/repos/study/cpp/stzcpp/docs/fundamentals/python-list.py", line 2, in <module>
+            //     a[0]
+            //     ~^^^
+            // IndexError: string index out of range
+
+            // Empty string
+            List b = "";
+            TEqualInt(b.len, 0);
+            TNotNull(b.buf);
+
+            // Taking index will make return char* of 0
+            TNull(b[0]);
+            TNull(b[-5]);
+
+            // Null string
+            List c = {};
+            TEqualInt(c.len, 0);
+            TNull(c.buf);
+            TNull(c[0]);
+            TNull(c[-5]);
+
+            // Same for filled string as well
+            TNotNull(a[0]);
+            TNull(a[-5]);
         }
 
         TEST_CASE("Operator [i, j]: Like python")
@@ -229,6 +277,12 @@ int main()
 
             TEqualStr((a[-2, 4]), List("el"));
             TEqualStr((a[-1, 4]), List("l"));
+        }
+
+        TEST_CASE("Operator [i]: By reference and by value")
+        {
+            //
+            //
         }
     }
 

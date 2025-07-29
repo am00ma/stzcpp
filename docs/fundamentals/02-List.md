@@ -14,6 +14,35 @@ Examples:
 | --- | ---------- |
 | 1   | Table rows |
 
+## Python
+
+operator []: Single indexing
+
+{..., -4} U {3, ...}: `IndexError: list index out of range`
+
+|   i | `a[i]` |
+| --: | ------ |
+|  -3 | h      |
+|  -2 | e      |
+|  -1 | l      |
+|   0 | h      |
+|   1 | e      |
+|   2 | l      |
+
+operator []: Double indexing
+
+|     | -4  | -3  | -2  | -1  | 0   | 1   | 2   | 3   | 4   |
+| --: | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|  -4 | .   | .   | h   | he  | .   | h   | he  | hel | hel |
+|  -3 | .   | .   | h   | he  | .   | h   | he  | hel | hel |
+|  -2 | .   | .   | .   | e   | .   | .   | e   | el  | el  |
+|  -1 | .   | .   | .   | .   | .   | .   | .   | l   | l   |
+|   0 | .   | .   | h   | he  | .   | h   | he  | hel | hel |
+|   1 | .   | .   | .   | e   | .   | .   | e   | el  | el  |
+|   2 | .   | .   | .   | .   | .   | .   | .   | l   | l   |
+|   3 | .   | .   | .   | .   | .   | .   | .   | .   | .   |
+|   4 | .   | .   | .   | .   | .   | .   | .   | .   | .   |
+
 ## API
 
 ```cpp

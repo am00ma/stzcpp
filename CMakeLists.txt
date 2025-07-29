@@ -73,6 +73,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
             -Wall
             -pedantic
             -fno-exceptions
+            -fsanitize=address
     )
 endif()
 

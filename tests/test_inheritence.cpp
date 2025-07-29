@@ -1,6 +1,10 @@
 #include "doctest.h"
 #include "types.h"
 
+/* ---------------------------------------------------------------------------
+ * Basics
+ * ------------------------------------------------------------------------- */
+
 // Constant struct
 typedef struct A {
     i32 a = 4;
@@ -22,6 +26,11 @@ typedef struct B : A {
 template <typename T> struct G {
     T a = 4;
     T b = 5;
+
+    // Operator - returning by 'val' of struct
+    G<T>& operator+(T d) { return *this; }
+    G<T>  operator-(T d) { return *this; }
+    // Why both of the above are valid return types?
 };
 
 // Child generic struct
@@ -40,15 +49,25 @@ template <typename T> struct F : G<T> {
 };
 
 // Template, but specified
-typedef struct H : G<char> {
+typedef struct H1 : G<char> {
     char c = 6;
 
-    H(char a_, char b_)
+    H1() = default;
+
+    H1(char a_, char b_)
     {
         a = a_;
         b = b_;
     }
-} H;
+
+    H1(G<char> a_) { c = a_.b; }
+
+} H1;
+
+// Template, but no initializer
+typedef struct H2 : G<char> {
+    char c = 6;
+} H2;
 
 int main()
 {
@@ -119,7 +138,37 @@ int main()
             TEqual(sizeof(F<u16>), (isize)6, "%ld");
             TEqual(sizeof(F<u32>), (isize)12, "%ld");
 
-            TEqual(sizeof(H), (isize)3, "%ld");
+            TEqual(sizeof(H1), (isize)3, "%ld");
+            TEqual(sizeof(H2), (isize)3, "%ld");
+        }
+
+        TEST_CASE("Initialization: Templated struct")
+        {
+            H1 h1a = {3, 5}; // a, b
+            TEqual(h1a.c, 6, "%d");
+
+            // H1 h1b = {3, 5, 7}; // Fails, does not treat as a,b,c
+            // TEqual(h1.c, 0, "%d");
+
+            H2 h2 = {3, 5, 7}; // Treats as a,b,c
+            TEqual(h2.c, 7, "%d");
+        }
+
+        TEST_CASE("Operator: Templated struct")
+        {
+
+            // Works for base class
+            G<i32> ga = {3, 5};
+            G<i32> gb = ga + (i32)5;
+
+            H1 h1a = {3, 5}; // a, b
+            // H1 h1b = h1a + 5;
+            // Fails : 1. No viable conversion from `G<char>` to `H1` [typecheck_nonviable_condition]
+            // Unless constructor `H1(G<char>)` is defined
+
+            H1      h1b = h1a + 5; // Now works
+            G<char> gc  = h1a + 5; // Also works
+            G<char> gd  = h1a - 5; // Also works, even though `operator-` has `G<char>&` return type
         }
     }
 

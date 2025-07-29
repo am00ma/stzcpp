@@ -108,3 +108,76 @@
         }                                                                                                              \
         else { TEST_SUCCESS_CHECKS++; }                                                                                \
     } while (0);
+
+// NOTE: Extra shortcut for int, long and addr
+#define TEqualInt(cond1, cond2)                                                                                        \
+    do {                                                                                                               \
+        TEST_CHECKS++;                                                                                                 \
+        if (!(cond1 == cond2))                                                                                         \
+        {                                                                                                              \
+            pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
+            pretty(COLOR_YELLOW, "   %s != %s", #cond1, #cond2);                                                       \
+            pretty(COLOR_YELLOW, "   %d != %d\n", cond1, cond2);                                                       \
+        }                                                                                                              \
+        else { TEST_SUCCESS_CHECKS++; }                                                                                \
+    } while (0);
+
+#define TNotEqualInt(cond1, cond2)                                                                                     \
+    do {                                                                                                               \
+        TEST_CHECKS++;                                                                                                 \
+        if (!(cond1 != cond2))                                                                                         \
+        {                                                                                                              \
+            pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
+            pretty(COLOR_YELLOW, "   %s == %s", #cond1, #cond2);                                                       \
+            pretty(COLOR_YELLOW, "   %d == %d\n", cond1, cond2);                                                       \
+        }                                                                                                              \
+        else { TEST_SUCCESS_CHECKS++; }                                                                                \
+    } while (0);
+
+#define TEqualLong(cond1, cond2)                                                                                       \
+    do {                                                                                                               \
+        TEST_CHECKS++;                                                                                                 \
+        if (!(cond1 == cond2))                                                                                         \
+        {                                                                                                              \
+            pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
+            pretty(COLOR_YELLOW, "   %s != %s", #cond1, #cond2);                                                       \
+            pretty(COLOR_YELLOW, "   %ld != %ld\n", cond1, cond2);                                                     \
+        }                                                                                                              \
+        else { TEST_SUCCESS_CHECKS++; }                                                                                \
+    } while (0);
+
+#define TNotEqualLong(cond1, cond2)                                                                                    \
+    do {                                                                                                               \
+        TEST_CHECKS++;                                                                                                 \
+        if (!(cond1 != cond2))                                                                                         \
+        {                                                                                                              \
+            pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
+            pretty(COLOR_YELLOW, "   %s == %s", #cond1, #cond2);                                                       \
+            pretty(COLOR_YELLOW, "   %ld == %ld\n", cond1, cond2);                                                     \
+        }                                                                                                              \
+        else { TEST_SUCCESS_CHECKS++; }                                                                                \
+    } while (0);
+
+#define TEqualAddr(cond1, cond2)                                                                                       \
+    do {                                                                                                               \
+        TEST_CHECKS++;                                                                                                 \
+        if (!(cond1 == cond2))                                                                                         \
+        {                                                                                                              \
+            pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
+            pretty(COLOR_YELLOW, "   %s != %s", #cond1, #cond2);                                                       \
+            pretty(COLOR_YELLOW, "   %p != %p\n", cond1, cond2);                                                       \
+        }                                                                                                              \
+        else { TEST_SUCCESS_CHECKS++; }                                                                                \
+    } while (0);
+
+#define TNotEqualAddr(cond1, cond2)                                                                                    \
+    do {                                                                                                               \
+        TEST_CHECKS++;                                                                                                 \
+        if (!(cond1 != cond2))                                                                                         \
+        {                                                                                                              \
+            pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
+            pretty(COLOR_YELLOW, "   %s == %s", #cond1, #cond2);                                                       \
+            pretty(COLOR_YELLOW, "   %p == %p\n", cond1, cond2);                                                       \
+        }                                                                                                              \
+        else { TEST_SUCCESS_CHECKS++; }                                                                                \
+    } while (0);

@@ -10,6 +10,8 @@ endfunction()
 
 
 add_test_stz(inheritence)
+add_test_stz(lssb)
+
 add_test_stz(arena)
 add_test_stz(list)
 add_test_stz(slice)

@@ -66,12 +66,12 @@ int main()
             TEqual(x1.cap, (isize)0, "%ld");
         }
 
-        TEST_CASE("Initialization: From List")
+        TEST_CASE("Initialization: From List vs from buffer")
         {
             Slice<char> x0 = List<char>("hello");
             Slice<char> x1 = {x0.buf, x0.len};
             TEqual(x1.buf, x0.buf, "%p");
-            TEqual(x1.len, x0.len, "%ld");
+            TEqual(x1.len, (isize)0, "%ld");
             TEqual(x1.cap, x0.cap, "%ld");
         }
 
@@ -91,8 +91,7 @@ int main()
             Arena temp = perm;
 
             Slice<i32> x = {3, &temp, NOZERO};
-            List<i32>  y = {};
-            RANGE(i, x.len) { y = x + i; };
+            RANGE(i, x.len) { x += i; };
             RANGE(i, x.len) { TEqual(*x[i], (i32)i, "%d"); };
         }
 
@@ -102,15 +101,17 @@ int main()
 
             Slice<i32> x = {3, &temp, NOZERO};
             List<i32>  y = (i32[]){1, 2, 3};
-            x + y;
+
+            x += y;
             TCheck(x == y);
 
             Slice<i32> x0 = {4, &temp, NOZERO};
             List<i32>  y1 = (i32[]){1, 2};
             List<i32>  y2 = (i32[]){3, 4};
             List<i32>  y3 = (i32[]){1, 2, 3, 4};
-            x0 + y1;
-            x0 + y2;
+
+            x0 += y1;
+            x0 += y2;
             TCheck(x0 == y3);
         }
 
@@ -118,18 +119,19 @@ int main()
         {
             Arena temp = perm;
 
-            Slice<i32> x = {3, &temp, NOZERO};
-            List<i32>  y = (i32[]){1, 2, 3};
-            x + y;
+            Slice<i32> x  = {3, &temp, NOZERO};
+            List<i32>  y  = (i32[]){1, 2, 3};
+            x            += y;
             TCheck(x == y);
 
             Slice<i32> x0 = {4, &temp, NOZERO};
             List<i32>  y1 = (i32[]){1, 2};
             List<i32>  y2 = (i32[]){3, 4};
             List<i32>  y3 = (i32[]){1, 2, 3, 4};
-            x0 + y1;
-            x0 + y2;
-            x0 + (i32[]){1}; // Dropped with error
+
+            x0 += y1;
+            x0 += y2;
+            x0 += (i32[]){1}; // Dropped with error
             TCheck(x0 == y3);
         }
     }

@@ -57,68 +57,42 @@ template <typename T> struct List {
     bool operator==(List<T> s)
     {
         if (len != s.len) { return false; }
-        if ((len == 0) && (buf == s.buf)) { return true; } // Takes care of null vs empty case
-        RANGE(i, len)
-        {
-            if (buf[i] != *s[i]) return false; // Comparing by copy?
-        }
+        if ((len == 0) && (s.len == 0)) { return true; } // Empty strings are equal
+        RANGE(i, len) if (buf[i] != *s[i]) return false;
         return true;
     }
 
     // By reference (supports negative indices)
     T* operator[](isize i)
     {
-        Assert(((i >= -1 * len) && (i < len))); // Bounds check
-        if (i < 0) { i = len + i; }             // Negative
-        return &buf[i];                         // Return reference
+        if (!((i >= -1 * len) && (i < len))) { return 0; };
+        if (i < 0) { i = len + i; }
+        return &buf[i];
     }
 
     // [i - j]th items by reference, supporting negative indices
     List<T> operator[](isize i, isize j)
     {
-        // Bounds check
-        Assert(((i >= -1 * len) && (i < len)));
-        Assert(((j > -1 * len) && (j <= len)));
-
-        // Negative to positive
+        if ((i >= len) || (j <= -1 * len)) { return List(); }
+        if ((i <= -1 * len) && (j >= len)) { return *this; }
+        if (j >= len) { j = len; }
+        if (i <= -1 * len) { i = -1 * len; }
         if (i < 0) { i = len + i; }
         if (j < 0) { j = len + j; }
-
-        // Check overlap given assured both positive (so also for [i, i] for example)
-        if ((i > j) && (j >= 0)) { return List<T>(&buf[i], 0); }; // 0 >= j > i
-
-        // Guaranteed only if j >= i (if i==j, len=cap=0, but address is of ith element)
-        return List<T>(&buf[i], j - i);
-    }
-
-    // [i - j]th items by copy, supporting negative indices
-    List<T> operator[](isize i, isize j, Arena* a)
-    {
-        List<T> slice = (*this)[i, j];
-        if (slice.len) { slice = slice.Copy(a); }
-        return slice;
+        if (i >= j) { return List(&buf[i], 0); };
+        return List(&buf[i], j - i);
     }
 
     /* ---------------------------------------------------------------------------
      * Methods
      * ------------------------------------------------------------------------- */
 
+    // Copy to arena
     List<T> Copy(Arena* a)
     {
-        // If on top of arena, return directly
-        // TODO: Why doesn't padding and alignment mess up things here?
-        if ((char*)buf == a->beg - (len * sizeof(T)))
-        {
-            // debug("[M] Copy avoided");
-            return *this;
-        }
-
+        if ((char*)buf == a->beg - (len * sizeof(T))) { return *this; }
         List<T> dst = List<T>(len, a);
-        if (len)
-        {
-            // debug("[M] Copied");
-            memcpy(dst.buf, buf, len * sizeof(T));
-        }
+        if (len) { memcpy(dst.buf, buf, len * sizeof(T)); }
         return dst;
     }
 

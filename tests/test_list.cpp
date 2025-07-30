@@ -176,32 +176,6 @@ int main()
             TCheck(y == x4);
         }
 
-        TEST_CASE("Operator [i, j, a]: Sublist - By copy")
-        {
-            // Borrow some memory
-            Arena a = perm;
-
-            List<char> x0 = "hello";
-            x0.len--; // Remove '\0' so negative indexing works
-
-            List<char> x1 = "llo";
-            x1.len--; // Remove '\0' so we can compare
-
-            List<char> x2 = "ll";
-            x2.len--; // Remove '\0' so we can compare
-
-            List<char> y = {};
-
-            y = x0[2, 5, &a]; // llo
-            TCheck(y == x1);
-
-            y = x0[-3, 5, &a]; // llo
-            TCheck(y == x1);
-
-            y = x0[-3, -1, &a]; // ll
-            TCheck(y == x2);
-        }
-
         TEST_CASE("Method: Copy (well-aligned)")
         {
             // Borrow some memory

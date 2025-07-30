@@ -67,20 +67,20 @@ typedef struct Str : List<char> {
 
     template <isize N> constexpr Str(char (&s)[N])
     {
-        List<char>::buf = s;
-        List<char>::len = N - 1;
+        buf = s;
+        len = N - 1;
     }
 
     template <isize N> constexpr Str(const char (&s)[N])
     {
-        List<char>::cbuf = s;
-        List<char>::len  = N - 1;
+        cbuf = s;
+        len  = N - 1;
     }
 
     Str(List<char> l)
     {
-        List<char>::buf = l.buf;
-        List<char>::len = l.len;
+        buf = l.buf;
+        len = l.len;
     }
 
 } Str;
@@ -103,7 +103,7 @@ template <typename T> struct Slice : List<T> {
     {
         List<T>::buf = l.buf;
         List<T>::len = l.len;
-        cap          = List<T>::len;
+        cap          = l.len;
     };
 
     Slice<T> operator+=(T val)
@@ -179,6 +179,15 @@ typedef struct Buf : Slice<char> {
             }
         }
         return *this;
+    };
+
+    // Shrinks arena
+    // NOTE: provided no new objects after declaration of Buf
+    Str Final(Arena* a)
+    {
+        a->beg -= cap - List<char>::len;
+        cap     = List<char>::len; // So nothing can be added later
+        return List<char>(List<char>::buf, List<char>::len);
     };
 
 } Buf;

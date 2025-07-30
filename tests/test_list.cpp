@@ -74,7 +74,7 @@ int main()
         {
             Arena temp = perm;
 
-            List<i32> x = {3, &temp, NOZERO};
+            List<i32> x = {&temp, 3,  NOZERO};
             RANGE(i, x.len) { *x[i] = i; };
             RANGE(i, x.len) { TEqual(*x[i], (i32)i, "%d"); };
         }
@@ -162,7 +162,7 @@ int main()
             Arena a = perm;
 
             // Needs mutable, not literal
-            List<char> z = {x0.len, &a, NOZERO};
+            List<char> z = {&a, x0.len,  NOZERO};
             RANGE(i, x0.len) { *z[i] = *x0[i]; }
             y = z[2, 5];
 

@@ -79,7 +79,7 @@ int main()
         {
             Arena temp = perm;
 
-            Slice<i32> x = {3, &temp, NOZERO};
+            Slice<i32> x = {&temp, 3, NOZERO};
 
             x.len = x.cap; // NOTE: Special case, not appending
             RANGE(i, x.len) { *x[i] = i; };
@@ -90,7 +90,7 @@ int main()
         {
             Arena temp = perm;
 
-            Slice<i32> x = {3, &temp, NOZERO};
+            Slice<i32> x = {&temp, 3, NOZERO};
             RANGE(i, x.len) { x += i; };
             RANGE(i, x.len) { TEqual(*x[i], (i32)i, "%d"); };
         }
@@ -99,13 +99,13 @@ int main()
         {
             Arena temp = perm;
 
-            Slice<i32> x = {3, &temp, NOZERO};
+            Slice<i32> x = {&temp, 3, NOZERO};
             List<i32>  y = (i32[]){1, 2, 3};
 
             x += y;
             TCheck(x == y);
 
-            Slice<i32> x0 = {4, &temp, NOZERO};
+            Slice<i32> x0 = {&temp, 4, NOZERO};
             List<i32>  y1 = (i32[]){1, 2};
             List<i32>  y2 = (i32[]){3, 4};
             List<i32>  y3 = (i32[]){1, 2, 3, 4};
@@ -119,12 +119,12 @@ int main()
         {
             Arena temp = perm;
 
-            Slice<i32> x  = {3, &temp, NOZERO};
+            Slice<i32> x  = {&temp, 3, NOZERO};
             List<i32>  y  = (i32[]){1, 2, 3};
             x            += y;
             TCheck(x == y);
 
-            Slice<i32> x0 = {4, &temp, NOZERO};
+            Slice<i32> x0 = {&temp, 4, NOZERO};
             List<i32>  y1 = (i32[]){1, 2};
             List<i32>  y2 = (i32[]){3, 4};
             List<i32>  y3 = (i32[]){1, 2, 3, 4};

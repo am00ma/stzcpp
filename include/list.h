@@ -43,7 +43,7 @@ template <typename T> struct List {
     }
 
     // From arena (zeroed, defaults, non-zeroed as needed)
-    List<T>(isize len_, Arena* a, b32 flags = 0)
+    List<T>(Arena* a, isize len_, b32 flags = 0)
     {
         buf = a->Make<T>(len_, flags);
         len = len_;
@@ -91,7 +91,7 @@ template <typename T> struct List {
     List<T> Copy(Arena* a)
     {
         if ((char*)buf == a->beg - (len * sizeof(T))) { return *this; }
-        List<T> dst = List<T>(len, a);
+        List<T> dst = List<T>(a, len);
         if (len) { memcpy(dst.buf, buf, len * sizeof(T)); }
         return dst;
     }

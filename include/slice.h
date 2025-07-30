@@ -32,7 +32,7 @@ template <typename T> struct Slice : List<T> {
         cap          = cap_;
     }
 
-    // From List (only len, full capacity)
+    // From List (cap = len)
     Slice(List<T> l)
     {
         List<T>::buf = l.buf;
@@ -40,9 +40,8 @@ template <typename T> struct Slice : List<T> {
         cap          = l.len;
     }
 
-    // From arena (zeroed, defaults, non-zeroed as needed)
-    // With cap, but len = 0
-    Slice<T>(isize cap_, Arena* a, b32 flags = 0)
+    // From arena (cap = cap_, len = 0; zeroed, defaults, non-zeroed)
+    Slice<T>(Arena* a, isize cap_, b32 flags = 0)
     {
         List<T>::buf = a->Make<T>(cap_, flags);
         List<T>::len = 0;

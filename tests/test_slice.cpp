@@ -131,7 +131,7 @@ int main()
 
             x0 += y1;
             x0 += y2;
-            x0 += (i32[]){1}; // Dropped with error
+            // x0 += (i32[]){1}; // Assert and exit
             TCheck(x0 == y3);
         }
     }

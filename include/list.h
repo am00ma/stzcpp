@@ -2,6 +2,7 @@
 
 #include "arena.h"
 
+// Similar to std::array
 template <typename T> struct List {
 
     /* ---------------------------------------------------------------------------
@@ -65,7 +66,7 @@ template <typename T> struct List {
     // By reference (supports negative indices)
     T* operator[](isize i)
     {
-        if (!((i >= -1 * len) && (i < len))) { return 0; };
+        Assert((i >= -1 * len) && (i < len));
         if (i < 0) { i = len + i; }
         return &buf[i];
     }
@@ -90,10 +91,16 @@ template <typename T> struct List {
     // Copy to arena
     List<T> Copy(Arena* a)
     {
-        if ((char*)buf == a->beg - (len * sizeof(T))) { return *this; }
         List<T> dst = List<T>(a, len);
         if (len) { memcpy(dst.buf, buf, len * sizeof(T)); }
         return dst;
+    }
+
+    List<T> Concat(Arena* a, List<T> head, List<T> tail)
+    {
+        if (!head.buf || head.buf + head.len != a->beg) { head = head.Copy(a); }
+        head.len += tail.Copy(a).len;
+        return head;
     }
 
     /* ---------------------------------------------------------------------------

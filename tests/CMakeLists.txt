@@ -12,6 +12,7 @@ endfunction()
 add_test_stz(inheritence)
 add_test_stz(lssb)
 add_test_stz(boundscheck)
+add_test_stz(allocation)
 
 add_test_stz(arena)
 add_test_stz(list)

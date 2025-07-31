@@ -140,7 +140,7 @@ typedef struct Str : List<char> {
             isize pos = len - (start - buf);
             if (pos || !ignore_empty) { parts += Str(start, len - (start - buf)); }
         }
-        parts.Final(a);
+        parts.Shrink(a);
         return parts;
     };
 
@@ -157,7 +157,7 @@ typedef struct Str : List<char> {
             parts += *strings[i];
             parts += *this;
         }
-        Str out = parts.Final(a);
+        Str out = parts.Shrink(a);
         return out;
     };
 

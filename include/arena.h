@@ -101,6 +101,7 @@ typedef struct Arena {
         isize align   = alignof(T);
         isize objsize = sizeof(T);
         isize pad     = -(uptr)beg & (align - 1); // Some way to approx mod(a,b)
+        debug("pad: %ld , align: %ld, size: %ld", pad, alignof(T), sizeof(T));
 
         // Check if we have enough space to allocate
         if (count > (end - beg - pad) / objsize)
@@ -143,7 +144,6 @@ typedef struct Arena {
     /* ---------------------------------------------------------------------------
      * Operator
      * ------------------------------------------------------------------------- */
-
 
     /* ---------------------------------------------------------------------------
      * Debugging

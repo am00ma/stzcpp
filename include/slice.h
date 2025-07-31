@@ -1,7 +1,9 @@
 #pragma once
 
 #include "list.h"
+#include "log.h"
 
+// Similar to std::vector, but not dynamic
 template <typename T> struct Slice : List<T> {
 
     /* ---------------------------------------------------------------------------
@@ -16,7 +18,7 @@ template <typename T> struct Slice : List<T> {
 
     Slice() = default;
 
-    // From fields
+    // From fields, in order
     Slice(T* buf_, isize len_, isize cap_)
     {
         List<T>::buf = buf_;
@@ -24,7 +26,7 @@ template <typename T> struct Slice : List<T> {
         cap          = cap_;
     }
 
-    // From List (only cap, so empty)
+    // From buf (only cap, so assume empty)
     Slice(T* buf_, isize cap_)
     {
         List<T>::buf = buf_;
@@ -50,8 +52,9 @@ template <typename T> struct Slice : List<T> {
 
     // Shrinks arena
     // NOTE: provided no new objects after declaration of Buf
-    List<T> Final(Arena* a)
+    List<T> Shrink(Arena* a)
     {
+        // Can check above condition like in Copy!
         a->beg -= cap - (List<T>::len * sizeof(T));
         cap     = List<T>::len; // So nothing can be added later
         return List<T>(List<T>::buf, List<T>::len);
@@ -61,32 +64,46 @@ template <typename T> struct Slice : List<T> {
      * Operators
      * ------------------------------------------------------------------------- */
 
-    // Append an item and increment len, exactly same as Append
-    List<T> operator+=(T val)
+    // Append item, increment len
+    Slice<T>& operator+=(T val)
     {
-        if (List<T>::len + 1 <= cap)
-        {
-            List<T>::buf[List<T>::len] = val;
-            List<T>::len++;
-        }
-        else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", List<T>::len + 1, cap); }
+        Assert(List<T>::len < cap);
+        List<T>::buf[List<T>::len] = val;
+        List<T>::len++;
         return *this;
     }
 
-    // Extend slice by copying items (unrolled operator+)
-    List<T> operator+=(List<T> val)
+    // Extend slice, increment len , TODO: prob can do this with memcpy
+    Slice<T>& operator+=(List<T> val)
     {
-        RANGE(i, val.len)
-        {
-            if (List<T>::len + 1 <= cap)
-            {
-                List<T>::buf[List<T>::len] = *val[i];
-                List<T>::len++;
-            }
-            else { error("Overflow: len + 1 (%ld) <= cap (%ld)\nDropping item\n", List<T>::len + 1, cap); }
-        }
-        return List<T>(List<T>::buf, List<T>::len);
+        Assert(List<T>::len + val.len <= cap);
+        if (val.len) { memcpy(val.buf, List<T>::buf, val.len * sizeof(T)); }
+        List<T>::len += val.len;
+        return *this;
     }
+
+    /* ---------------------------------------------------------------------------
+     * Methods
+     * ------------------------------------------------------------------------- */
+
+    // enum { SLICE_INITIAL_CAP = 4 };
+
+    // void *push_(Arena *a, void *data, ptrdiff_t *pcap, ptrdiff_t size)
+    // {
+    //     ptrdiff_t cap   = *pcap;
+    //     ptrdiff_t align = _Alignof(void *);
+    //
+    //     if (!data || a->beg != (char *)data + cap*size) {
+    //         void *copy = alloc(a, cap, size, align);
+    //         if (data) memcpy(copy, data, cap*size);
+    //         data = copy;
+    //     }
+    //
+    //     ptrdiff_t extend = cap ? cap : SLICE_INITIAL_CAP;
+    //     alloc(a, extend, size, 1);  // already aligned
+    //     *pcap = cap + extend;
+    //     return data;
+    // }
 
     /* ---------------------------------------------------------------------------
      * Debugging

@@ -15,6 +15,10 @@ Examples:
 | 7   | Using threads to load files async                                        |
 | 8   | Aligned variable length structs                                          |
 
+## Other allocators
+
+https://github.com/mtrebi/memory-allocators.git
+
 ## API
 
 ```cpp
@@ -52,6 +56,25 @@ typedef struct Arena{
     Arena a        = Arena(buf, cap);
 
 ```
+
+
+## Algorithms
+
+Assume types are represented by (name, size, align).
+
+Define some arbit types:
+```cpp
+
+typedef struct {
+    const char* name;
+    int size;
+    int align;
+} Type;
+
+Type types[5] = { {"char", 1, 1}, {"char", 1, 1}, {"char", 1, 1}}
+
+```
+
 
 ## Code
 

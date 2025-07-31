@@ -67,6 +67,14 @@ Req reqs[] = {
 };
 isize m = sizeof(reqs) / sizeof(Req);
 
+typedef enum {
+
+    NOZERO   = 0x1,
+    SOFTFAIL = 0x2,
+    DEFAULTS = 0x4,
+
+} ArenaFlags;
+
 typedef struct Arena {
     char* beg = 0;
     char* end = 0;
@@ -99,6 +107,65 @@ typedef struct Arena {
         print_arena(i, this, reqs[i]);
 
         return p;
+    }
+
+    // How many objects can be allocated? TODO: Check floor, ceil
+    template <typename T, typename... A> isize Available()
+    {
+        isize pad = -(uptr)beg & (alignof(T) - 1);
+        return (end - beg - pad) / sizeof(T);
+    }
+
+    // Wrapper with support for defaults and typing
+    template <typename T, typename... A> T* RealMake(isize count = 1, b32 flags = 0, A... args)
+    {
+        // Null behaviour
+        if (count == 0) return 0;
+
+        // If count < 0, things are really messed up
+        Assert(count > 0);
+
+        // Compute leftover after accounting for alignment
+        isize align   = alignof(T);
+        isize objsize = sizeof(T);
+        isize pad     = -(uptr)beg & (align - 1); // Some way to approx mod(a,b)
+        // debug("pad: %ld , align: %ld, size: %ld", pad, alignof(T), sizeof(T));
+
+        // Check if we have enough space to allocate
+        if (count > (end - beg - pad) / objsize)
+        {
+            // SOFTFAIL support
+            if (flags & SOFTFAIL) return 0;
+
+            // Else drop to debugger
+            Assert(true);
+        }
+
+        // Advance the arena
+        isize total  = count * objsize;
+        char* p      = beg + pad;
+        beg         += pad + total;
+        // debug("[A] Used: %ld / Cap: %ld (pad: %ld)", cap - (end - beg), cap, pad);
+
+        // By default, zero initialized
+        if (!(flags & NOZERO))
+        {
+            // debug("[A] Memset: %ld", total);
+            p = (char*)memset(p, 0, total);
+        }
+
+        // Convert to proper type
+        T* r = (T*)p;
+
+        // Allows for zero / default init (Needs to be specially requested through flags)
+        // NOTE: needs `#include <new>`: https://en.cppreference.com/w/cpp/language/new#Placement_new
+        if (flags & DEFAULTS)
+        {
+            RANGE(i, count) { new ((void*)&r[i]) T(args...); }
+        }
+
+        // Return with proper type info
+        return r;
     }
 
 } Arena;

@@ -77,7 +77,7 @@ template <typename T> struct Slice : List<T> {
     Slice<T>& operator+=(List<T> val)
     {
         Assert(List<T>::len + val.len <= cap);
-        if (val.len) { memcpy(val.buf, List<T>::buf, val.len * sizeof(T)); }
+        if (val.len) { memcpy(&List<T>::buf[List<T>::len], val.buf, val.len * sizeof(T)); }
         List<T>::len += val.len;
         return *this;
     }

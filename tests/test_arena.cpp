@@ -136,12 +136,30 @@ int main()
         {
             Arena a = perm;
             i32*  x = a.Make<i32>();
+            TNotNull(x);
             TEqual(a.Used(), (isize)4, "%ld");
+            TEqual(a.Available<i32>(), (isize)255, "%ld");
+            TEqual(a.Available<i16>(), (isize)510, "%ld");
+            TEqual(a.Available<char>(), (isize)1020, "%ld");
+
+            // Zero count
+            i32* y = a.Make<i32>(0);
+            TNull(y);
+            TEqual(a.Used(), (isize)4, "%ld");
+            TEqual(a.Available<i32>(), (isize)255, "%ld");
+            TEqual(a.Available<i16>(), (isize)510, "%ld");
+            TEqual(a.Available<char>(), (isize)1020, "%ld");
+
+            i16* z = a.Make<i16>(3);
+            TNotNull(z);
+            TEqual(a.Used(), (isize)10, "%ld");
+            TEqual(a.Available<i32>(), (isize)253, "%ld"); // Alignment
+            TEqual(a.Available<i16>(), (isize)507, "%ld");
+            TEqual(a.Available<char>(), (isize)1014, "%ld");
         }
 
         TEST_CASE("Alloc: Allocated sizes (half aligned)")
         {
-            // NOTE: only 2 used
             Arena a = perm;
             i16*  x = a.Make<i16>();
             TEqual(a.Used(), (isize)2, "%ld");
@@ -158,6 +176,13 @@ int main()
         typedef struct Item {
             i32 a = 4;
             i32 b = 8;
+
+            Item* Copy(Arena* a)
+            {
+                Item* val = a->Make<Item>();
+                return val;
+            }
+
         } Item;
 
         TEST_CASE("Alloc: Zeroed for structs")

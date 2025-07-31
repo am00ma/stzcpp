@@ -83,7 +83,7 @@ typedef struct Arena {
 
     isize Used() { return cap - (end - beg); }
 
-    // How many objects can be allocated? TODO: Check floor, ceil
+    // For requesting all available space
     template <typename T, typename... A> isize Available()
     {
         isize pad = -(uptr)beg & (alignof(T) - 1);
@@ -93,51 +93,28 @@ typedef struct Arena {
     // Wrapper with support for defaults and typing
     template <typename T, typename... A> T* Make(isize count = 1, b32 flags = 0, A... args)
     {
-        // If count < 0, things are really messed up
-        // Though, can request size 0, NOTE: will just get top of arena?
-        Assert(count >= 0);
+        if (count == 0) return 0;
+        Assert(count > 0);
 
-        // Compute leftover after accounting for alignment
-        isize align   = alignof(T);
-        isize objsize = sizeof(T);
-        isize pad     = -(uptr)beg & (align - 1); // Some way to approx mod(a,b)
-        debug("pad: %ld , align: %ld, size: %ld", pad, alignof(T), sizeof(T));
-
-        // Check if we have enough space to allocate
-        if (count > (end - beg - pad) / objsize)
+        isize pad = -(uptr)beg & (alignof(T) - 1);
+        if (count > (end - beg - pad) / sizeof(T))
         {
-            // SOFTFAIL support
             if (flags & SOFTFAIL) return 0;
-
-            // Else drop to debugger
-            Fatal(-1, "Alloc failed: count: %ld < req: %ld; used: %ld / cap: %ld", //
-                  count, (end - beg - pad / objsize), cap - (end - beg), cap);
+            Assert(true);
         }
 
-        // Advance the arena
-        isize total  = count * objsize;
+        isize total  = count * sizeof(T);
         char* p      = beg + pad;
         beg         += pad + total;
-        // debug("[A] Used: %ld / Cap: %ld", cap - (end - beg), cap);
 
-        // By default, zero initialized
-        if (!(flags & NOZERO))
-        {
-            // debug("[A] Memset: %ld", total);
-            p = (char*)memset(p, 0, total);
-        }
+        if (!(flags & NOZERO)) { p = (char*)memset(p, 0, total); }
 
-        // Convert to proper type
         T* r = (T*)p;
-
-        // Allows for zero / default init (Needs to be specially requested through flags)
-        // NOTE: needs `#include <new>`: https://en.cppreference.com/w/cpp/language/new#Placement_new
         if (flags & DEFAULTS)
         {
             RANGE(i, count) { new ((void*)&r[i]) T(args...); }
         }
 
-        // Return with proper type info
         return r;
     }
 

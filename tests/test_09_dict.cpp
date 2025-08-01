@@ -28,11 +28,19 @@ int main()
             *d[testkeys[i]] = testkeys[i];
         }
 
+        // Iterator through keys
         RANGE(i, num_keys)
         {
-            Str* ret = d[testkeys[i], true];
+            Str key = d.data[i]->key;
+            Str val = d.data[i]->val;
+
+            // Val by Lookup
+            Str* ret = d[key, true];
             TNotNull(ret);
-            TEqualStr(*ret, testkeys[i]);
+            TEqualStr(*ret, val);
+
+            // Point to same mem
+            TEqualAddr(ret->buf, val.buf);
         }
     }
 

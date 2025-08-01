@@ -116,6 +116,8 @@ template <typename T> struct Slice : List<T> {
             while (cap < List<T>::len + val.len) cap *= 2;
 
             // Check if on top of arena
+            // TODO: Check Alignment (prob needs to use the original Alloc method)
+            // In that case, we would need to redo Make and Alloc again
             if (ontop) { Slice<T>(a, cap - oldcap); }
             else
             {

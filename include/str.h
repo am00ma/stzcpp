@@ -222,7 +222,7 @@ typedef struct Buf : Slice<char> {
             isize oldcap = cap;
             bool  ontop  = a->beg == (char*)buf + cap;
             while (cap < (len + val.len)) cap *= 2;
-            if (ontop) { Buf(a, cap - oldcap); }
+            if (ontop) { a->Make<char>(cap - oldcap); /* Zero init */ }
             else
             {
                 Buf dst = {a, cap}; // New underlying buffer

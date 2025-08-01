@@ -16,3 +16,5 @@ stz_add_test(test_06_list)
 stz_add_test(test_07_slice)
 stz_add_test(test_08_str)
 stz_add_test(test_09_dict)
+
+stz_add_test(test_util_01_file)

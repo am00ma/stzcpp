@@ -27,7 +27,11 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 # 'Unity' build?
-target_sources(${PROJECT_NAME} PRIVATE src/stz.cpp)
+target_sources(${PROJECT_NAME}
+    PRIVATE
+        src/stz.cpp
+        src/util/file.cpp
+)
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
@@ -53,13 +57,9 @@ set(public_headers
     include/slice.h
     include/str.h
     include/dict.h
-    # Data
-    # include/trie.h
-    # include/ltrie.h
-    # include/table.h
     # Utilities
+    include/util/file.h
     # include/util/cmd.h
-    # include/util/file.h
     # include/util/gui.h
     # include/util/path.h
     # include/util/db.h

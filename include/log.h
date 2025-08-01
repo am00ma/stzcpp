@@ -57,17 +57,25 @@
 #define COLOR_BG_CYAN    "\033[46m"
 #define COLOR_BG_WHITE   "\033[47m"
 
+// With linebreak
+#define pretty(color, ...) (fprintf(stderr, color), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
+
+// Without linebreak
+#define prettyc(color, ...) (fprintf(stderr, color), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET))
+
 #define title(...)                                                                                                     \
     (fprintf(stderr, COLOR_BOLD_YELLOW COLOR_ITALIC_YELLOW COLOR_ULINE_YELLOW), fprintf(stderr, __VA_ARGS__),          \
      fprintf(stderr, COLOR_RESET "\n"))
 #define debug(...) (fprintf(stderr, COLOR_BLUE), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
 #define error(...) (fprintf(stderr, COLOR_RED "[E] "), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
 
-#define pretty(color, ...) (fprintf(stderr, color), fprintf(stderr, __VA_ARGS__), fprintf(stderr, COLOR_RESET "\n"))
-
 /* ---------------------------------------------------------------------------
  * Error handling
  * ------------------------------------------------------------------------- */
+
+// For printing %.*s
+#define pstr(s)  (int)s.len, s.buf
+#define ppstr(s) (int)s->len, s->buf
 
 // Crash entirely
 #define Fatal(err, ...)                                                                                                \
@@ -117,10 +125,6 @@
 /* ---------------------------------------------------------------------------
  * Testing
  * ------------------------------------------------------------------------- */
-
-// For printing %.*s
-#define pstr(s)  (int)s.len, s.buf
-#define ppstr(s) (int)s->len, s->buf
 
 // NOTE: Unfortunately, cannot print Str, need special func
 
@@ -195,7 +199,3 @@
         error("    %.*s == %.*s", pstr(str1), pstr(str2));                                                             \
         __builtin_trap();                                                                                              \
     }
-
-/* ---------------------------------------------------------------------------
- * Catching segfaults
- * ------------------------------------------------------------------------- */

@@ -104,6 +104,32 @@ template <typename T> struct Slice : List<T> {
         return *this;
     }
 
+    Slice<T>& Reserve(Arena* a, isize newcap)
+    {
+        if (newcap < cap)
+        {
+            cap = newcap;
+            return *this;
+        }
+
+        bool ontop = a->beg == (char*)List<T>::buf + cap * sizeof(T);
+
+        // Check if on top of arena
+        // TODO: Check Alignment (prob needs to use the original Alloc method)
+        // In that case, we would need to redo Make and Alloc again
+        if (ontop) { Slice<T>(a, newcap - cap); }
+        else
+        {
+            Slice<T> dst = {a, newcap}; // New underlying buffer
+            memcpy(dst.buf, List<T>::buf, List<T>::len * sizeof(T));
+            List<T>::buf = dst.buf;
+        }
+
+        cap = newcap;
+
+        return *this;
+    }
+
     // Reallocs capacity
     Slice<T>& Push(Arena* a, List<T> val)
     {
@@ -113,6 +139,8 @@ template <typename T> struct Slice : List<T> {
             bool ontop = a->beg == (char*)List<T>::buf + cap * sizeof(T);
 
             isize oldcap = cap;
+
+            if (cap == 0) { cap = val.len; } // Min cap if cap is 0
             while (cap < List<T>::len + val.len) cap *= 2;
 
             // Check if on top of arena

@@ -187,6 +187,33 @@ int main()
             TEqualLong(x.cap, 3072);
             TEqualLong(a.Used(), 12288);
         }
+
+        TEST_CASE("Method Reserve: Extend items more than capacity")
+        {
+            BufArena(a, abuf, 1024);
+
+            Slice<i32> x = {&a, 0, NOZERO};
+            x.Push(&a, (i32[]){1, 2, 3});
+            TEqualLong(x.cap, 3);
+            TEqualLong(x.len, 3);
+            TEqualLong(a.Used(), 12); // 3 * 4
+
+            x.Push(&a, (i32[]){1, 2, 3, 4, 5});
+            TEqualLong(x.cap, 12);    // 3 * 2 * 2
+            TEqualLong(x.len, 8);     // 3 + 5
+            TEqualLong(a.Used(), 48); // 12 * 4
+
+            x.Reserve(&a, 10);
+            TEqualLong(x.cap, 10);    // 3 * 2 * 2
+            TEqualLong(x.len, 8);     // 3 + 5
+            TEqualLong(a.Used(), 48); // 12 * 4
+
+            // Doesnt know its on top because we messed with reserve (reserving less than original)
+            x.Reserve(&a, 12);
+            TEqualLong(x.cap, 12);    // 3 * 2 * 2
+            TEqualLong(x.len, 8);     // 3 + 5
+            TEqualLong(a.Used(), 96); // 48 * 4
+        }
     }
 
     TEST_RESULTS();

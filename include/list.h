@@ -96,11 +96,12 @@ template <typename T> struct List {
         return dst;
     }
 
-    List<T> Concat(Arena* a, List<T> head, List<T> tail)
+    // If already on top, just append
+    List<T> Concat(Arena* a, List<T> tail)
     {
-        if (!head.buf || head.buf + head.len != a->beg) { head = head.Copy(a); }
-        head.len += tail.Copy(a).len;
-        return head;
+        if (!buf || buf + len != a->beg) { this = Copy(a); }
+        len += tail.Copy(a).len;
+        return this;
     }
 
     /* ---------------------------------------------------------------------------

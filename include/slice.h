@@ -86,6 +86,51 @@ template <typename T> struct Slice : List<T> {
      * Methods
      * ------------------------------------------------------------------------- */
 
+    // Reallocs capacity
+    Slice<T>& Push(Arena* a, T val)
+    {
+        if (List<T>::len >= cap)
+        {
+            cap *= 2;
+
+            Slice<T> dst = {a, cap};
+            memcpy(dst.buf, List<T>::buf, List<T>::len * sizeof(T));
+            List<T>::buf = dst.buf;
+        }
+
+        List<T>::buf[List<T>::len] = val;
+        List<T>::len++;
+
+        return *this;
+    }
+
+    // Reallocs capacity
+    Slice<T>& Push(Arena* a, List<T> val)
+    {
+        // Exceeds capacity, so alloc
+        if (List<T>::len + val.len > cap)
+        {
+            bool ontop = a->beg == (char*)List<T>::buf + cap * sizeof(T);
+
+            while (cap < List<T>::len + val.len) cap *= 2;
+
+            // Check if on top of arena
+            if (ontop) { Slice<T>(a, cap / 2); }
+            else
+            {
+                Slice<T> dst = {a, cap}; // New underlying buffer
+                memcpy(dst.buf, List<T>::buf, List<T>::len * sizeof(T));
+                List<T>::buf = dst.buf;
+            }
+        }
+
+        // Copy the rest
+        memcpy(&List<T>::buf[List<T>::len], val.buf, val.len * sizeof(T));
+        List<T>::len += val.len;
+
+        return *this;
+    }
+
     // enum { SLICE_INITIAL_CAP = 4 };
 
     // void *push_(Arena *a, void *data, ptrdiff_t *pcap, ptrdiff_t size)

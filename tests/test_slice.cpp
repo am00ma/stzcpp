@@ -134,5 +134,46 @@ int main()
             // x0 += (i32[]){1}; // Assert and exit
             TCheck(x0 == y3);
         }
+
+        TEST_CASE("Method Push: Extend items more than capacity")
+        {
+
+            Arena temp = perm;
+
+            Slice<i32> x = {&temp, 3, NOZERO};
+            List<i32>  y = (i32[]){1, 2, 3};
+
+            // Guaranteed no alloc
+            x += y;
+            TEqualLong(x.cap, 3);
+            TEqualLong(temp.Used(), 12);
+
+            // x += y; // Will fail assert
+
+            // For dynamic behaviour
+            auto z = x.Push(&temp, y);
+            TEqualLong(x.cap, 6);
+            TEqualLong(z.cap, 6);
+            TEqualLong(temp.Used(), 24);
+
+            // Create arena on stack
+            BufArena(a, abuf, 4096 * 16);
+            isize used = a.Used();
+
+            // Growing the stack
+            printf("%4s | %5s | %5s\n", "i", "used", "old");
+
+            RANGE(i, 1000)
+            {
+                x = x.Push(&a, y);
+                if (a.Used() != used)
+                {
+                    printf("%4ld | %5ld | %5ld\n", i, a.Used(), used);
+                    used = a.Used();
+                }
+            }
+            TEqualLong(x.cap, 3072);
+            TEqualLong(a.Used(), 12288);
+        }
     }
 }

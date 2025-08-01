@@ -96,16 +96,22 @@ typedef struct Arena {
         if (count == 0) return 0;
         Assert(count > 0);
 
+        // debug("[A] %ld (%ld): used: %ld / cap: %ld (beg: %p, end: %p)\n", //
+        //       count, (isize)0, cap - (end - beg), cap, (void*)beg, (void*)end);
+
         isize pad = -(uptr)beg & (alignof(T) - 1);
         if (count > (end - beg - pad) / sizeof(T))
         {
             if (flags & SOFTFAIL) return 0;
-            Assert(true);
+            Assert(false);
         }
 
         isize total  = count * sizeof(T);
         char* p      = beg + pad;
         beg         += pad + total;
+
+        // debug("[A] %ld (%ld): used: %ld / cap: %ld (beg: %p, end: %p)\n", //
+        //       count, total, cap - (end - beg), cap, (void*)beg, (void*)end);
 
         if (!(flags & NOZERO)) { p = (char*)memset(p, 0, total); }
 

@@ -141,7 +141,7 @@
         {                                                                                                              \
             pretty(COLOR_RED, "\n%s:%d", __FILE__, __LINE__);                                                          \
             pretty(COLOR_YELLOW, "   %s != %s", #cond1, #cond2);                                                       \
-            pretty(COLOR_YELLOW, "   %ld != %ld\n", cond1, cond2);                                                     \
+            pretty(COLOR_YELLOW, "   %ld != %ld\n", (isize)cond1, (isize)cond2);                                       \
         }                                                                                                              \
         else { TEST_SUCCESS_CHECKS++; }                                                                                \
     } while (0);

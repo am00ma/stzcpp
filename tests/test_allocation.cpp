@@ -3,6 +3,7 @@
 #include "range.h"
 #include <cassert>
 #include <cstdio>
+#include <new> // Needed for proper behaviour of `new` in `Make` !!
 
 constexpr u64 mask = 0x0000ffff;
 u64           orig = 0;
@@ -138,7 +139,7 @@ typedef struct Arena {
             if (flags & SOFTFAIL) return 0;
 
             // Else drop to debugger
-            Assert(true);
+            Assert(false);
         }
 
         // Advance the arena
@@ -194,6 +195,10 @@ int main()
             print_pad();
         }
     }
+
+    title("RealMake");
+    print_arena_head();
+    RANGE(i, 1000) { a.RealMake<int>(10); }
 
     return 0;
 }

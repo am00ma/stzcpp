@@ -144,6 +144,19 @@ int main()
         TEqualLong(b_copy.len, 90);  // 40 + 50    (expected)
         TEqualLong(b_copy.cap, 144); // 36 * 2 * 2 (expected)
         TEqualLong(a.Used(), 144);   // As much as buffer
+
+        // Remove from top of arena next for next push
+        Buf c_copy = Str(b.Copy(&a)); // Needed to cast List<char>
+        TEqualLong(a.Used(), 153);    // 144 + 9
+
+        RANGE(i, 10) { b_copy.Push(&a, "hellohello"); }
+        TEqualLong(b_copy.len, 190); // 90 + 100
+        TEqualLong(b_copy.cap, 288); // Double
+        TEqualLong(a.Used(), 441);   // 153 + 288, So full copy
+        TEqualStr(b_copy, Str("hello hi hello hi how are you "
+                              "todayhellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohel"
+                              "lohellohellohellohellohellohellohellohellohellohellohellohellohellohello"));
+        // 31 hellos total
     }
 
     TEST_CASE("Buf: Initialization: from static char[]") {}

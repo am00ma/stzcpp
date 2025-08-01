@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE "cmake/ClangOverrides.txt")
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
+include(CTest)
 
 # find_package(SDL2 REQUIRED)
 # find_package(SDL2_image REQUIRED)

@@ -3,10 +3,8 @@
 #include "log.h"  // title, error, pretty
 #include <cstdio> // printf, stderr, stdout
 
-// clang-format off
 #define TEST_SUITE(label)                                                                                              \
     const char* TEST_TITLE          = label;                                                                           \
-    int         TEST_DONE           = 0;                                                                               \
     int         TEST_INDEX          = 0;                                                                               \
     int         TEST_CASES          = 0;                                                                               \
     int         TEST_CHECKS         = 0;                                                                               \
@@ -16,15 +14,16 @@
     int         TEST_SUCCESS_TOTAL  = 0;                                                                               \
     title("%s", TEST_TITLE);                                                                                           \
     pretty(COLOR_YELLOW, "| %3s  | %-50s | %8s | %8s |", "No.", "Case", "Correct", "Total");                           \
-    pretty(COLOR_YELLOW, "| %3s  | %-50s | %8s | %8s |", "---", "----", "-------", "-----");                           \
-    for (TEST_DONE = 0; TEST_DONE < 1;                                                                                 \
-         (pretty(COLOR_GREEN, "| %3s  | %-50s | %8s | %8s |", "---", "----", "-------", "-----"),                      \
-          pretty(COLOR_GREEN, "| %3s  | %37s: %4d / %4d | %8d | %8d |",                                                \
-                 (TEST_SUCCESS_CASES == TEST_CASES) ? COLOR_BOLD_GREEN " ✔ " : COLOR_BOLD_RED " ✗ ", "Cases",          \
-                  TEST_SUCCESS_CASES, TEST_CASES,                                                                      \
-                  TEST_SUCCESS_TOTAL, TEST_TOTAL),                                                                     \
-          TEST_DONE++))
+    pretty(COLOR_YELLOW, "| %3s  | %-50s | %8s | %8s |", "---", "----", "-------", "-----");
 
+#define TEST_RESULTS()                                                                                                 \
+    pretty(COLOR_GREEN, "| %3s  | %-50s | %8s | %8s |", "---", "----", "-------", "-----");                            \
+    pretty(COLOR_GREEN, "| %3s  | %37s: %4d / %4d | %8d | %8d |",                                                      \
+           (TEST_SUCCESS_CASES == TEST_CASES) ? COLOR_BOLD_GREEN " ✔ " : COLOR_BOLD_RED " ✗ ", "Cases",                \
+           TEST_SUCCESS_CASES, TEST_CASES, TEST_SUCCESS_TOTAL, TEST_TOTAL);                                            \
+    return !(TEST_SUCCESS_CASES == TEST_CASES);
+
+// clang-format off
 #define TEST_CASE(label)                                                                                               \
     for (TEST_INDEX = 0; TEST_INDEX < 1; (pretty(COLOR_RESET, "%s|  %3d | %-50s | %8d | %8d |",                        \
                                                  (TEST_SUCCESS_CHECKS == TEST_CHECKS) ? "" : COLOR_RED,                \

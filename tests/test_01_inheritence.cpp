@@ -172,5 +172,5 @@ int main()
         }
     }
 
-    return 0;
+    TEST_RESULTS();
 }

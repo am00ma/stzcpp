@@ -248,5 +248,5 @@ int main()
         TEST_CASE("TODO: Alloc: Threaded") { TCheck(0 == 0); }
     }
 
-    return 0;
+    TEST_RESULTS();
 }

@@ -176,4 +176,6 @@ int main()
             TEqualLong(a.Used(), 12288);
         }
     }
+
+    TEST_RESULTS();
 }

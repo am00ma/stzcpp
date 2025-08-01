@@ -1,8 +1,8 @@
-// #include "doctest.h"
-#include "log.h"
+#include "doctest.h"
 #include "range.h"
 #include <cassert>
 #include <cstdio>
+
 #include <new> // Needed for proper behaviour of `new` in `Make` !!
 
 constexpr u64 mask = 0x0000ffff;
@@ -173,32 +173,45 @@ typedef struct Arena {
 
 int main()
 {
-    title("Types");
-    print_type_head();
-    RANGE(i, n) { print_type(types[i]); }
+    TEST_SUITE("Allocation");
+
+    TEST_CASE("Types")
+    {
+        print_type_head();
+        RANGE(i, n) { print_type(types[i]); }
+    }
 
     newarena(a, buf, 1024);
 
-    title("Make");
-    print_arena_head();
-    RANGE(i, m) { a.Make(i, reqs[i]); }
-
-    title("Pad");
-    print_pad_head();
-    isize aligns[] = {1, 2, 4, 8, 16};
-    RANGE(beg, ((isize)a.beg & 0xFF), (((isize)a.beg & 0xFF) + 3))
+    TEST_CASE("Make")
     {
-        RANGE(j, 5)
+        print_arena_head();
+        RANGE(i, m) { a.Make(i, reqs[i]); }
+    }
+
+    TEST_CASE("Pad")
+    {
+        print_pad_head();
+        isize aligns[] = {1, 2, 4, 8, 16};
+        RANGE(beg, ((isize)a.beg & 0xFF), (((isize)a.beg & 0xFF) + 3))
         {
-            isize align = aligns[j];
-            isize pad   = -(uptr)beg & (align - 1);
-            print_pad();
+            RANGE(j, 5)
+            {
+                isize align = aligns[j];
+                isize pad   = -(uptr)beg & (align - 1);
+                print_pad();
+            }
         }
     }
 
-    title("RealMake");
-    print_arena_head();
-    RANGE(i, 1000) { a.RealMake<int>(10); }
+    TEST_CASE("RealMake")
+    {
+        TEqualLong(2000 * sizeof(int) * 10, 80000);
+        newarena(b, abuf, 80000);
 
-    return 0;
+        print_arena_head();
+        RANGE(i, 2000) { b.RealMake<int>(10); }
+    }
+
+    TEST_RESULTS();
 }

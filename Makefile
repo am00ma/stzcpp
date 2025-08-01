@@ -17,7 +17,8 @@ install:
 	cd build && make -j6
 
 test:
-	./build/tests/test_slice
+	cd build && make -j6
+	cd build && make test
 
 clean:
 	rm -f -r build/

@@ -64,4 +64,6 @@ int main()
             TEqualStr(b, (Str) "hello");
         }
     }
+
+    TEST_RESULTS();
 }

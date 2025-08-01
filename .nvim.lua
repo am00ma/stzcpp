@@ -12,4 +12,4 @@ local C = function(cmd) return "<Cmd>" .. cmd .. "<CR>" end
 -- Basic mappings ===========================================================
 nmap("<leader><M-w>", C "OverseerRunCmd make init", "init")
 nmap("<M-w>", C "OverseerRunCmd make all", "all")
-nmap("<M-r>", C "OverseerRunCmd make run", "run")
+nmap("<M-t>", C "OverseerRunCmd make test", "test")

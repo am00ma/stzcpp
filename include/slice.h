@@ -112,11 +112,10 @@ template <typename T> struct Slice : List<T> {
             return *this;
         }
 
-        bool ontop = a->beg == (char*)List<T>::buf + cap * sizeof(T);
-
         // Check if on top of arena
         // TODO: Check Alignment (prob needs to use the original Alloc method)
         // In that case, we would need to redo Make and Alloc again
+        bool ontop = a->beg == (char*)List<T>::buf + cap * sizeof(T);
         if (ontop) { Slice<T>(a, newcap - cap); }
         else
         {
@@ -124,9 +123,7 @@ template <typename T> struct Slice : List<T> {
             memcpy(dst.buf, List<T>::buf, List<T>::len * sizeof(T));
             List<T>::buf = dst.buf;
         }
-
         cap = newcap;
-
         return *this;
     }
 

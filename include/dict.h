@@ -38,7 +38,7 @@ template <typename K, typename V> struct Dict {
      * Lookup and Insert
      * ------------------------------------------------------------------------- */
 
-    V* operator[](K key, bool lookup = false)
+    V* operator[](K key, bool insert = true, Arena* a = 0)
     {
         DictChild<K, V>*  buf[1] = {&root};
         DictChild<K, V>** m      = buf;
@@ -55,10 +55,15 @@ template <typename K, typename V> struct Dict {
         }
 
         // No insert, so return not found (len does not increment)
-        if (lookup) { return 0; }
+        if (!insert) { return 0; }
 
         // We have a new key -> no allocation, just assign
-        if (!(data.len < data.cap)) { Assert(false); }
+        if (!(data.len < data.cap))
+        {
+            if (!a) Assert(false);
+            data.Reserve(a, data.cap * 2);
+        }
+
         *m = &data.buf[data.len];
         data.len++;
 

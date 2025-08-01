@@ -63,7 +63,7 @@ template <typename T> struct List {
         return true;
     }
 
-    // By reference (supports negative indices)
+    // By reference, supports negative indices
     T* operator[](isize i)
     {
         Assert((i >= -1 * len) && (i < len));

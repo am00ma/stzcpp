@@ -49,3 +49,8 @@ Goals:
 
 - Finally, no exceptions of course. I assume -fno-exceptions, or the local
   equivalent, is active.
+
+## So Far ...
+
+- Has been tough dealing with generics.
+- Operators - Have two variants, fast and those with negative indexing

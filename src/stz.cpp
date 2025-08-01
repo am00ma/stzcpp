@@ -9,7 +9,8 @@
 #include "list.h"
 #include "slice.h"
 #include "str.h"
+#include "dict.h"
 
-// Data
+// Hashmap
 
 // Utilities

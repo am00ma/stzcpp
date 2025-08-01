@@ -52,9 +52,8 @@ set(public_headers
     include/list.h
     include/slice.h
     include/str.h
-    # include/str.h
+    include/dict.h
     # Data
-    # include/map.h
     # include/trie.h
     # include/ltrie.h
     # include/table.h

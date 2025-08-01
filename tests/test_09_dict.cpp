@@ -5,7 +5,7 @@
 int main()
 {
 
-    TEST_SUITE("LTrie")
+    TEST_SUITE("Dict")
 
     typedef Dict<Str, Str> SDict;
 
@@ -18,21 +18,19 @@ int main()
 
     TEST_CASE("Initialization: from arena")
     {
+        // Initialize an arena
         Arena a = {1024 * 4};
 
+        // Store some keys and values
         SDict d = {&a, num_keys};
+        RANGE(i, num_keys) { *d[testkeys[i]] = testkeys[i]; }
 
         RANGE(i, num_keys)
         {
-            //
-            *d[testkeys[i]] = testkeys[i];
-        }
-
-        // Iterator through keys
-        RANGE(i, num_keys)
-        {
+            // Iterator through items in order
             Str key = d.data[i]->key;
             Str val = d.data[i]->val;
+            TEqualStr(val, testkeys[i]);
 
             // Val by Lookup
             Str* ret = d[key, true];
@@ -42,6 +40,8 @@ int main()
             // Point to same mem
             TEqualAddr(ret->buf, val.buf);
         }
+
+        TEqualLong(a.Used(), 1280); // 20 items (64 bytes per item)
     }
 
     TEST_RESULTS();

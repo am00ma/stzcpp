@@ -14,7 +14,7 @@ FileResult File_Read(Arena* a, Str path)
     isize size = ftell(f);
 
     // Read data and cole
-    Str data = Str(a->Make<char>(size), size);
+    Str data = {a, size};
     if (fseek(f, 0, SEEK_SET) != 0) { return {"", FILE_FAIL_SEEK}; }
     if (fread(data.buf, sizeof(char), data.len, f) != (usize)data.len) { return {"", FILE_FAIL_READ}; }
     if (fclose(f) != 0) { return {data, FILE_FAIL_CLOSE}; }
@@ -22,7 +22,7 @@ FileResult File_Read(Arena* a, Str path)
     return {data, FILE_SUCCESS};
 }
 
-FileResult File_Write(Arena* a, Str path, Str text, const char* mode = "wb")
+FileResult File_Write(Arena* a, Str path, Str text, const char* mode)
 {
     Arena temp      = *a;
     char* path_cstr = path.Cstr(&temp); // We dont need path after loading buf

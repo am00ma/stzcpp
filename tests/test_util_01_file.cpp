@@ -18,10 +18,19 @@ int main()
 
     TEST_CASE("File found")
     {
-        Arena a   = perm;
-        auto  res = File_Read(&a, __FILE__);
-        TEqualInt(res.err, 0);
-        TEqualLong(a.Used(), 563);
+        Arena a = perm;
+
+        Str text = "hellohi";
+        Str path = "/tmp/stz-file-tmpfile";
+
+        FileResult res_w = File_Write(&a, path, text);
+        TEqualInt(res_w.err, 0);
+        TEqualLong(a.Used(), 0);
+
+        FileResult res_r = File_Read(&a, path);
+        TEqualInt(res_r.err, 0);
+        TEqualStr(res_r.data, text);
+        TEqualLong(a.Used(), text.len);
     }
 
     TEST_RESULTS();

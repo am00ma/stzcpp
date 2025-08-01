@@ -1,6 +1,9 @@
 function(stz_add_test STZ_TEST_NAME)
-    add_executable(${STZ_TEST_NAME} ${STZ_TEST_NAME}.cpp)
-    target_link_libraries(${STZ_TEST_NAME} PRIVATE stz)
+    add_executable(${STZ_TEST_NAME} ${STZ_TEST_NAME}.cpp backward.cpp)
+    target_link_libraries(
+        ${STZ_TEST_NAME}
+            PRIVATE stz
+            PUBLIC unwind bfd dl)
     add_test(NAME ${STZ_TEST_NAME} COMMAND ${STZ_TEST_NAME})
 endfunction()
 

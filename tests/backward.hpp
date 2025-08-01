@@ -87,11 +87,9 @@
 #include <iostream>
 #include <limits>
 #include <new>
-#include <sstream>
 #include <streambuf>
 #include <string>
 #include <vector>
-#include <exception>
 #include <iterator>
 
 #if defined(BACKWARD_SYSTEM_LINUX)
@@ -1669,9 +1667,9 @@ private:
       return r; // damned, that's a stripped file that you got there!
     }
 
-    r->handle = move(bfd_handle);
-    r->symtab = move(symtab);
-    r->dynamic_symtab = move(dynamic_symtab);
+    r->handle = std::move(bfd_handle);
+    r->symtab = std::move(symtab);
+    r->dynamic_symtab = std::move(dynamic_symtab);
     return r;
   }
 

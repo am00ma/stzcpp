@@ -105,7 +105,7 @@ typedef struct Arena {
         char* p      = beg + pad;
         beg         += pad + total;
 
-        print_arena(i, this, reqs[i]);
+        // print_arena(i, this, reqs[i]);
 
         return p;
     }
@@ -177,21 +177,21 @@ int main()
 
     TEST_CASE("Types")
     {
-        print_type_head();
-        RANGE(i, n) { print_type(types[i]); }
+        // print_type_head();
+        // RANGE(i, n) { print_type(types[i]); }
     }
 
     newarena(a, buf, 1024);
 
     TEST_CASE("Make")
     {
-        print_arena_head();
-        RANGE(i, m) { a.Make(i, reqs[i]); }
+        // print_arena_head();
+        // RANGE(i, m) { a.Make(i, reqs[i]); }
     }
 
     TEST_CASE("Pad")
     {
-        print_pad_head();
+        // print_pad_head();
         isize aligns[] = {1, 2, 4, 8, 16};
         RANGE(beg, ((isize)a.beg & 0xFF), (((isize)a.beg & 0xFF) + 3))
         {
@@ -199,7 +199,7 @@ int main()
             {
                 isize align = aligns[j];
                 isize pad   = -(uptr)beg & (align - 1);
-                print_pad();
+                // print_pad();
             }
         }
     }
@@ -209,7 +209,7 @@ int main()
         TEqualLong(2000 * sizeof(int) * 10, 80000);
         newarena(b, abuf, 80000);
 
-        print_arena_head();
+        // print_arena_head();
         RANGE(i, 2000) { b.RealMake<int>(10); }
     }
 

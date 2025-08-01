@@ -74,14 +74,14 @@ template <typename T> struct List {
     // [i - j]th items by reference, supporting negative indices
     List<T> operator[](isize i, isize j)
     {
-        if ((i >= len) || (j <= -1 * len)) { return List(); }
+        if ((i >= len) || (j <= -1 * len)) { return {}; }
         if ((i <= -1 * len) && (j >= len)) { return *this; }
         if (j >= len) { j = len; }
         if (i <= -1 * len) { i = -1 * len; }
         if (i < 0) { i = len + i; }
         if (j < 0) { j = len + j; }
-        if (i >= j) { return List(&buf[i], 0); };
-        return List(&buf[i], j - i);
+        if (i >= j) { return {&buf[i], 0}; };
+        return {&buf[i], j - i};
     }
 
     /* ---------------------------------------------------------------------------

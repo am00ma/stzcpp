@@ -10,9 +10,9 @@ int main()
         {
             // Independent of template type
             isize sz = 16;
-            TEqual(sizeof(List<char>), sz, "%ld");
-            TEqual(sizeof(List<u32>), sz, "%ld");
-            TEqual(sizeof(List<u16>), sz, "%ld");
+            TEqualLong(sizeof(List<char>), sz);
+            TEqualLong(sizeof(List<u32>), sz);
+            TEqualLong(sizeof(List<u16>), sz);
         }
 
         // Create arena on stack
@@ -22,11 +22,11 @@ int main()
         {
             // Need to specify (i32[]) though
             List<i32> b = (i32[]){1, 2, 3};
-            TEqual(b.len, (isize)3, "%ld");
+            TEqualLong(b.len, 3);
 
             // Treats '\0' as valid char and part of len
             List<char> a = "hello";
-            TEqual(a.len, (isize)6, "%ld");
+            TEqualLong(a.len, 6);
         }
 
         TEST_CASE("Template type: custom structs")
@@ -38,36 +38,36 @@ int main()
 
             // Need to specify (s1[]) though
             List<s1> b = (s1[]){{1, 2}, {3, 4}, {5, 6}};
-            TEqual(b.len, (isize)3, "%ld");
+            TEqualLong(b.len, 3);
         }
 
         TEST_CASE("Initialization: Zero-init")
         {
             List<char> x0 = {};
-            TEqual(x0.buf, (void*)0, "%p");
-            TEqual(x0.len, (isize)0, "%ld");
+            TNull(x0.buf);
+            TEqualLong(x0.len, 0);
 
             List<i32> x1 = {};
-            TEqual(x1.buf, (void*)0, "%p");
-            TEqual(x1.len, (isize)0, "%ld");
+            TNull(x1.buf);
+            TEqualLong(x1.len, 0);
         }
 
         TEST_CASE("Initialization: From fields")
         {
             List<char> x0 = "hello";
             List<char> x1 = {x0.buf, x0.len};
-            TEqual(x1.buf, x0.buf, "%p");
-            TEqual(x1.len, x0.len, "%ld");
+            TEqualAddr(x1.buf, x0.buf);
+            TEqualLong(x1.len, x0.len);
         }
 
         TEST_CASE("Initialization: From literals")
         {
             List<char> x0 = "hello";
             TNotEqual(x0.buf, (void*)0, "%p");
-            TEqual(x0.len, (isize)6, "%ld");
+            TEqualLong(x0.len, 6);
 
             List<i32> x1 = (i32[]){1, 2, 3};
-            TEqual(x1.len, (isize)3, "%ld");
+            TEqualLong(x1.len, 3);
         }
 
         TEST_CASE("Initialization: From arena")
@@ -76,7 +76,7 @@ int main()
 
             List<i32> x = {&temp, 3, NOZERO};
             RANGE(i, x.len) { *x[i] = i; };
-            RANGE(i, x.len) { TEqual(*x[i], (i32)i, "%d"); };
+            RANGE(i, x.len) { TEqualInt(*x[i], (i32)i); };
         }
 
         TEST_CASE("Operator ==: Equality")
@@ -189,7 +189,7 @@ int main()
             TCheck(y == x0);
 
             // Check usage (hello + \0)
-            TEqual(a.Used(), (isize)6, "%ld");
+            TEqualLong(a.Used(), 6);
 
             // Reset arena
             a = perm;
@@ -200,7 +200,7 @@ int main()
             TCheck(y1 == z0);
 
             // Check usage
-            TEqual(a.Used(), sizeof(i64) * z0.len, "%ld");
+            TEqualLong(a.Used(), sizeof(i64) * z0.len);
 
             // Reset arena
             a = perm;
@@ -211,24 +211,24 @@ int main()
             TCheck(y2 == z1);
 
             // Check usage
-            TEqual(a.Used(), sizeof(u32) * z1.len, "%ld");
+            TEqualLong(a.Used(), sizeof(u32) * z1.len);
 
             // Reset arena
             a = perm;
 
             // Copy to arena
             List<u32[3]> z2 = (u32[][3]){{1, 1, 1}, {2, 2, 2}};
-            RANGE(i, 2) RANGE(j, 3) { TEqual((u32)i + 1, (*z2[i])[j], "%d"); }
+            RANGE(i, 2) RANGE(j, 3) { TEqualInt((u32)i + 1, (*z2[i])[j]); }
 
             List<u32[3]> y3 = z2.Copy(&a);
             RANGE(i, 2) RANGE(j, 3)
             {
-                TEqual((*y3[i])[j], (u32)i + 1, "%d");
-                TEqual((*y3[i])[j], (*z2[i])[j], "%d");
+                TEqualInt((*y3[i])[j], (u32)i + 1);
+                TEqualInt((*y3[i])[j], (*z2[i])[j]);
             }
 
             // Check usage
-            TEqual(a.Used(), sizeof(i32) * 3 * z2.len, "%ld");
+            TEqualLong(a.Used(), sizeof(i32) * 3 * z2.len);
         }
 
         TEST_CASE("Method: Copy (half-aligned)")
@@ -242,24 +242,24 @@ int main()
             TCheck(y0 == x0);
 
             // Check usage
-            TEqual(a.Used(), sizeof(i16) * x0.len, "%ld");
+            TEqualLong(a.Used(), sizeof(i16) * x0.len);
 
             // Reset arena
             a = perm;
 
-            // Copy to arena
             List<i16[3]> z2 = (i16[][3]){{1, 1, 1}, {2, 2, 2}};
-            RANGE(i, 2) RANGE(j, 3) { TEqual((i16)i + 1, (*z2[i])[j], "%d"); }
+            RANGE(i, 2) RANGE(j, 3) { TEqualInt((i16)i + 1, (*z2[i])[j]); }
 
+            // Copy to arena
             List<i16[3]> y3 = z2.Copy(&a);
             RANGE(i, 2) RANGE(j, 3)
             {
-                TEqual((*y3[i])[j], (i16)i + 1, "%d");
-                TEqual((*y3[i])[j], (*z2[i])[j], "%d");
+                TEqualInt((*y3[i])[j], (i16)i + 1);
+                TEqualInt((*y3[i])[j], (*z2[i])[j]);
             }
 
             // Check usage
-            TEqual(a.Used(), sizeof(i16) * 3 * z2.len, "%ld");
+            TEqualLong(a.Used(), sizeof(i16) * 3 * z2.len);
         }
     }
 

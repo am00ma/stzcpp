@@ -115,7 +115,7 @@ template <typename T> struct Slice : List<T> {
             while (cap < List<T>::len + val.len) cap *= 2;
 
             // Check if on top of arena
-            if (ontop) { Slice<T>(a, cap / 2); }
+            if (ontop) { Slice<T>(a, cap - List<T>::len); }
             else
             {
                 Slice<T> dst = {a, cap}; // New underlying buffer

@@ -195,4 +195,44 @@ typedef struct Buf : Slice<char> {
         cap             = N;
     }
 
+    // From arena (cap = cap_, len = 0; zeroed, defaults, non-zeroed)
+    Buf(Arena* a, isize cap_, b32 flags = 0)
+    {
+        buf = a->Make<char>(cap_, flags);
+        len = 0;
+        cap = cap_;
+    };
+
+    // Extend slice, increment len
+    // Should have pref over Slice<T>& operator+=(List<T> val)
+    Buf& operator+=(Str val)
+    {
+        Assert(len + val.len <= cap);
+        if (val.len) { memcpy(&buf[len], val.buf, val.len); }
+        len += val.len;
+        return *this;
+    }
+
+    // Reallocs capacity
+    // Should have pref over Slice<T>& operator+=(List<T> val)
+    Buf& Push(Arena* a, Str val)
+    {
+        if (len + val.len > cap)
+        {
+            isize oldcap = cap;
+            bool  ontop  = a->beg == (char*)buf + cap;
+            while (cap < (len + val.len)) cap *= 2;
+            if (ontop) { Buf(a, cap - oldcap); }
+            else
+            {
+                Buf dst = {a, cap}; // New underlying buffer
+                memcpy(dst.buf, buf, len);
+                buf = dst.buf;
+            }
+        }
+        memcpy(&buf[len], val.buf, val.len);
+        len += val.len;
+        return *this;
+    }
+
 } Buf;

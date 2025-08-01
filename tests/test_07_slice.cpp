@@ -157,21 +157,33 @@ int main()
             TEqualLong(temp.Used(), 24);
 
             // Create arena on stack
-            BufArena(a, abuf, 4096 * 16);
+            BufArena(a, abuf, 1096 * 16);
             isize used = a.Used();
 
             // Growing the stack
-            printf("%4s | %5s | %5s\n", "i", "used", "old");
+            // printf("%4s | %5s | %5s\n", "i", "used", "old");
 
             RANGE(i, 1000)
             {
                 x = x.Push(&a, y);
                 if (a.Used() != used)
                 {
-                    printf("%4ld | %5ld | %5ld\n", i, a.Used(), used);
+                    // printf("%4ld | %5ld | %5ld\n", i, a.Used(), used);
                     used = a.Used();
                 }
             }
+
+            //   i |  used |   old
+            //   0 |    48 |     0
+            //   2 |    96 |    48
+            //   6 |   192 |    96
+            //  14 |   384 |   192
+            //  30 |   768 |   384
+            //  62 |  1536 |   768
+            // 126 |  3072 |  1536
+            // 254 |  6144 |  3072
+            // 510 | 12288 |  6144
+
             TEqualLong(x.cap, 3072);
             TEqualLong(a.Used(), 12288);
         }

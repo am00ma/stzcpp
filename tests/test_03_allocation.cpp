@@ -49,7 +49,7 @@ typedef enum {
     C,
     D,
     E,
-} Types;
+} TypeName;
 
 Type types[] = {
     {"char", 1, 1}, {"u16", 2, 2}, {"u16[3]", 6, 2}, {"u32[3]", 12, 4}, {"a", 17, 4},
@@ -58,8 +58,8 @@ Type types[] = {
 isize n = sizeof(types) / sizeof(Type);
 
 typedef struct {
-    Types t;
-    isize n;
+    TypeName t;
+    isize    n;
 } Req;
 
 Req reqs[] = {
@@ -88,17 +88,27 @@ typedef struct Arena {
         end = beg ? beg + cap : 0;
     }
 
+    isize Used() { return cap - (end - beg); }
+
+    template <typename T, typename... A> isize Available()
+    {
+        isize pad = -(uptr)beg & (alignof(T) - 1);
+        return (end - beg - pad) / sizeof(T);
+    }
+
     char* Make(isize i, Req r)
     {
-        isize align = types[r.t].align;
-        isize size  = types[r.t].size;
+        if (r.n == 0) return 0;
+        Assert(r.n > 0);
 
         // Compute sizes
         // align is always power of 2    ; e.g.  align = 0x01000 (8)
         // therefore (-1) always gives 1s; (align - 1) = 0x00111 (7)
         // And, always positive
-        isize pad = -(uptr)beg & (types[r.t].align - 1);
-        if (r.n > (end - beg - pad) / size) { assert("Alloc failed"); }
+        isize align = types[r.t].align;
+        isize size  = types[r.t].size;
+        isize pad   = -(uptr)beg & (types[r.t].align - 1);
+        Assert(r.n <= (end - beg - pad) / size);
 
         // Advance arena
         isize total  = r.n * size;
@@ -110,88 +120,24 @@ typedef struct Arena {
         return p;
     }
 
-    // How many objects can be allocated? TODO: Check floor, ceil
-    template <typename T, typename... A> isize Available()
-    {
-        isize pad = -(uptr)beg & (alignof(T) - 1);
-        return (end - beg - pad) / sizeof(T);
-    }
-
-    // Wrapper with support for defaults and typing
-    template <typename T, typename... A> T* RealMake(isize count = 1, b32 flags = 0, A... args)
-    {
-        // Null behaviour
-        if (count == 0) return 0;
-
-        // If count < 0, things are really messed up
-        Assert(count > 0);
-
-        // Compute leftover after accounting for alignment
-        isize align   = alignof(T);
-        isize objsize = sizeof(T);
-        isize pad     = -(uptr)beg & (align - 1); // Some way to approx mod(a,b)
-        // debug("pad: %ld , align: %ld, size: %ld", pad, alignof(T), sizeof(T));
-
-        // Check if we have enough space to allocate
-        if (count > (end - beg - pad) / objsize)
-        {
-            // SOFTFAIL support
-            if (flags & SOFTFAIL) return 0;
-
-            // Else drop to debugger
-            Assert(false);
-        }
-
-        // Advance the arena
-        isize total  = count * objsize;
-        char* p      = beg + pad;
-        beg         += pad + total;
-        // debug("[A] Used: %ld / Cap: %ld (pad: %ld)", cap - (end - beg), cap, pad);
-
-        // By default, zero initialized
-        if (!(flags & NOZERO))
-        {
-            // debug("[A] Memset: %ld", total);
-            p = (char*)memset(p, 0, total);
-        }
-
-        // Convert to proper type
-        T* r = (T*)p;
-
-        // Allows for zero / default init (Needs to be specially requested through flags)
-        // NOTE: needs `#include <new>`: https://en.cppreference.com/w/cpp/language/new#Placement_new
-        if (flags & DEFAULTS)
-        {
-            RANGE(i, count) { new ((void*)&r[i]) T(args...); }
-        }
-
-        // Return with proper type info
-        return r;
-    }
-
 } Arena;
 
 int main()
 {
     TEST_SUITE("Allocation");
 
-    TEST_CASE("Types")
-    {
-        // print_type_head();
-        // RANGE(i, n) { print_type(types[i]); }
-    }
-
-    newarena(a, buf, 1024);
-
     TEST_CASE("Make")
     {
         // print_arena_head();
-        // RANGE(i, m) { a.Make(i, reqs[i]); }
+        newarena(a, buf, 1433);
+        RANGE(i, m) { a.Make(i, reqs[i]); }
+        TEqualLong(a.Used(), 1433);
     }
 
     TEST_CASE("Pad")
     {
         // print_pad_head();
+        newarena(a, buf, 2048);
         isize aligns[] = {1, 2, 4, 8, 16};
         RANGE(beg, ((isize)a.beg & 0xFF), (((isize)a.beg & 0xFF) + 3))
         {
@@ -204,13 +150,18 @@ int main()
         }
     }
 
-    TEST_CASE("RealMake")
+    TEST_CASE("Capacity")
     {
-        TEqualLong(2000 * sizeof(int) * 10, 80000);
-        newarena(b, abuf, 80000);
+        newarena(a, buf, 64);
 
         // print_arena_head();
-        RANGE(i, 2000) { b.RealMake<int>(10); }
+        Req ra = {A, 1};          // {"a", 17, 4}
+        a.Make(0, ra);            // 0+17
+        TEqualLong(a.Used(), 17); // 17
+
+        Req rc = {C, 1};          // {"c", 21, 8}
+        a.Make(0, rc);            // +21
+        TEqualLong(a.Used(), 45); // 17+21+7
     }
 
     TEST_RESULTS();

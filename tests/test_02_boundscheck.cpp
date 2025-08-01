@@ -55,19 +55,9 @@ typedef struct List {
     //    null: -inf ... -4,                      3 ... inf
     char* operator[](int i)
     {
-        // Null/empty string should not return char
-        // if (len == 0), below condition is always true
-
         // Bounds check with valid return (just null) - better for testing
+        // Returns null if (len == 0)
         if (!((i >= -1 * len) && (i < len))) { return 0; };
-
-        // // Fatal on out of bounds access
-        // AssertMsg((i >= -1 * len) && (i < len), // Bounds check
-        //           "\ni = %d\n"                  //
-        //           "  |           len = %d\n"    //
-        //           "  | i >= -1 * len = %d\n"    // Helpful output
-        //           "  |       i < len = %d\n",   //
-        //           i, len, i >= -1 * len, i < len);
 
         if (i < 0) { i = len + i; } // Negative
         // debug("[L]  len, i >>  %d, %d", len, i);

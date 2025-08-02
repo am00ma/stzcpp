@@ -18,3 +18,4 @@ stz_add_test(test_08_str)
 stz_add_test(test_09_dict)
 
 stz_add_test(test_util_01_file)
+stz_add_test(test_util_02_path)

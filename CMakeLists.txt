@@ -31,6 +31,7 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         src/stz.cpp
         src/util/file.cpp
+        src/util/path.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -59,9 +60,9 @@ set(public_headers
     include/dict.h
     # Utilities
     include/util/file.h
+    include/util/path.h
     # include/util/cmd.h
     # include/util/gui.h
-    # include/util/path.h
     # include/util/db.h
 )
 

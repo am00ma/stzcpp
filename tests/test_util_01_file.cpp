@@ -1,4 +1,3 @@
-#include "arena.h"
 #include "doctest.h"
 #include "util/file.h"
 
